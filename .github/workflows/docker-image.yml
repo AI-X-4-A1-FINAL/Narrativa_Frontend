@@ -119,7 +119,7 @@ jobs:
           docker stop react-app 2>$null || Write-Output "Container not running or already stopped"
           docker rm react-app 2>$null || Write-Output "Container not found or already removed"
           docker rmi ${{ secrets.DOCKER_USERNAME }}/react-app:latest 2>$null || Write-Output "Image not found or already removed"
-        
+
       - name: Pull Docker image from Docker Hub and run container
         shell: pwsh
         run: |
