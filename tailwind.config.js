@@ -5,8 +5,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        'custom-yellow': '#FFE617',
+      },
       fontFamily: {
-        custom: ['Calistoga', 'sans-serif'],
+        'custom-font': ['Calistoga-Regular', 'sans-serif'],
       },
     },
   },
