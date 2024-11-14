@@ -27,20 +27,21 @@ jobs:
           docker tag narrativa_front:release ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
           docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
 
+      - name: Set up SSH key
+        run: |
+            echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+            chmod 400 ec2_key.pem
+        
       - name: Deploy Docker container to EC2
         env:
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}
+            HOST: ${{ secrets.EC2_HOST }}
+            USER: ${{ secrets.EC2_USER }}
         run: |
-          # SSH 키 파일을 생성하고 권한 설정
-          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
-          chmod 400 ec2_key.pem
-
-          # SSH 명령어 실행
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
-            docker stop narrativa_front || true
-            docker rm narrativa_front || true
-            docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
-          EOF
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+              docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+              docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+              docker stop narrativa_front || true
+              docker rm narrativa_front || true
+              docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+            EOF
+        
