@@ -10,7 +10,7 @@ const Header: React.FC = () => {
     return (
         <header className="flex justify-around items-center w-full max-w-lg mx-auto p-4 text-black fixed top-0 h-16 bg-white" font-custom>
             <Link to="/home">
-                <span className="text-4xl font-bold mr-auto">Narrativa</span>
+                <span className="text-4xl font-custom-font font-bold mr-auto">Narrativa</span>
             </Link>
             <Link to="/profile">
                 <img src="/images/myinfobutton.png" alt="Bookmarks" className="w-8 h-8" />
