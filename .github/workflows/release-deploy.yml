@@ -1,0 +1,42 @@
+# release-deploy.yml
+name: Deploy to AWS EC2 for Release
+
+on:
+  push:
+    branches:
+      - release
+  workflow_dispatch:
+
+jobs:
+  deploy_to_ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image to Docker Hub
+        run: |
+          docker build -t narrativa_front:release .
+          docker tag narrativa_front:release ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+
+      - name: Deploy Docker container to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          KEY: ${{ secrets.EC2_SSH_KEY }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i "$KEY" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+            docker stop narrativa_front || true
+            docker rm narrativa_front || true
+            docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+          EOF
