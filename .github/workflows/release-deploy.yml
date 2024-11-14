@@ -4,7 +4,8 @@ name: Deploy to AWS EC2 for Release
 on:
   push:
     branches:
-      - release
+      # - release
+      - dev
   workflow_dispatch:
 
 jobs:
