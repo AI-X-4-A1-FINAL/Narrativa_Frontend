@@ -98,9 +98,9 @@ jobs:
           git pull origin dev  # 최신 dev 브랜치 가져오기
           
           # Docker 빌드
-          docker build -t react-app .
-          docker tag react-app:latest ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/react-app:latest
+          docker build -t narrativa_front .
+          docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
   deploy_local:
     runs-on: self-hosted
@@ -114,16 +114,46 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Remove existing Docker container and image
-        shell: cmd
+        shell: powershell
         run: |
-          docker stop react-app 2>NUL || echo "Container not running or already stopped"
-          docker rm react-app 2>NUL || echo "Container not found or already removed"
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/react-app:latest 2>NUL || echo "Image not found or already removed"
+          try {
+            docker stop narrativa_front
+            Write-Output "Successfully stopped container narrativa_front"
+          } catch {
+            Write-Output "Error stopping container: $_"
+          }
+  
+          try {
+            docker rm narrativa_front
+            Write-Output "Successfully removed container narrativa_front"
+          } catch {
+            Write-Output "Error removing container: $_"
+          }
+  
+          try {
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully removed image narrativa_front:latest"
+          } catch {
+            Write-Output "Error removing image: $_"
+          }
+  
+          exit 0  # 오류 발생 여부에 관계없이 성공으로 간주
 
       - name: Pull Docker image from Docker Hub and run container
-        shell: cmd
+        shell: powershell
         run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker run -d -p 3010:300 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-
-
+          try {
+            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully pulled the latest image from Docker Hub"
+          } catch {
+            Write-Output "Error pulling image from Docker Hub: $_"
+            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
+          }
+  
+          try {
+            docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully started container narrativa_front"
+          } catch {
+            Write-Output "Error starting container: $_"
+            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
+          }
