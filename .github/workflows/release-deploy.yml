@@ -1,4 +1,3 @@
-# release-deploy.yml
 name: Deploy to AWS EC2 for Release
 
 on:
@@ -31,10 +30,14 @@ jobs:
       - name: Deploy Docker container to EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
-          KEY: ${{ secrets.EC2_SSH_KEY }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh -i "$KEY" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+          # SSH 키 파일을 생성하고 권한 설정
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 400 ec2_key.pem
+
+          # SSH 명령어 실행
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
             docker stop narrativa_front || true
