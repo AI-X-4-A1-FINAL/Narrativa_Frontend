@@ -120,15 +120,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Remove existing Docker container and image
-        shell: pwsh
+        shell: cmd
         run: |
-          docker stop react-app 2>$null || Write-Output "Container not running or already stopped"
-          docker rm react-app 2>$null || Write-Output "Container not found or already removed"
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/react-app:latest 2>$null || Write-Output "Image not found or already removed"
+          docker stop react-app 2>nul || echo "Container not running or already stopped"
+          docker rm react-app 2>nul || echo "Container not found or already removed"
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/react-app:latest 2>nul || echo "Image not found or already removed"
         
-
       - name: Pull Docker image from Docker Hub and run container
-        shell: bash
+        shell: cmd
         run: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
           docker run -d -p 3010:3010 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-app:latest
