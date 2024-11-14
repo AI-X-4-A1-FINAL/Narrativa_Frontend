@@ -130,4 +130,4 @@ jobs:
         shell: pwsh
         run: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker run -d -p 3010:80 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-app:latest
+          docker run -d -p 3010:3010 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-app:latest
