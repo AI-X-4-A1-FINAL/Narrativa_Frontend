@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
     return (
         <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
             <div className="relative">
-                <div className="w-48 h-48 border-1 border-gray-200 rounded-full overflow-hidden mt-10">
+                <div className="w-48 h-48 border-1 border-gray-200 rounded-full overflow-hidden">
                     <img src="/images/cat.jpg" alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 {isEditMode && (
