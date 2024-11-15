@@ -9,15 +9,14 @@ import Settings from './user_pages/Settings';
 import DeleteAccount from './user_pages/DeleteAccount';
 import Footer from './components/Footer';
 import Header from './components/Header';
-
-
+import GameIntro from './components/GameIntro';
 
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex flex-col items-center justify-center h-screen max-w-lg mx-auto border shadow-lg">
+      <div className="flex flex-col min-h-screen items-center justify-between bg-black">
         <Header />
-        <main className="pt-16">
+        <main className="flex-grow pt-32 px-4 w-full max-w-xl mx-auto bg-white">
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
@@ -26,9 +25,10 @@ const App: React.FC = () => {
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/delete-account" element={<DeleteAccount />} />
+            <Route path="/game-intro" element={<GameIntro />} />
           </Routes>
         </main>
-        <Footer />
+        
       </div>  
     </Router>
   );

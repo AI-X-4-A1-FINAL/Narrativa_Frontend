@@ -1,46 +1,115 @@
-# Getting Started with Create React App
+![NARRATIVA-TITLE](https://github.com/user-attachments/assets/97538156-f202-4b48-8543-9bbf835fda0e)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Narrativa Frontend
 
-## Available Scripts
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.9.5-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![ESLint](https://img.shields.io/badge/ESLint-8.57.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-3.3.3-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)
 
-In the project directory, you can run:
+## 🗝️ 프로젝트 소개
 
-### `npm start`
+`Narrativa_Frontend`는 AI 기반 스토리 생성 플랫폼인 Narrativa 프로젝트의 프론트엔드 모듈입니다.<br />
+이 프로젝트는 사용자 입력을 기반으로 스토리를 생성하고 직관적인 UX/UI를 제공합니다.<br />
+`React`, `Typescript`, `TailwindCSS` 등을 활용하여 유저친화적인 인터페이스와 효율적인 웹 애플리케이션을 개발합니다. <br />
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 🗝️ 설치 가이드
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Narrativa_Frontend 프로젝트를 로컬 환경에서 클론하고, 빌드 및 실행하는 방법을 설명합니다.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+### 1. 프로젝트 클론
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. 빌드 및 설치
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. 환경 설정
 
-### `npm run eject`
+### 4. 실행
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 🗝️ 브랜치 관리 규칙
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 브랜치 구조
+1. **메인 브랜치 (main)**
+    - 프로덕션 배포용 안정 브랜치
+    - PR을 통해서만 병합 가능
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. **개발 브랜치 (dev)**
+    - 개발 중인 기능 통합 브랜치
+    - 배포 전 최종 테스트 진행
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+3. **기능 브랜치 (feat/)**
+    - 새로운 기능 개발용
+    - 명명규칙: `feat/{기능명}`
+    - 예: `feat/social-login`
 
-## Learn More
+4. **긴급 수정 브랜치 (hotfix/)**
+    - 프로덕션 긴급 버그 수정용
+    - 명명규칙: `hotfix/{이슈번호}`
+    - 예: `hotfix/critical-bug`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 브랜치 사용 예시
+```bash
+# 기능 브랜치 생성
+git checkout -b feat/social-login
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# 긴급 수정 브랜치 생성
+git checkout -b hotfix/critical-bug
+```
+
+## 🗝️ 디렉토리 구조
+
+```
+Narrativa_Backend/
+├── .github/
+│   └── workflows/          # CI/CD 설정
+├── config/                 # 서브모듈 설정
+├── src/
+│   └── main/
+│       └── java/com/nova/narrativa/
+│           ├── common/     # 공통 모듈
+│           └── domain/     # 도메인별 모듈
+│               ├── admin/
+│               ├── game/
+│               ├── llm/
+│               ├── notice/
+│               ├── tti/
+│               ├── ttm/
+│               └── user/
+└── resources/
+```
+
+## 🗝️ 팀 정보
+### **Team Member**
+<a href="https://github.com/shaneee123" target="_blank">
+  <img src="https://github.com/user-attachments/assets/6ec7ec21-a9b1-4ebe-932f-c78064dcabe7" 
+       alt="se" 
+       width="200" 
+       height="auto" 
+       style="max-width: 100%; height: auto;">
+</a>
+<a href="https://github.com/Yesssung" target="_blank">
+  <img src="https://github.com/user-attachments/assets/2ce88918-3e99-4dba-97c1-ef54d0cd4d48" 
+       alt="ys" 
+       width="200" 
+       height="auto" 
+       style="max-width: 100%; height: auto;">
+</a>
+<a href="https://github.com/Bigdata92" target="_blank">
+  <img src="https://github.com/user-attachments/assets/6a1bbf66-b4d6-40b2-afc9-113e37d78884" 
+       alt="js" 
+       width="200" 
+       height="auto" 
+       style="max-width: 100%; height: auto;">
+</a>
+
+## 🗝️ 문의 및 기여
+
+프로젝트에 대한 문의사항이나 개선 제안은 이슈 탭에 등록해주세요.<br />
+기여를 원하시는 분은 Fork & Pull Request를 통해 참여해주시면 감사하겠습니다.
+
+
+<br /><br />
+![footer](https://github.com/user-attachments/assets/c30abbd9-8e89-4a4e-8823-33fe0cf843c9)
