@@ -20,7 +20,6 @@ const Profile: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
-
             <div className="relative">
                 <div className="w-48 h-48 border-1 border-gray-200 rounded-full overflow-hidden mt-10">
                     <img src="/images/cat.jpg" alt="Profile" className="w-full h-full object-cover" />
@@ -35,9 +34,6 @@ const Profile: React.FC = () => {
                                 alt="Edit Nickname"
                                 className="w-8 h-8 mr-4"
                             />
-
-                        📷
-
                     </button>
                 )}
             </div>
@@ -58,7 +54,7 @@ const Profile: React.FC = () => {
                     ) : (
                         nickname
                         )}
-                  
+                    
                     {isEditMode && !isEditingNickname && (
                         <button
                             onClick={() => setIsEditingNickname(true)}
@@ -69,7 +65,6 @@ const Profile: React.FC = () => {
                                 alt="Edit Nickname"
                                 className="w-6 h-6"
                             />
-                            🖋️
                         </button>
                     )}
                 </h1>
@@ -80,7 +75,6 @@ const Profile: React.FC = () => {
                         value={intro}
                         onChange={(e) => setIntro(e.target.value)}
                         onBlur={() => setIsEditingIntro(false)}
-
                         className="text-sm text-center w-auto px-1 border border-gray-300 rounded-md"
                         style={{
                         width: `${intro.length + 3}ch`, // 닉네임 길이에 맞는 너비 설정
@@ -88,7 +82,6 @@ const Profile: React.FC = () => {
                     />
                 ) : (
                     <p className="text-sm mb-4 relative" title="Message">
-
                         {intro}
                         {isEditMode && (
                             <button
@@ -100,51 +93,33 @@ const Profile: React.FC = () => {
                                 alt="Edit Nickname"
                                 className="w-6 h-6"
                             />
-                                🖋️
                             </button>
                         )}
                     </p>
                 )}
-
-            </div>
-
-            <div className="flex space-x-4">
-                <button
-                    onClick={toggleEditMode}
-                    className="px-5 py-1 text-black border border-gray-400 rounded hover:bg-gray-100"
-                >
-                    {isEditMode ? "완료" : "수정"}
-                </button>
-            </div>
-
-            <div className="text-sm text-gray-500 space-x-2 pt-1">
-        <div className="flex flex-col items-center w-full p-16 max-w-lg mx-auto text-black">
-            <div className="w-48 h-48 border-1 border-gray-200 rounded-full overflow-hidden">
-            <img src="/images/cat.jpg" alt="Profile" className="w-full h-full object-cover" />
-
             </div>
 
             <div >
-            <img src="/images/line.png" alt="Profile" className="w-full h-full object-cover mb-12 mt-10" />
+            <img src="/images/line.png" alt="Profile" className="w-80 h-full object-cover mb-12 mt-10" />
             </div>
 
 
             <div className="flex space-x-4">
                 <button
                     onClick={toggleEditMode}
-                    className="px-10 py-2 text-black border border-grey rounded mb-4 hover:bg-gray-100"
+                    className="px-10 py-2 text-black border border-gray-300 rounded mb-4 hover:bg-gray-100"
                 >
-                    {isEditMode ? "완료" : "회원 수정"}
+                    {isEditMode ? "수정 완료" : "회원 수정"}
                 </button>
             </div>
             <div className="flex space-x-4">
                 
-                <button className="px-10 py-2 text-black border border-grey rounded mb-4">설정 관리</button>
+                <button className="px-10 py-2 text-black border border-gray-300 rounded mb-4 hover:bg-gray-100">설정 관리</button>
             </div>
 
             <div className="flex space-x-4">
                 
-                <button className="px-10 py-2 text-black border border-grey rounded mb-20">고객 센터</button>
+                <button className="px-10 py-2 text-black border border-gray-300 rounded mb-20 hover:bg-gray-100">고객 센터</button>
             </div>
 
 
