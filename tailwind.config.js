@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       colors: {
         'custom-yellow': '#FFE617',
+        'custom-purple': '#2a3abf'
       },
       fontFamily: {
         'custom-font': ['Calistoga-Regular', 'sans-serif'],
