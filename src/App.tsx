@@ -9,6 +9,7 @@ import Settings from './user_pages/Settings';
 import DeleteAccount from './user_pages/DeleteAccount';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import GameIntro from './components/GameIntro';
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/delete-account" element={<DeleteAccount />} />
+            <Route path="/game-intro" element={<GameIntro />} />
           </Routes>
         </main>
         

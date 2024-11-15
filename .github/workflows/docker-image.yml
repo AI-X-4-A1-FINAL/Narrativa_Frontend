@@ -2,7 +2,7 @@ name: Auto Merge, Build, and Deploy to Docker Hub
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 매일 자정 00:00 (한국 시간, UTC+9 기준)
+    - cron: '05 3 * * *' # 매일 자정 00:00 (한국 시간, UTC+9 기준)
   workflow_dispatch: # 수동 실행 가능
 
 permissions:
@@ -27,12 +27,6 @@ jobs:
         run: |
           git config --global user.email "$GIT_USER_EMAIL"
           git config --global user.name "$GIT_USER_NAME"
-
-      # GitHub CLI 설치
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
 
       # feat/* 브랜치에서 dev 브랜치에 새 커밋이 있는지 확인
       - name: Check for new commits in feat/* branches
@@ -104,9 +98,9 @@ jobs:
           git pull origin dev  # 최신 dev 브랜치 가져오기
           
           # Docker 빌드
-          docker build -t react-app .
-          docker tag react-app:latest ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/react-app:latest
+          docker build -t narrativa_front .
+          docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
   deploy_local:
     runs-on: self-hosted
@@ -119,15 +113,54 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set execution policy to allow scripts to run
+        shell: powershell
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope Process -Force
+          Write-Output "Execution policy set to RemoteSigned"
+
       - name: Remove existing Docker container and image
-        shell: pwsh
+        shell: powershell
         run: |
-          docker stop react-app 2>$null || Write-Output "Container not running or already stopped"
-          docker rm react-app 2>$null || Write-Output "Container not found or already removed"
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/react-app:latest 2>$null || Write-Output "Image not found or already removed"
-        
+          try {
+            docker stop narrativa_front
+            Write-Output "Successfully stopped container narrativa_front"
+          } catch {
+            Write-Output "Error stopping container: $_"
+          }
+
+          try {
+            docker rm narrativa_front
+            Write-Output "Successfully removed container narrativa_front"
+          } catch {
+            Write-Output "Error removing container: $_"
+          }
+
+          try {
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully removed image narrativa_front:latest"
+          } catch {
+            Write-Output "Error removing image: $_"
+          }
+
+          exit 0  # 오류 발생 여부에 관계없이 성공으로 간주
+
       - name: Pull Docker image from Docker Hub and run container
-        shell: pwsh
+        shell: powershell
         run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker run -d -p 3010:3010 --name react-app ${{ secrets.DOCKER_USERNAME }}/react-app:latest
+          try {
+            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully pulled the latest image from Docker Hub"
+          } catch {
+            Write-Output "Error pulling image from Docker Hub: $_"
+            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
+          }
+
+          try {
+            docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            Write-Output "Successfully started container narrativa_front"
+          } catch {
+            Write-Output "Error starting container: $_"
+            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
+          }
+
