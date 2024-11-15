@@ -1,12 +1,12 @@
-name: Deploy to AWS EC2 for Release
+name: Deploy to AWS EC2 for Main
 
 on:
   push:
     branches:
-      - dev  # release 브랜치에 푸시가 발생하면 실행
+      - main  # main 브랜치에 푸시가 발생하면 실행
   pull_request:
     branches:
-      - dev  # release 브랜치에 PR이 생성되거나 업데이트될 때 실행
+      - main  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
   workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
 jobs:
   deploy_to_ec2:
@@ -24,9 +24,9 @@ jobs:
 
       - name: Build and push Docker image to Docker Hub
         run: |
-          docker build -t narrativa_front:release .
-          docker tag narrativa_front:release ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
-          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+          docker build -t narrativa_front:latest .
+          docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
       - name: Set up SSH key
         run: |
@@ -40,8 +40,8 @@ jobs:
         run: |
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
               docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-              docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+              docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
               docker stop narrativa_front || true
               docker rm narrativa_front || true
-              docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:release
+              docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
             EOF
