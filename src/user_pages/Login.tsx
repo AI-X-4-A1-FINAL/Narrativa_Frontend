@@ -1,49 +1,49 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { getKakaoLoginLink } from '../api/kakaoApi';
 import { getGoogleLoginLink } from '../api/googleApi';
 import { getGithubLoginLink } from '../api/githubApi';
 
 const Login: React.FC = () => {
-  const kakaoLoginLink = getKakaoLoginLink();
-  const googleLoginLink = getGoogleLoginLink();
-  const githubLoginLink = getGithubLoginLink();
 
-  // 버튼 클릭 시 kakaoLoginLink로 리디렉션
-  const handleKakaoLoginClick = () => {
-    window.location.href = kakaoLoginLink; // 카카오 로그인 페이지로 리디렉션
-  };
+  useEffect(() => {
+    // 스크롤 비활성화
+    document.body.style.overflow = 'hidden';
 
-  const handleGoogleLoginClick = () => {
-    window.location.href = googleLoginLink; // 카카오 로그인 페이지로 리디렉션
-  };
+    // 컴포넌트 언마운트 시 원래 상태로 복원
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
-  const handleGithuboginClick = () => {
-    window.location.href = githubLoginLink; // 카카오 로그인 페이지로 리디렉션
-  };
+  const photos = [
+    { src: '/images/kakaotalk.png', alt: 'Kakao Login', onClick: getKakaoLoginLink },
+    { src: '/images/google.png', alt: 'Google Login', onClick: getGoogleLoginLink },
+    { src: '/images/git.png', alt: 'GitHub Login', onClick: getGithubLoginLink },
+  ];
 
   return (
-        <div className="w-full max-w-xs space-y-4">
-            <button className="w-60 py-3 text-yellow-800 bg-custom-yellow rounded-md flex justify-center items-center hover:bg-yellow-400"
-            onClick={handleKakaoLoginClick}
-            >
-              <img src="/images/kakao.png" alt="Kakao Icon" className="w-5 h-5 mr-2" />
-              <span>Login with Kakao</span>
-            </button>
-            <button className="w-60 py-3 text-black bg-white border-black border rounded-md flex justify-center items-center hover:bg-gray-200"
-            onClick={handleGoogleLoginClick}
-            >
-              <img src="/images/google_icon.png" alt="Google Icon" className="w-5 h-5 mr-2" />
-              <span>Login with Google</span>
-            </button>
-            <button className="w-full py-3 text-white bg-black rounded-md flex justify-center items-center hover:bg-gray-700"
-            onClick={handleGithuboginClick}
-            >
-              <img src="/images/github-mark-white.png" alt="GitHub Icon" className="w-5 h-5 mr-2" />
-              <span>Login with GitHub</span>
-            </button>
-        </div>
-
-);
+    <div className="flex flex-col items-center">
+      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12 mt-32 " />
+      
+        {photos.map((photo, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              const link = photo.onClick();
+              window.location.href = link;
+            }}
+            className="mb-3 focus:outline-none flex justify-center w-full"
+          >
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              className="w-72 h-auto object-contain rounded-md shadow-lg mx-auto"
+            />
+          </button>
+        ))}
+      
+    </div>
+  );
 };
 
 export default Login;

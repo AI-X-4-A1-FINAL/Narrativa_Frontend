@@ -6,7 +6,6 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null); // Reference to the menu container
 
-  // Hook must be called before any conditional returns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -98,13 +97,14 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* 공지사항 박스 */}
-      <div className="mt-1 bg-gray-100 text-center p-2 rounded-lg">
-        <p className="text-gray-700">
-          {" "}
-          📣 공지사항 : 2024년 12월 20일 앱 출시 📣{" "}
-        </p>
-      </div>
+      {location.pathname === "/home" && (
+        <div className="mt-1 bg-gray-100 text-center p-2 rounded-lg">
+          <p className="text-gray-700">
+            {" "}
+            📣 공지사항 : 2024년 12월 20일 앱 출시 📣{" "}
+          </p>
+        </div>
+      )}
     </header>
   );
 };
