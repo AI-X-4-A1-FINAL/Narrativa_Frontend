@@ -23,7 +23,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12 mt-16 " />
+      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12 mt-24" />
       
         {photos.map((photo, index) => (
           <button
