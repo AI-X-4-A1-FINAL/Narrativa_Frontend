@@ -8,16 +8,16 @@ const Footer: React.FC = () => {
         return null;
     }
     return (
-        <footer className="flex justify-around items-center w-full max-w-lg mx-auto p-4 bg-black text-white fixed bottom-0 h-16">
+        <footer className="flex justify-around items-center w-full max-w-lg mx-auto p-4 bg-white text-black fixed bottom-0 h-20">
             <Link to="/bookmarks">
-                <img src="/images/Bookmark.png" alt="Bookmarks" className="w-8 h-8" />
+                <img src="/images/Bookmark.png" alt="Bookmarks" className="w-10 h-10" />
             </Link>
 
             <Link to="/home">
-                <img src="/images/Home.png" alt="Home" className="w-8 h-8" />
+                <img src="/images/homeButton.png" alt="Home" className="w-20 h-20" />
             </Link>
             <Link to="/settings">
-                <img src="/images/Setting.png" alt="Settings" className="w-8 h-8" />
+                <img src="/images/Setting.png" alt="Settings" className="w-10 h-10" />
             </Link>
         </footer>
     );
