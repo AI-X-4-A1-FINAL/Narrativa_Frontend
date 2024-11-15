@@ -96,6 +96,13 @@ Narrativa_Backend/
        height="auto" 
        style="max-width: 100%; height: auto;">
 </a>
+<a href="https://github.com/Bigdata92" target="_blank">
+  <img src="https://github.com/user-attachments/assets/6a1bbf66-b4d6-40b2-afc9-113e37d78884" 
+       alt="js" 
+       width="200" 
+       height="auto" 
+       style="max-width: 100%; height: auto;">
+</a>
 
 ## 🗝️ 문의 및 기여
 
