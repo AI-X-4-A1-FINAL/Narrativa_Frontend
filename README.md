@@ -81,16 +81,6 @@ Narrativa_Backend/
 ```
 
 ## 🗝️ 팀 정보
-
-### **Part Leader**
-  <br />
-  <img src="https://github.com/user-attachments/assets/6e4a6035-db22-414a-b051-b59fd646d9cd" 
-       alt="hs" 
-       width="200" 
-       height="auto" 
-       style="max-width: 100%; height: auto;">
-  <br />
-
 ### **Team Member**
 <a href="https://github.com/shaneee123" target="_blank">
   <img src="https://github.com/user-attachments/assets/6ec7ec21-a9b1-4ebe-932f-c78064dcabe7" 
