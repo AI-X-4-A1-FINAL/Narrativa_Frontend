@@ -30,10 +30,51 @@ const Home: React.FC = () => {
                             className="border rounded-lg overflow-hidden shadow-lg cursor-pointer"
                             onClick={() => handleClick('추리', ['추리', '미스테리'], '/images/choori.png')}
                         >
+
+        <div className="w-full p-8 text-black min-h-screen overflow-y-auto">
+            <div className="w-full space-y-6">
+                {/* Genre */}
+               
+                    
+                    {/* 첫 번째 이미지 */}
+                    <div className="w-full max-w-lg max-h-md mx-auto">
+                        <div className="text-left font-semibold opacity-90 mb-2">
+                            #추리 #소설
+                        </div>
+                    <div className="rounded-2xl overflow-hidden shadow-lg">
+                        <img 
+                            src="/images/choori.jpeg" 
+                            alt="Romance Genre Cover" 
+                            className="w-full h-[600px] rounded-2xl object-cover"
+                         />
+                    </div>
+                    </div>
+
+                    
+                    {/* 두 번째 이미지 */}
+                    <div className="w-full">
+                        <div className="text-left font-semibold opacity-90">
+                            # 로맨스 # 판타지
+                        </div>
+                        <div className=" rounded-lg overflow-hidden shadow-lg">
                             <img 
-                                src="/images/choori.png" 
-                                alt="Mystery" 
-                                className="w-full h-64 object-cover"
+                                src="/images/love.png" 
+                                alt="Romance Genre Cover" 
+                                className="w-full h-[600px] "
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* 세 번째 이미지 */}
+                    <div className="w-full">
+                        <div className="text-left font-semibold opacity-90">
+                            # 추리 # 미스테리
+                        </div>
+                        <div className=" rounded-lg overflow-hidden shadow-lg">
+                            <img 
+                                src="/images/raise.png" 
+                                alt="Mystery Genre Cover" 
+                                className="w-full h-[600px] "
                             />
                         </div>
                     </div>
@@ -42,6 +83,17 @@ const Home: React.FC = () => {
                     <div className="w-full max-w-md">
                         <div className="text-left font-semibold opacity-90">
                                 #연애 #로맨스 #판타지
+                    {/* 네 번째 이미지 */}
+                    <div className="w-full">
+                        <div className="text-left font-semibold opacity-90">
+                            # 로맨스 # 판타지
+                        </div>
+                        <div className=" rounded-lg overflow-hidden shadow-lg">
+                            <img 
+                                src="/images/detective.jpg" 
+                                alt="Romance Genre Cover" 
+                                className="w-full h-[600px]"
+                            />
                         </div>
                         <div
                                 className="border rounded-lg overflow-hidden shadow-lg cursor-pointer"
@@ -55,7 +107,7 @@ const Home: React.FC = () => {
                             </div>
                         
                     </div>
-                </div>
+                
             </div>
         </div>
     );
