@@ -16,7 +16,7 @@ const App: React.FC = () => {
     <Router>
       <div className="flex flex-col min-h-screen items-center justify-between bg-black">
         <Header />
-        <main className="flex-grow pt-40 px-4 w-full max-w-xl mx-auto bg-white">
+        <main className="flex-grow pt-32 px-4 w-full max-w-xl mx-auto bg-white">
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<Login />} />
