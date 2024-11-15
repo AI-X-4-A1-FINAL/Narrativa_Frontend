@@ -1,12 +1,12 @@
-import React from "react"
-import { useNavigate } from "react-router-dom"
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Main: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handlePageClick = () => {
-    navigate("/login")
-  }
+    navigate("/login");
+  };
 
   return (
     <div
@@ -15,7 +15,7 @@ const Main: React.FC = () => {
     >
       <div className="text-4xl">Narrativa</div>
     </div>
-  )
-}
+  );
+};
 
-export default Main
+export default Main;
