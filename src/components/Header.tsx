@@ -37,6 +37,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex flex-col items-center w-full max-w-lg mx-auto p-4 text-black fixed top-0 bg-white z-10">
+      {/* 상단 이미지 컨테이너 */}
       <div className="flex justify-between items-center w-full">
         <Link to="/home">
           <img
@@ -46,6 +47,7 @@ const Header: React.FC = () => {
           />
         </Link>
 
+        {/* 프로필 아이콘 및 드롭다운 메뉴 */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={toggleMenu}
@@ -97,6 +99,7 @@ const Header: React.FC = () => {
         </div>
       </div>
 
+      {/* 공지사항: Home 페이지에서만 렌더링 */}
       {location.pathname === "/home" && (
         <div className="mt-1 bg-gray-100 text-center p-2 rounded-lg">
           <p className="text-gray-700">
