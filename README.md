@@ -3,9 +3,10 @@
 # Narrativa Frontend
 
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
-![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue?logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.9.5-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![ESLint](https://img.shields.io/badge/ESLint-8.57.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-3.3.3-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)
 
 ## 🗝️ 프로젝트 소개
 
