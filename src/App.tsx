@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const location = useLocation();
 
   // Header를 숨길 경로 리스트
-  const noHeaderRoutes = ["/login", "/delete-account"];
+  const noHeaderRoutes = ["/login", "/delete-account", "/"];
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">

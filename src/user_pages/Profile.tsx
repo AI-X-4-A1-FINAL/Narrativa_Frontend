@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Avatar from "boring-avatars";
 
 // 닉네임 중복확인, 빈공간일떄 수정 안됨 로직 추가해야뎀 11/14
 const Profile: React.FC = () => {
@@ -18,14 +19,19 @@ const Profile: React.FC = () => {
     setIsEditingIntro(false); // 초기화
   };
 
+  const randomName = React.useMemo(
+    () => Math.random().toString(36).substring(2, 10),
+    []
+  );
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
       <div className="relative">
         <div className="w-48 h-48 border-1 border-gray-200 rounded-full overflow-hidden">
-          <img
-            src="/images/cat.jpg"
-            alt="Profile"
-            className="w-full h-full object-cover"
+          <Avatar
+            size={190}
+            name={randomName}
+            variant="beam"
+            colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]} // 색상 팔레트
           />
         </div>
         {isEditMode && (
