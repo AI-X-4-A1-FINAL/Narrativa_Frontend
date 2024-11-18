@@ -31,7 +31,7 @@ const Home: React.FC = () => {
                         <img 
                             src="/images/choori.jpeg" 
                             alt="Romance Genre Cover" 
-                            className="w-full h-[600px] rounded-2xl object-cover"
+                            className="w-full h-[500px] rounded-2xl object-cover"
                             onClick={() => handleClick('추리', ['추리', '미스테리'], '/images/choori.jpeg')}
                          />
                     </div>
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
                             <img 
                                 src="/images/love.png" 
                                 alt="Romance Genre Cover" 
-                                className="w-full h-[600px] "
+                                className="w-full h-[500px] "
                                 onClick={() => handleClick('연애', ['연애', '시뮬레이션', '로맨스'], '/images/love.png')}
                             />
                         </div>
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
                             <img 
                                 src="/images/raise.png" 
                                 alt="Mystery Genre Cover" 
-                                className="w-full h-[600px] "
+                                className="w-full h-[500px] "
                                 onClick={() => handleClick('연애', ['연애', '시뮬레이션', '로맨스'], '/images/love.png')}
                             />
                         </div>
@@ -77,7 +77,7 @@ const Home: React.FC = () => {
                             <img 
                                 src="/images/detective.jpg" 
                                 alt="Romance Genre Cover" 
-                                className="w-full h-[600px]"
+                                className="w-full h-[500px]"
                                 onClick={() => handleClick('연애', ['연애', '시뮬레이션', '로맨스'], '/images/love.png')}
                             />
                         </div>

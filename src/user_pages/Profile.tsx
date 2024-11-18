@@ -111,7 +111,7 @@ const Profile: React.FC = () => {
             <div className="flex space-x-4">
                 <button
                     onClick={toggleEditMode}
-                    className="px-10 py-2 text-black border border-gray-300 rounded mt-4 hover:bg-gray-100"
+                    className="px-10 py-2 text-gray-200 bg-custom-violet border border-gray-300 rounded mt-4"
                 >
                     {isEditMode ? "완료" : "수정"}
                 </button>
@@ -126,7 +126,7 @@ const Profile: React.FC = () => {
     <span className="mr-48">다크모드</span>
     <div
       className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
-        isdarkModeOn ? 'bg-custom-purple' : 'bg-gray-300'
+        isdarkModeOn ? 'bg-custom-violet' : 'bg-gray-300'
       }`}
       onClick={() => handleToggle(setIsdarkModeOn)}
     >
@@ -142,7 +142,7 @@ const Profile: React.FC = () => {
     <span className="mr-48">배경음악</span>
     <div
       className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
-        isBackgroundMusicOn ? 'bg-custom-purple' : 'bg-gray-300'
+        isBackgroundMusicOn ? 'bg-custom-violet' : 'bg-gray-300'
       }`}
       onClick={() => handleToggle(setIsBackgroundMusicOn)}
     >
@@ -158,7 +158,7 @@ const Profile: React.FC = () => {
     <span className="mr-48">공지사항</span>
     <div
       className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
-        isNotificationsOn ? 'bg-custom-purple' : 'bg-gray-300'
+        isNotificationsOn ? 'bg-custom-violet' : 'bg-gray-300'
       }`}
       onClick={() => handleToggle(setIsNotificationsOn)}
     >
