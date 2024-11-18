@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
+import axios from 'axios';
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
+  // false = input이 클릭되어 있지 않을 때, true = input이 클릭되어 있을 때
+	const [isInputClicked, setIsInputClicked] = useState(false);
 
   const [nickname, setNickname] = useState(
     Math.random().toString(36).substring(2, 10) // 초기 랜덤 닉네임 생성
@@ -12,6 +15,35 @@ const SignUp: React.FC = () => {
   const [email, setEmail] = useState("abc123@narrativa.com"); // 초기 이메일
   const [message, setMessage] = useState<string | null>(null); // 이메일 유효성 메시지
   const [isValid, setIsValid] = useState<boolean | null>(null); // 이메일 유효성 상태
+  // const [username, setUsername] = useState<string | null>(null);
+  const [profileUrl, setProfileUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // URL에서 쿼리 파라미터 추출
+    // eslint-disable-next-line no-restricted-globals
+    const params = new URLSearchParams(location.search);
+    const username = params.get('username');
+    const profileUrl = params.get('profile_url');
+
+    // 추출한 값 저장
+    if (username && profileUrl) {
+      setNickname(username);
+      setProfileUrl(profileUrl);
+      
+      // 서버에 POST 요청 보내기
+      axios.post('http://localhost:8080/api/social-login', {
+        username: username,
+        profile_url: profileUrl
+      })
+      .then((response) => {
+        console.log('Server response:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error sending data to server:', error);
+      });
+    }
+    // eslint-disable-next-line no-restricted-globals
+  }, [location]);
 
   // 닉네임 변경 처리
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,14 +92,21 @@ const SignUp: React.FC = () => {
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
       {/* 아바타 및 닉네임 */}
       <div className="relative flex flex-col items-center">
-        <div className="w-48 h-48 rounded-full overflow-hidden mb-4 flex items-center justify-center">
+        {/* profileUrl이 존재하면 이미지, 없으면 기본 Avatar 컴포넌트를 사용 */}
+        {profileUrl ? (
+          <img
+            src={profileUrl}
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
+        ) : (
           <Avatar
             size={190}
             name={nickname}
             variant="beam"
             colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
           />
-        </div>
+        )}
         {isEditing ? (
           <input
             type="text"
@@ -118,6 +157,13 @@ const SignUp: React.FC = () => {
           확인
         </button>
       </div>
+      
+      {/* socialLoginResult 정보 표시 */}
+      {/*<div>
+        <h1>Sign Up</h1>
+        <p><strong>Username:</strong> {username}</p>
+        <p><strong>Profile Image:</strong> {profileUrl} </p>
+      </div>*/}
     </div>
   );
 };
