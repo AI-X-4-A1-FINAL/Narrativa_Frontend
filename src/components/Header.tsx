@@ -76,15 +76,7 @@ const Header: React.FC = () => {
                                         History
                                     </Link>
                                 </li>
-                                <li>
-                                    <Link 
-                                        to="/settings" 
-                                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
-                                        onClick={handleMenuItemClick} // 클릭 시 드롭다운 닫기
-                                    >
-                                        Settings
-                                    </Link>
-                                </li>
+                                
                             </ul>
                         </div>
                     )}

@@ -12,6 +12,15 @@ const Profile: React.FC = () => {
     const [nickname, setNickname] = useState("나비");
     const [intro, setIntro] = useState("hi good to see you");
 
+
+    const [isdarkModeOn, setIsdarkModeOn] = useState(false);
+    const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
+    const [isNotificationsOn, setIsNotificationsOn] = useState(false);
+
+    const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
+        setter(prev => !prev);
+    };
+
     const toggleEditMode = () => {
         setIsEditMode(!isEditMode);
         setIsEditingNickname(false); // 초기화
@@ -99,32 +108,73 @@ const Profile: React.FC = () => {
                 )}
             </div>
 
-            <div >
-            <img src="/images/line.png" alt="Profile" className="w-80 h-full object-cover mb-12 mt-10" />
-            </div>
-
-
             <div className="flex space-x-4">
                 <button
                     onClick={toggleEditMode}
-                    className="px-10 py-2 text-black border border-gray-300 rounded mb-4 hover:bg-gray-100"
+                    className="px-10 py-2 text-black border border-gray-300 rounded mt-4 hover:bg-gray-100"
                 >
-                    {isEditMode ? "수정 완료" : "회원 수정"}
+                    {isEditMode ? "완료" : "수정"}
                 </button>
             </div>
-            <div className="flex space-x-4">
-                
-                <button className="px-10 py-2 text-black border border-gray-300 rounded mb-4 hover:bg-gray-100">설정 관리</button>
+
+            <div >
+            <img src="/images/line.png" alt="Profile" className="w-96 h-full object-cover mb-4 mt-6" />
             </div>
 
-            <div className="flex space-x-4">
-                
-                <button className="px-10 py-2 text-black border border-gray-300 rounded mb-20 hover:bg-gray-100">고객 센터</button>
-            </div>
+            <div className="space-y-4">
+  <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 ">
+    <span className="mr-48">다크모드</span>
+    <div
+      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+        isdarkModeOn ? 'bg-custom-purple' : 'bg-gray-300'
+      }`}
+      onClick={() => handleToggle(setIsdarkModeOn)}
+    >
+      <div
+        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+          isdarkModeOn ? 'translate-x-6' : 'translate-x-0'
+        }`}
+      />
+    </div>
+  </label>
+
+  <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 ">
+    <span className="mr-48">배경음악</span>
+    <div
+      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+        isBackgroundMusicOn ? 'bg-custom-purple' : 'bg-gray-300'
+      }`}
+      onClick={() => handleToggle(setIsBackgroundMusicOn)}
+    >
+      <div
+        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+          isBackgroundMusicOn ? 'translate-x-6' : 'translate-x-0'
+        }`}
+      />
+    </div>
+  </label>
+
+  <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 ">
+    <span className="mr-48">공지사항</span>
+    <div
+      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+        isNotificationsOn ? 'bg-custom-purple' : 'bg-gray-300'
+      }`}
+      onClick={() => handleToggle(setIsNotificationsOn)}
+    >
+      <div
+        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+          isNotificationsOn ? 'translate-x-6' : 'translate-x-0'
+        }`}
+      />
+    </div>
+  </label>
+</div>
 
 
 
-            <div className="text-sm text-gray-500 space-x-2 pt-1 mb-12">
+
+            <div className="text-sm text-gray-500 space-x-2 pt-1 mb-12 mt-24">
                 <Link to="/delete-account" className="hover:underline">회원탈퇴</Link>
                 <span>|</span>
                 <Link to="/logout" className="hover:underline">로그아웃</Link>

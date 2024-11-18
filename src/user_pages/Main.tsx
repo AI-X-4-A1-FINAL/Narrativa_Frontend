@@ -6,6 +6,7 @@ import backLottie from "./Animation3.json";
 
 const Main: React.FC = () => {
   const [showLoadingLottie, setShowLoadingLottie] = useState(false);
+  
 
   const handleComplete = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
