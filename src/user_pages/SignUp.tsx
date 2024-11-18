@@ -57,7 +57,7 @@ const SignUp: React.FC = () => {
   // 이메일 중복 확인 함수
   const checkEmailAvailability = async (email: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/users/check-email?email=${email}`, {
+      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/check-email?email=${email}`, {
         method: 'post'  
       });
       //const data = await response.json();
