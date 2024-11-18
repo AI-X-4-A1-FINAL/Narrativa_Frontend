@@ -1,28 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "boring-avatars";
 
-// 닉네임 중복확인, 빈공간일떄 수정 안됨 로직 추가해야뎀 11/14
 const Profile: React.FC = () => {
-  // 전체 수정 모드 상태
   const [isEditMode, setIsEditMode] = useState(false);
-  // 개별 항목 수정 상태
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingIntro, setIsEditingIntro] = useState(false);
 
-  const [nickname, setNickname] = useState("나비");
-  const [intro, setIntro] = useState("hi good to see you");
-
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
-    setIsEditingNickname(false); // 초기화
-    setIsEditingIntro(false); // 초기화
-  };
+  const [nickname, setNickname] = useState<string>(""); // 닉네임 초기 상태 비우기
+  const [intro, setIntro] = useState<string>("hi good to see you");
+  const [email, setEmail] = useState<string>(""); // 이메일 초기 상태 비우기
 
   const randomName = React.useMemo(
     () => Math.random().toString(36).substring(2, 10),
     []
   );
+
+  // 데이터베이스에서 닉네임과 이메일 가져오기
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const response = await fetch("/api/user/profile"); // 프로필 데이터 API 호출
+        if (!response.ok) throw new Error("Failed to fetch profile data.");
+        const data = await response.json();
+        setNickname(data.nickname); // 닉네임 업데이트
+        setEmail(data.email); // 이메일 업데이트
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error.message);
+        }
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  // 수정 완료 버튼 클릭 시 데이터베이스에 저장
+  const handleSave = async () => {
+    try {
+      const profileData = {
+        nickname,
+        intro,
+        avatar: randomName, // 프로필 이미지 키
+      };
+
+      const response = await fetch("/api/user/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profileData), // 수정된 데이터 전송
+      });
+
+      if (!response.ok) throw new Error("Failed to save profile.");
+      alert("프로필이 성공적으로 저장되었습니다.");
+      setIsEditMode(false); // 수정 모드 종료
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        alert("프로필 저장 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
       <div className="relative">
@@ -31,7 +71,7 @@ const Profile: React.FC = () => {
             size={190}
             name={randomName}
             variant="beam"
-            colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]} // 색상 팔레트
+            colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
           />
         </div>
         {isEditMode && (
@@ -62,7 +102,7 @@ const Profile: React.FC = () => {
               }}
             />
           ) : (
-            nickname
+            nickname || "로딩 중.."
           )}
 
           {isEditMode && !isEditingNickname && (
@@ -91,7 +131,7 @@ const Profile: React.FC = () => {
             }}
           />
         ) : (
-          <p className="text-sm mb-4 relative" title="Message">
+          <p className="text-sm mb-2 relative" title="Message">
             {intro}
             {isEditMode && (
               <button
@@ -107,6 +147,9 @@ const Profile: React.FC = () => {
             )}
           </p>
         )}
+
+        {/* 이메일 표시 */}
+        <p className="text-gray-600 text-sm">{email || "로딩 중..."}</p>
       </div>
 
       <div>
@@ -119,7 +162,7 @@ const Profile: React.FC = () => {
 
       <div className="flex space-x-4">
         <button
-          onClick={toggleEditMode}
+          onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
           className="px-10 py-2 text-white border border-gray-300 rounded mb-4 bg-custom-purple hover:bg-blue-900"
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
