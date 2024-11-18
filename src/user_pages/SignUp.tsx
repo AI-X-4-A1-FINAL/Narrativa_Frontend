@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
-import axios from 'axios';
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  // false = input이 클릭되어 있지 않을 때, true = input이 클릭되어 있을 때
-	const [isInputClicked, setIsInputClicked] = useState(false);
 
   const [nickname, setNickname] = useState(
     Math.random().toString(36).substring(2, 10) // 초기 랜덤 닉네임 생성
@@ -29,21 +26,9 @@ const SignUp: React.FC = () => {
     if (username && profileUrl) {
       setNickname(username);
       setProfileUrl(profileUrl);
-      
-      // 서버에 POST 요청 보내기
-      axios.post('http://localhost:8080/api/social-login', {
-        username: username,
-        profile_url: profileUrl
-      })
-      .then((response) => {
-        console.log('Server response:', response.data);
-      })
-      .catch((error) => {
-        console.error('Error sending data to server:', error);
-      });
     }
-    // eslint-disable-next-line no-restricted-globals
-  }, [location]);
+    
+  }, []);
 
   // 닉네임 변경 처리
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,16 +47,29 @@ const SignUp: React.FC = () => {
     setIsValid(null); // 상태 초기화
   };
 
+  // 이메일 형식 정규식
+  const validateEmail = (email: string) => {
+    // 간단한 이메일 정규식 예시
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
+  };
+
   // 이메일 중복 확인 함수
   const checkEmailAvailability = async (email: string) => {
     try {
-      const response = await fetch(`/api/check-email?email=${email}`);
-      const data = await response.json();
-
-      if (data.isAvailable) {
+      const response = await fetch(`http://localhost:8080/api/users/check-email?email=${email}`, {
+        method: 'post'  
+      });
+      //const data = await response.json();
+      console.log('response.status: ', response.status);
+      
+      if (!validateEmail(email)) {
+        setIsValid(false);
+        setMessage("이메일 형식이 올바르지 않습니다.");
+      } else if (response.ok) {
         setIsValid(true);
         setMessage("사용 가능한 이메일입니다.");
-      } else {
+      } else if (response.status === 409){
         setIsValid(false);
         setMessage("이미 사용 중인 이메일입니다.");
       }
