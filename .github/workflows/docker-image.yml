@@ -1,9 +1,9 @@
-name: Auto Merge, Build, and Deploy to Docker Hub
+name: Auto Merge, Build, and Deploy to Docker Hub 
 
 on:
   schedule:
-    - cron: '05 3 * * *' # 매일 자정 00:00 (한국 시간, UTC+9 기준)
-  workflow_dispatch: # 수동 실행 가능
+    - cron: '05 3 * * *'  # 매일 자정 00:00 (한국 시간, UTC+9 기준)
+  workflow_dispatch:  # 수동 실행 가능
 
 permissions:
   contents: write
@@ -48,6 +48,14 @@ jobs:
         if: env.has_new_commits == 'true'
         env:
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
+          REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
+          REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
+          REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
         run: |
           echo "Attempting to create or find PRs from feat/* branches to dev."
           git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
@@ -62,24 +70,6 @@ jobs:
               echo "Existing PR found: $PR_URL"
             fi
             echo "PR_URL=$PR_URL" >> $GITHUB_ENV
-          done
-
-      # 모든 PR 자동 병합 (feat/* 브랜치 유지)
-      - name: Auto-merge pull requests
-        if: env.has_new_commits == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-        run: |
-          echo "Merging all open PRs from feat/* to dev."
-          git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
-            TARGET_BRANCH=${TARGET_BRANCH#origin/} # Remove 'origin/' prefix
-            PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
-            if [ -n "$PR_URL" ]; then
-              echo "Merging PR: $PR_URL"
-              gh pr merge "$PR_URL" --merge || echo "Merge failed for $PR_URL."
-            else
-              echo "No PR found for $TARGET_BRANCH to dev. Skipping merge."
-            fi
           done
 
       # Docker 빌드 및 Docker Hub 푸시
@@ -98,7 +88,15 @@ jobs:
           git pull origin dev  # 최신 dev 브랜치 가져오기
           
           # Docker 빌드
-          docker build -t narrativa_front .
+          docker build -t narrativa_front . \
+            --build-arg REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
+            --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
+            --build-arg REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
+            --build-arg REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
+            --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
+            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
+            --build-arg REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
+            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH
           docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
@@ -113,54 +111,4 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Set execution policy to allow scripts to run
-        shell: powershell
-        run: |
-          Set-ExecutionPolicy RemoteSigned -Scope Process -Force
-          Write-Output "Execution policy set to RemoteSigned"
-
-      - name: Remove existing Docker container and image
-        shell: powershell
-        run: |
-          try {
-            docker stop narrativa_front
-            Write-Output "Successfully stopped container narrativa_front"
-          } catch {
-            Write-Output "Error stopping container: $_"
-          }
-
-          try {
-            docker rm narrativa_front
-            Write-Output "Successfully removed container narrativa_front"
-          } catch {
-            Write-Output "Error removing container: $_"
-          }
-
-          try {
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-            Write-Output "Successfully removed image narrativa_front:latest"
-          } catch {
-            Write-Output "Error removing image: $_"
-          }
-
-          exit 0  # 오류 발생 여부에 관계없이 성공으로 간주
-
-      - name: Pull Docker image from Docker Hub and run container
-        shell: powershell
-        run: |
-          try {
-            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-            Write-Output "Successfully pulled the latest image from Docker Hub"
-          } catch {
-            Write-Output "Error pulling image from Docker Hub: $_"
-            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
-          }
-
-          try {
-            docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-            Write-Output "Successfully started container narrativa_front"
-          } catch {
-            Write-Output "Error starting container: $_"
-            exit 1  # 중요한 단계이므로 실패 시 exit 1로 설정
-          }
-
+      # 기타 로컬 서버 배포 작업
