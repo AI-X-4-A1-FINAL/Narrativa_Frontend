@@ -1,11 +1,16 @@
 
 
-const rest_api_key = process.env.REACT_APP_GOOGLE_CLIENT_ID
-const auth_code_path = process.env.REACT_APP_GOOGLE_AUTH_CODE_PATH
-const redirect_uri = process.env.REACT_APP_GOOGLE_REDIRECT_URI
-
 export const getGoogleLoginLink = (): string => {
-    const googleURL = `${auth_code_path}?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code&scope=email profile`;
+    // 환경 변수 값 가져오기
+    const { REACT_APP_GOOGLE_CLIENT_ID, REACT_APP_GOOGLE_AUTH_CODE_PATH, REACT_APP_URI, REACT_APP_GOOGLE_REDIRECT_URI_PART } = process.env;
+
+    // 필수 값들이 존재하는지 확인
+    if (!REACT_APP_GOOGLE_CLIENT_ID || !REACT_APP_GOOGLE_AUTH_CODE_PATH || !REACT_APP_URI || !REACT_APP_GOOGLE_REDIRECT_URI_PART) {
+        throw new Error("환경 변수 설정이 누락되었습니다.");
+    }
+
+    // URL 생성
+    const googleURL = `${REACT_APP_GOOGLE_AUTH_CODE_PATH}?client_id=${encodeURIComponent(REACT_APP_GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(REACT_APP_URI + REACT_APP_GOOGLE_REDIRECT_URI_PART)}&response_type=code&scope=email%20profile`;
 
     return googleURL;
 }
