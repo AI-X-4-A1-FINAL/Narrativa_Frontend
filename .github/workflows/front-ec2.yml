@@ -57,35 +57,33 @@ jobs:
           # 민감 정보 로그 방지
           set +x
 
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
-            # 기존 컨테이너 중지 및 제거
-            docker stop narrativa_front || true
-            docker rm narrativa_front || true
+          # 기존 컨테이너 중지 및 제거
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker stop narrativa_front || true"
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker rm narrativa_front || true"
 
-            # Docker Hub에서 최신 이미지 가져오기
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          # Docker Hub에서 최신 이미지 가져오기
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
-            # 기존 이미지 삭제
-            docker images --filter "dangling=true" -q | xargs -r docker rmi || true
+          # 기존 이미지 삭제
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
-            # 새 컨테이너 실행
-            docker run -d -p 3010:3010 --name narrativa_front \
-              -e REACT_APP_URI=$REACT_APP_URI \
-              -e REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
-              -e REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
-              -e REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
-              -e REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
-              -e REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
-              -e REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
-              -e REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
-              -e REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
-              -e REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
-              ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          # 새 컨테이너 실행
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front \
+            -e REACT_APP_URI=$REACT_APP_URI \
+            -e REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
+            -e REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
+            -e REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
+            -e REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
+            -e REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
+            -e REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
+            -e REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
+            -e REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
+            -e REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
+            ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
-            # 컨테이너 내 환경 변수 확인
-            docker exec narrativa_front env | grep 'REACT_APP_' || echo "환경 변수 검증 실패: 일부 값이 누락되었습니다."
-          EOF
+          # 컨테이너 내 환경 변수 확인
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
 
           # 민감 정보 로그 재활성화
           set -x
@@ -93,12 +91,4 @@ jobs:
       # 환경 변수 검증
       - name: Validate environment variables in EC2
         run: |
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
-            if docker exec narrativa_front env | grep 'REACT_APP_'; then
-              echo "환경 변수 검증 완료"
-            else
-              echo "환경 변수 검증 실패"
-              exit 1
-            fi
-          EOF
-  
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' && echo '환경 변수 검증 완료' || (echo '환경 변수 검증 실패' && exit 1)"
