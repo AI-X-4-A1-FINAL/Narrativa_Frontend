@@ -1,0 +1,103 @@
+name: Deploy to AWS EC2 for Dev
+
+on:
+  push:
+    branches:
+      - dev  # dev 브랜치에 푸시가 발생하면 실행
+  pull_request:
+    branches:
+      - dev  # dev 브랜치에 PR이 생성되거나 업데이트될 때 실행
+  workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
+
+jobs:
+  deploy_to_ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 리포지토리 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Docker Hub 로그인
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image to Docker Hub
+        run: |
+          docker build -t narrativa_front:latest .
+          docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+      # SSH 키 설정
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 400 ec2_key.pem
+
+      # Docker 컨테이너를 EC2에 배포
+      - name: Deploy Docker container to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          REACT_APP_URI: ${{ secrets.REACT_APP_URI }}
+          REACT_APP_SPRING_URI: ${{ secrets.REACT_APP_SPRING_URI }}
+          REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REVIEW_APP_KAKAO_CLIENT_ID }}
+          REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_KAKAO_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REVIEW_APP_KAKAO_REDIRECT_URI }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REVIEW_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GOOGLE_AUTH_CODE_PATH }}
+          REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REVIEW_APP_GOOGLE_REDIRECT_URI }}
+          REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REVIEW_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GITHUB_AUTH_CODE_PATH }}
+        run: |
+          # 민감 정보 로그 방지
+          set +x
+
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+            # 기존 컨테이너 중지 및 제거
+            docker stop narrativa_front || true
+            docker rm narrativa_front || true
+
+            # Docker Hub에서 최신 이미지 가져오기
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+            # 기존 이미지 삭제
+            docker images --filter "dangling=true" -q | xargs -r docker rmi || true
+
+            # 새 컨테이너 실행
+            docker run -d -p 3010:3010 --name narrativa_front \
+              -e REACT_APP_URI=$REACT_APP_URI \
+              -e REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
+              -e REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
+              -e REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
+              -e REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
+              -e REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
+              -e REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
+              -e REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
+              -e REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
+              -e REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
+              ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+            # 컨테이너 내 환경 변수 확인
+            docker exec narrativa_front env | grep 'REACT_APP_' || echo "환경 변수 검증 실패: 일부 값이 누락되었습니다."
+          EOF
+
+          # 민감 정보 로그 재활성화
+          set -x
+
+      # 환경 변수 검증
+      - name: Validate environment variables in EC2
+        run: |
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+            if docker exec narrativa_front env | grep 'REACT_APP_'; then
+              echo "환경 변수 검증 완료"
+            else
+              echo "환경 변수 검증 실패"
+              exit 1
+            fi
+          EOF
