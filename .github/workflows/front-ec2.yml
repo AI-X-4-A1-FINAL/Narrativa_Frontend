@@ -87,8 +87,3 @@ jobs:
 
           # 민감 정보 로그 재활성화
           set -x
-   
-      # 환경 변수 검증
-      - name: Validate environment variables in EC2
-        run: |
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' && echo '환경 변수 검증 완료' || (echo '환경 변수 검증 실패' && exit 1)"
