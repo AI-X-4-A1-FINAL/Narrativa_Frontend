@@ -14,16 +14,12 @@ interface Message {
 
 const Gaming: React.FC = () => {
   const location = useLocation();
-  const {
-    genre = "",
-    tags = [],
-    image = "",
-  } = (location.state as LocationState) || {};
+  const { genre = "", tags = [], image = "" } = (location.state as LocationState) || {};
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [isExpanded, setIsExpanded] = useState(false); // 상태 추가
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // 출력창 열림/닫힘 토글
   const toggleExpansion = () => {
@@ -72,9 +68,7 @@ const Gaming: React.FC = () => {
   };
 
   // 사용자 입력 처리
-  const handleUserInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleUserInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(event.target.value);
   };
 
@@ -102,9 +96,7 @@ const Gaming: React.FC = () => {
     <div className="relative h-screen bg-gray-800 text-white">
       {/* 메인 이미지 영역 */}
       <div
-        className={`absolute top-0 w-full h-screen ${
-          isExpanded ? "opacity-40" : "opacity-100"
-        } transition-opacity duration-300`}
+        className={`absolute top-0 w-full h-screen ${isExpanded ? "opacity-40" : "opacity-100"} transition-opacity duration-300`}
       >
         <img
           src="/images/game-start.jpeg"
@@ -122,9 +114,7 @@ const Gaming: React.FC = () => {
       {/* AI 출력창 */}
       <div
         onClick={!isExpanded ? toggleExpansion : undefined} // 확장 시 클릭 가능
-        className={`absolute bottom-0 w-full bg-gray-900 text-white ${
-          isExpanded ? "h-[80%] bg-opacity-80 backdrop-blur-sm" : "h-24"
-        } transition-all duration-300 ease-in-out flex flex-col`}
+        className={`absolute bottom-0 w-full bg-gray-900 text-white ${isExpanded ? "h-[80%] bg-opacity-80 backdrop-blur-sm" : "h-24"} transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* 출력창 헤더 */}
         <div className="flex justify-between items-center border-b pb-2 mb-2 p-4">
@@ -135,22 +125,16 @@ const Gaming: React.FC = () => {
 
         {/* 출력 내용 / 채팅 */}
         <div
-          className={`overflow-y-auto flex-grow px-4 space-y-2 ${
-            isExpanded ? "block" : "hidden"
-          }`}
+          className={`overflow-y-auto flex-grow px-4 space-y-2 ${isExpanded ? "block" : "hidden"}`}
         >
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`mb-2 ${
-                message.sender === "user" ? "text-right" : "text-left"
-              }`}
+              className={`mb-2 ${message.sender === "user" ? "text-right" : "text-left"}`}
             >
               <p
                 className={`inline-block px-3 py-1 rounded-lg ${
-                  message.sender === "user"
-                    ? "bg-white text-black"
-                    : "bg-custom-purple text-white"
+                  message.sender === "user" ? "bg-white text-black" : "bg-custom-purple text-white"
                 }`}
               >
                 {message.text}
