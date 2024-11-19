@@ -46,7 +46,7 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-8 text-black min-h-screen overflow-y-auto bg-gray-50">
+    <div className="w-full p-4 text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
       <div className="">
         {genres.map((genre) => (
           <div
