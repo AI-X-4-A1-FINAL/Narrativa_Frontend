@@ -3,11 +3,11 @@ name: Deploy to AWS EC2 for Dev
 on:
   push:
     branches:
-      - dev  # dev 브랜치에 푸시가 발생하면 실행
+      - dev
   pull_request:
     branches:
-      - dev  # dev 브랜치에 PR이 생성되거나 업데이트될 때 실행
-  workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
+      - dev
+  workflow_dispatch:
 
 jobs:
   deploy_to_ec2:
@@ -28,7 +28,17 @@ jobs:
       # Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image to Docker Hub
         run: |
-          docker build -t narrativa_front:latest .
+          docker build --build-arg REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
+                       --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
+                       --build-arg REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
+                       --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
+                       --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
+                       --build-arg REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
+                       --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
+                       --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+                       --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+                       --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+                       -t narrativa_front:latest .
           docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
@@ -43,16 +53,6 @@ jobs:
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
-          REACT_APP_URI: ${{ secrets.REACT_APP_URI }}
-          REACT_APP_SPRING_URI: ${{ secrets.REACT_APP_SPRING_URI }}
-          REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REVIEW_APP_KAKAO_CLIENT_ID }}
-          REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_KAKAO_AUTH_CODE_PATH }}
-          REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REVIEW_APP_KAKAO_REDIRECT_URI }}
-          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REVIEW_APP_GOOGLE_CLIENT_ID }}
-          REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GOOGLE_AUTH_CODE_PATH }}
-          REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REVIEW_APP_GOOGLE_REDIRECT_URI }}
-          REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REVIEW_APP_GITHUB_CLIENT_ID }}
-          REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GITHUB_AUTH_CODE_PATH }}
         run: |
           # 민감 정보 로그 방지
           set +x
@@ -69,18 +69,7 @@ jobs:
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
           # 기존 컨테이너 이름 충돌을 방지하고 새 컨테이너 실행 (강제 삭제 후 실행)
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front \
-            -e REACT_APP_URI=$REACT_APP_URI \
-            -e REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
-            -e REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
-            -e REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
-            -e REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
-            -e REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
-            -e REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
-            -e REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
-            -e REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
-            -e REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
-            ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
           # 컨테이너 내 환경 변수 확인
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
