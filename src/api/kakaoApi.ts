@@ -1,5 +1,3 @@
-
-
 const rest_api_key = process.env.REACT_APP_KAKAO_CLIENT_ID
 const auth_code_path = process.env.REACT_APP_KAKAO_AUTH_CODE_PATH
 const react_app_uri = process.env.REACT_APP_SPRING_URI || ''
