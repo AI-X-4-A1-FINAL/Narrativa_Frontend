@@ -1,8 +1,8 @@
-
-
-const rest_api_key = '950412866395-khirauo8atsd8blnfs9a4vstj5srj94r.apps.googleusercontent.com'
-const redirect_uri = 'http://localhost:8080/login/google'
-const auth_code_path = 'https://accounts.google.com/o/oauth2/v2/auth'
+const rest_api_key = process.env.REACT_APP_GOOGLE_CLIENT_ID
+const auth_code_path = process.env.REACT_APP_GOOGLE_AUTH_CODE_PATH
+const react_app_uri = process.env.REACT_APP_SPRING_URI || ''
+const redirect_uri_part = process.env.REACT_APP_GOOGLE_REDIRECT_URI_PART || ''
+const redirect_uri = react_app_uri + redirect_uri_part
 
 export const getGoogleLoginLink = (): string => {
     const googleURL = `${auth_code_path}?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code&scope=email profile`;
