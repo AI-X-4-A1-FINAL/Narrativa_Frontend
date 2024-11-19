@@ -32,7 +32,7 @@ const App: React.FC = () => {
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between bg-black">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
-          <main className="flex-grow pt-32 px-4 w-full max-w-xl mx-auto bg-white">
+          <main className="flex-grow pt-32 px-4 w-full max-w-lg mx-auto bg-white">
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/home" element={<Home />} />
