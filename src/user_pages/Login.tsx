@@ -37,7 +37,7 @@ const Login: React.FC = () => {
             <img
               src={photo.src}
               alt={photo.alt}
-              className="w-72 h-auto object-contain rounded-md mx-auto"
+              className="w-64 h-auto object-contain rounded-md mx-auto"
             />
           </button>
         ))}

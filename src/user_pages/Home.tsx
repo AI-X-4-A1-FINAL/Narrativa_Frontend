@@ -14,23 +14,23 @@ const Home: React.FC = () => {
   const genres: Genre[] = [
     {
       name: "Survival",
-      tags: ["Apocalypse", "Survival", "Disaster"],
+      tags: ["서바이벌", "살아남기"],
       image: "/images/survival.jpeg",
     },
     {
       name: "Romance",
-      tags: ["Love", "Drama", "Relationships"],
+      tags: ["사랑", "드라마"],
       image: "/images/romance.png",
     },
     {
       name: "Simulation",
-      tags: ["Strategy", "Management", "Life"],
+      tags: ["시뮬레이션", "라이프"],
       image: "/images/simulation.png",
     },
     {
       name: "Mystery",
-      tags: ["Thriller", "Suspense", "Crime"],
-      image: "/images/mystery.png",
+      tags: ["스릴러", "범죄"],
+      image: "/images/detective.jpg",
     },
   ];
 
@@ -46,18 +46,18 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-8 text-black min-h-screen overflow-y-auto bg-gray-50">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="w-full p-4 text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
+      <div className="">
         {genres.map((genre) => (
           <div
             key={genre.name}
-            className="w-full max-w-lg mx-auto rounded-2xl overflow-hidden shadow-lg bg-white"
+            className="w-full max-w-lg mx-auto rounded-2xl overflow-hidden bg-gray-50"
           >
-            <div className="text-left font-semibold text-gray-600 opacity-90 mb-2 p-4">
+            <div className="text-left font-semibold text-gray-600 opacity-100 ">
               {genre.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200"
+                  className="inline-block text-md font-semibold mr-2 px-1 py-1 rounded-full"
                 >
                   #{tag}
                 </span>
@@ -70,12 +70,10 @@ const Home: React.FC = () => {
               <img
                 src={genre.image}
                 alt={`${genre.name} Genre Cover`}
-                className="w-full h-[300px] md:h-[400px] object-cover rounded-2xl"
+                className="w-full h-full object-cover rounded-2xl mb-8"
               />
             </div>
-            <div className="p-4">
-              <h2 className="text-xl font-bold text-gray-800">{genre.name}</h2>
-            </div>
+            
           </div>
         ))}
       </div>
