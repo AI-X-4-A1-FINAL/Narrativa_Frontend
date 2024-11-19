@@ -14,6 +14,7 @@ import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
 import GamePage from "./components/GamePage";
+import SignUp from "./user_pages/SignUp";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -40,6 +41,7 @@ const App: React.FC = () => {
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/game-intro" element={<GameIntro />} />
               <Route path="/game-page" element={<GamePage />} />
+              <Route path="/sign-up" element={<SignUp />} />
             </Routes>
           </main>
         </div>
