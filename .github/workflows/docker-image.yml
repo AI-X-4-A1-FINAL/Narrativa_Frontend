@@ -89,9 +89,8 @@ jobs:
             --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
             --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
             --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
-            --build-arg REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }} \
-            --build-arg REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} \
-            --build-arg REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}
+            --build-arg REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
+            --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }}
           docker push $DOCKER_TAG
 
   deploy_local:
@@ -143,9 +142,8 @@ jobs:
             -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} `
             -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} `
             -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} `
-            -e REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }} `
-            -e REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} `
-            -e REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }} `
+            -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} `
+            -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
       # 컨테이너 내 환경 변수 확인
