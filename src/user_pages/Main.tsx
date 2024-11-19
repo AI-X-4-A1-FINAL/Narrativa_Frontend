@@ -22,7 +22,7 @@ const Main: React.FC = () => {
             animationData={backLottie}
             onComplete={handleComplete} // 애니메이션이 끝나면 상태를 true로 변경
             loop={false}
-            className="absolute inset-0 w-full h-full object-cover min-h-screen scale-[1.2]" // 모바일 대응
+            className="relative inset-0 w-full h-full object-cover min-h-screen scale-[1.2]" // 모바일 대응
           />
         )}
 
