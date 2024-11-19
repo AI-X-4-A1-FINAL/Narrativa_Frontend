@@ -104,16 +104,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 기존 컨테이너 정지 및 삭제
+          # 기존 컨테이너 정지 및 삭제
       - name: Stop and remove existing container
         run: |
-          docker ps -q --filter "name=narrativa_front" | xargs -r docker stop
-          docker ps -aq --filter "name=narrativa_front" | xargs -r docker rm
+          $containers = docker ps -q --filter "name=narrativa_front"
+          if ($containers) {
+            $containers | ForEach-Object { docker stop $_ }
+          }
+          $containers = docker ps -aq --filter "name=narrativa_front"
+          if ($containers) {
+            $containers | ForEach-Object { docker rm $_ }
+          }
 
       # 기존 이미지 삭제
       - name: Remove old Docker image
         run: |
-          docker images --filter=reference="${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q | xargs -r docker rmi
+          $images = docker images --filter "reference=${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q
+          if ($images) {
+            $images | ForEach-Object { docker rmi $_ }
+          }
 
       # 새 이미지 풀
       - name: Pull new Docker image
@@ -123,21 +132,22 @@ jobs:
       # 새 컨테이너 실행
       - name: Run new Docker container
         run: |
-          docker run -d --name narrativa_front \
-            -p 3010:3010 \
-            -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
-            -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-            -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
-            -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
-            -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-            -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
-            -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
-            -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
-            -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
-            -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
+          docker run -d --name narrativa_front `
+            -p 3010:3010 `
+            -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} `
+            -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} `
+            -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} `
+            -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} `
+            -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} `
+            -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} `
+            -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} `
+            -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} `
+            -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} `
+            -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
-# 컨테이너 내 환경 변수 확인
+      # 컨테이너 내 환경 변수 확인
       - name: Validate environment variables in container
         run: |
-          docker exec narrativa_front env | grep 'REACT_APP_'
+          $output = docker exec narrativa_front env
+          $output -match 'REACT_APP_'
