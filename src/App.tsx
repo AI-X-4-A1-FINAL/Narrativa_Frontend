@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   // Header를 숨길 경로 리스트
   const noHeaderRoutes = ['/login', '/delete-account', '/'];
-
+    
   return (
     <>
       {isMainPage ? (

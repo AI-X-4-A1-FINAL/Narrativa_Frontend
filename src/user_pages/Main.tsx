@@ -26,7 +26,7 @@ const Main: React.FC = () => {
             className="relative top-0 h-full"
           />
         )}
-
+ 
         {/* 위쪽 이미지 */}
         {showLoadingLottie && (
           <img

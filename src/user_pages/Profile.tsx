@@ -88,7 +88,7 @@ const Profile: React.FC = () => {
                         style={{
                         width: `${intro.length + 3}ch`, // 닉네임 길이에 맞는 너비 설정
                             }}
-                    />
+                    />     
                 ) : (
                     <p className="text-sm mb-4 relative" title="Message">
                         {intro}
