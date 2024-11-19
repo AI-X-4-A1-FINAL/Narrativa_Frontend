@@ -6,6 +6,6 @@ const redirect_uri = react_app_uri + redirect_uri_part
 
 export const getKakaoLoginLink = (): string => {
     const kakaoURL = `${auth_code_path}?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code`;
-
+    console.log('kakaoURL: ', kakaoURL);
     return kakaoURL;
 }
