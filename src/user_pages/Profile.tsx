@@ -9,8 +9,6 @@ const Profile: React.FC = () => {
 
   const [nickname, setNickname] = useState<string>(""); // 닉네임 초기 상태 비우기
   const [intro, setIntro] = useState<string>("hi good to see you");
-  const [email, setEmail] = useState<string>(""); // 이메일 초기 상태 비우기
-
 
   const [isdarkModeOn, setIsdarkModeOn] = useState(false);
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
@@ -25,7 +23,7 @@ const Profile: React.FC = () => {
     []
   );
 
-  // 데이터베이스에서 닉네임과 이메일 가져오기
+  // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -33,7 +31,6 @@ const Profile: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch profile data.");
         const data = await response.json();
         setNickname(data.nickname); // 닉네임 업데이트
-        setEmail(data.email); // 이메일 업데이트
       } catch (error) {
         if (error instanceof Error) {
           console.error(error.message);
@@ -156,9 +153,6 @@ const Profile: React.FC = () => {
             )}
           </p>
         )}
-
-        {/* 이메일 표시 */}
-        <p className="text-gray-600 text-sm">{email || "로딩 중..."}</p>
       </div>
 
       <div className="flex space-x-4">

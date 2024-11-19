@@ -5,8 +5,8 @@ import axios from "axios";
 
 // 회원 가입시 필요한 데이터
 interface SignUpData {
+  id: number;
   username: string;
-  email: string;
   profile_url: string | null;
 }
 
@@ -15,11 +15,9 @@ const SignUp: React.FC = () => {
   const [nickname, setNickname] = useState(
     Math.random().toString(36).substring(2, 10) // 초기 랜덤 닉네임 생성
   );
+  const [userId, setUserId] = useState(-1);
   const [isEditing, setIsEditing] = useState(false); // 닉네임 편집 상태
-  const [email, setEmail] = useState("abc123@narrativa.com"); // 초기 이메일
-  const [message, setMessage] = useState<string | null>(null); // 이메일 유효성 메시지
   const [signupMessage, setSignupMessage] = useState('');
-  const [isValid, setIsValid] = useState<boolean | null>(null); // 이메일 유효성 상태
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
 
   const [signupError, setSignupError] = useState<string>('');
@@ -53,104 +51,41 @@ const SignUp: React.FC = () => {
     setIsEditing(false);
   };
 
-  // 이메일 변경 처리
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    setMessage(null); // 메시지 초기화
-    // setIsValid(null); // 상태 초기화
-    setIsValid(false); // 상태 초기화
-  };
-
-  // 이메일 형식 정규식
-  const validateEmail = (email: string) => {
-    // 간단한 이메일 정규식 예시
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return regex.test(email);
-  };
-
-  // 이메일 중복 확인 함수
-  const checkEmailAvailability = async (email: string) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/check-email?email=${email}`, {
-        method: 'post'  
-      });
-      //const data = await response.json();
-      console.log('response.status: ', response.status);
-      
-      if (!validateEmail(email)) {
-        setIsValid(false);
-        setMessage("이메일 형식이 올바르지 않습니다.");
-      } else if (response.ok) {
-        setIsValid(true);
-        setMessage("사용 가능한 이메일입니다.");
-      } else if (response.status === 409){
-        setIsValid(false);
-        setMessage("이미 사용 중인 이메일입니다.");
-      }
-    } catch (error) {
-      setIsValid(false);
-      setMessage("이메일 확인 중 오류가 발생했습니다.");
-    }
-  };
-
-  // 이메일 입력 필드에서 포커스 벗어날 때 확인
-  const handleEmailBlur = () => {
-    if (email) {
-      checkEmailAvailability(email);
-    }
-  };
-
   // 회원가입시 회원가입 정보 확인하여, 이메일 유효o => 회원가입 가능
   const handleConfirmClick = async () => {
-    // const user = useSelector((state: RootState) => state.user); // Redux에서 유저 상태 가져오기
-    // const dispatch = useDispatch<AppDispatch>();
-
-    // const [newUsername, setNewUsername] = useState(user.username);
-    // const [newEmail, setNewEmail] = useState(user.email);
-    // const [newProfileUrl, setNewProfileUrl] = useState(user.profileUrl);
-
-    // const handleUpdate = () => {
-    //   dispatch(updateUsername(newUsername)); // 유저명 업데이트
-    //   dispatch(updateEmail(newEmail)); // 이메일 업데이트
-    //   dispatch(updateProfileUrl(newProfileUrl)); // 프로필 URL 업데이트
-    // };
 
     // 요청 본문에 들어갈 데이터
     const signUpData: SignUpData = {
+      id: userId,
       username: nickname,
-      email: email,
       profile_url: profileUrl,
     };
 
-    if (isValid) {
-      try {
-        // BE에 axios 요청해서 회원가입
-        const response = await axios.post(
-          `${process.env.REACT_APP_SPRING_URI}/api/users/sign-up`,
-          signUpData,
-          {
-            headers: {
-              'Content-Type': 'application/json', // 헤더에서 JSON 형식으로 보내도록 설정
-            },
-          }
-        );
-        // 201 리턴시만 home으로 이동
-        if (response.status === 201) {
-          navigate("/home");
-        }  
-      } catch (error: any) {
-        if (error.response) {
-          setSignupError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-          setSignupSuccess('');
-        } else {
-          setSignupError('네트워크 오류가 발생했습니다.');
-          setSignupSuccess('');
+    try {
+      // BE에 axios 요청해서 회원가입
+      const response = await axios.post(
+        `${process.env.REACT_APP_SPRING_URI}/api/users/sign-up`,
+        signUpData,
+        {
+          headers: {
+            'Content-Type': 'application/json', // 헤더에서 JSON 형식으로 보내도록 설정
+          },
         }
-      
-      } 
-    } else {
-      setSignupMessage('회원가입 정보를 확인해 주세요.');
-    }
+      );
+      // 201 리턴시만 home으로 이동
+      if (response.status === 201) {
+        navigate("/home");
+      }  
+    } catch (error: any) {
+      if (error.response) {
+        setSignupError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setSignupSuccess('');
+      } else {
+        setSignupError('네트워크 오류가 발생했습니다.');
+        setSignupSuccess('');
+      }
+    } 
+    
     console.log('signupError: ', signupError)
     console.log('signupSuccess: ', signupSuccess)
   }
@@ -193,28 +128,6 @@ const SignUp: React.FC = () => {
         )}
       </div>
 
-      {/* 이메일 입력 및 유효성 검사 */}
-      <div className="flex flex-col items-start">
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={handleEmailChange}
-          onBlur={handleEmailBlur}
-          className="p-2 rounded w-full text-center"
-        />
-        <div className="h-6 flex justify-center items-center">
-          {message && (
-            <p
-              className={`mt-2 text-center ${
-                isValid ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {message}
-            </p>
-          )}
-        </div>
-      </div>
       <div className="flex space-x-4 mt-4">
         <button
           className="px-4 py-2 text-white bg-custom-purple rounded hover:bg-blue-900"
