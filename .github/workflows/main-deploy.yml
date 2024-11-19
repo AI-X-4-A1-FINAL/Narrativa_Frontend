@@ -1,12 +1,12 @@
-name: Deploy to AWS EC2 for Main
+name: Deploy to AWS EC2 for Dev
 
 on:
   push:
     branches:
-      - dev  # main 브랜치에 푸시가 발생하면 실행
+      - dev  # dev 브랜치에 푸시가 발생하면 실행
   pull_request:
     branches:
-      - dev  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
+      - dev  # dev 브랜치에 PR이 생성되거나 업데이트될 때 실행
   workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
 
 jobs:
@@ -45,14 +45,14 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
           REACT_APP_URI: ${{ secrets.REACT_APP_URI }}
           REACT_APP_SPRING_URI: ${{ secrets.REACT_APP_SPRING_URI }}
-          REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
-          REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
-          REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
-          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
-          REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
-          REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
-          REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
-          REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REVIEW_APP_KAKAO_CLIENT_ID }}
+          REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_KAKAO_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REVIEW_APP_KAKAO_REDIRECT_URI }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REVIEW_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GOOGLE_AUTH_CODE_PATH }}
+          REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REVIEW_APP_GOOGLE_REDIRECT_URI }}
+          REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REVIEW_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REVIEW_APP_GITHUB_AUTH_CODE_PATH }}
         run: |
           # 민감 정보 로그 방지
           set +x
@@ -84,7 +84,7 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
             # 컨테이너 내 환경 변수 확인
-            docker exec narrativa_front env | grep 'REACT_APP_' || echo "환경 변수 검증 실패"
+            docker exec narrativa_front env | grep 'REACT_APP_' || echo "환경 변수 검증 실패: 일부 값이 누락되었습니다."
 EOF
 
           # 민감 정보 로그 재활성화
@@ -94,5 +94,10 @@ EOF
       - name: Validate environment variables in EC2
         run: |
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
-            docker exec narrativa_front env | grep 'REACT_APP_' || echo "환경 변수 검증 실패"
+            if docker exec narrativa_front env | grep 'REACT_APP_'; then
+              echo "환경 변수 검증 완료"
+            else
+              echo "환경 변수 검증 실패"
+              exit 1
+            fi
 EOF
