@@ -147,20 +147,21 @@ jobs:
         run: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
-      # 새 컨테이너 실행
+            # 새 컨테이너 실행
       - name: Run new Docker container
+        shell: bash
         run: |
           docker run -d --name narrativa_front \
             -p 3010:3010 \
-            -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
-            -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-            -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }} \
-            -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
-            -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-            -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }} \
-            -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
-            -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
-            -e REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }} \
-            -e REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} \
-            -e REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }} \
+            -e "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" \
+            -e "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" \
+            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}" \
+            -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" \
+            -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" \
+            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}" \
+            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" \
+            -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}" \
+            -e "REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }}" \
+            -e "REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" \
+            -e "REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}" \
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
