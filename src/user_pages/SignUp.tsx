@@ -7,7 +7,6 @@ import axios from "axios";
 interface SignUpData {
   username: string;
   email: string;
-  profile: string;
   profile_url: string | null;
 }
 
@@ -22,8 +21,6 @@ const SignUp: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null); // 이메일 유효성 메시지
   const [signupMessage, setSignupMessage] = useState('');
   const [isValid, setIsValid] = useState<boolean | null>(null); // 이메일 유효성 상태
-  // const [username, setUsername] = useState<string | null>(null);
-  const [profile, setProfile] = useState<string>('');
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
 
   const [signupError, setSignupError] = useState<string>('');
@@ -40,7 +37,6 @@ const SignUp: React.FC = () => {
     if (username && profileUrl) {
       setNickname(username);
       setProfileUrl(profileUrl);
-      setProfile('default profile');  // 추후 삭제
     }
     
   }, []);
@@ -109,7 +105,6 @@ const SignUp: React.FC = () => {
     const signUpData: SignUpData = {
       username: nickname,
       email: email,
-      profile: profile,
       profile_url: profileUrl,
     };
 
