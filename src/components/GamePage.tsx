@@ -12,54 +12,93 @@ interface Message {
   text: string;
 }
 
-const Gaming: React.FC = () => {
+const GamePage: React.FC = () => {
   const location = useLocation();
-  const { genre = "", tags = [], image = "" } = (location.state as LocationState) || {};
+  const { genre, tags, image } = (location.state as LocationState) || {};
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
+    {}
+  ); // 단계별 대화 저장
+  const [currentMessages, setCurrentMessages] = useState<Message[]>([]); // 현재 단계 대화
   const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentStage, setCurrentStage] = useState<number>(0); // 현재 스테이지
 
-  // 출력창 열림/닫힘 토글
+  const stages = [
+    { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
+    { bg: "/images/stage10.jpeg", content: "Final Stage! Stage 1!" },
+    { bg: "/images/stage1.jpeg", content: "You're now in Stage 2!" },
+    { bg: "/images/stage2.jpeg", content: "Keep going! Stage 3!" },
+    { bg: "/images/stage3.jpeg", content: "Almost there! Stage 4!" },
+    { bg: "/images/stage4.jpeg", content: "Final Stage! Stage 5!" },
+    { bg: "/images/stage5.jpeg", content: "Final Stage! Stage 6!" },
+    { bg: "/images/stage6.jpeg", content: "Final Stage! Stage 7!" },
+    { bg: "/images/stage7.jpeg", content: "Final Stage! Stage 8!" },
+    { bg: "/images/stage8.jpeg", content: "Final Stage! Stage 9!" },
+    { bg: "/images/stage9.jpeg", content: "Final Stage! Stage 10!" },
+  ];
+
+  // 채팅창 확장/축소 토글
   const toggleExpansion = () => {
-    setIsExpanded(!isExpanded);
+    setIsExpanded((prev) => !prev);
   };
 
-  // 상대방의 메시지를 불러오는 함수
+  // 사용자 메시지 전송 및 API 호출
+  const handleSendMessage = () => {
+    if (userInput.trim() === "") return;
+
+    // 새 메시지 생성 (타입 명시)
+    const newMessage: Message = { sender: "user", text: userInput };
+
+    // 현재 단계 메시지 업데이트
+    setCurrentMessages((prev: Message[]) => [...prev, newMessage]);
+
+    // 모든 단계 메시지 상태 업데이트
+    setAllMessages((prev: { [key: number]: Message[] }) => {
+      const stageMessages: Message[] = prev[currentStage] || []; // 현재 단계의 메시지 배열 초기화
+      return {
+        ...prev,
+        [currentStage]: [...stageMessages, newMessage], // 새 메시지 추가
+      };
+    });
+
+    // API 호출
+    fetchOpponentMessage(userInput);
+
+    setUserInput(""); // 입력 필드 초기화
+  };
+
+  // 상대방 메시지 비동기 가져오기
   const fetchOpponentMessage = async (userInput: string) => {
     setLoading(true);
-
     try {
-      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/generate-story`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          genre,
-          affection: 50, // 초기 호감도
-          cut: 1, // 첫 번째 컷
-          user_input: userInput,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/generate-story`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            genre,
+            affection: 50,
+            cut: currentStage + 1, // 현재 단계에 맞게 API 요청
+            user_input: userInput,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-
       if (data && data.story) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: "opponent", text: data.story },
-        ]);
+        const opponentMessage = { sender: "opponent", text: data.story };
       }
     } catch (error) {
       console.error("Error fetching opponent message:", error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
+      setCurrentMessages((prev) => [
+        ...prev,
         { sender: "opponent", text: "오류가 발생했습니다. 다시 시도해주세요." },
       ]);
     } finally {
@@ -67,74 +106,93 @@ const Gaming: React.FC = () => {
     }
   };
 
-  // 사용자 입력 처리
-  const handleUserInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInput(event.target.value);
-  };
-
-  // 메시지 전송 및 상대방 메시지 요청
-  const handleSendMessage = () => {
-    if (userInput.trim() === "") return;
-
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { sender: "user", text: userInput },
-    ]);
-
-    fetchOpponentMessage(userInput);
-    setUserInput(""); // 입력 필드 초기화
-  };
-
-  // 초기 메시지 로드
-  useEffect(() => {
-    if (genre && image) {
-      fetchOpponentMessage(""); // 첫 번째 메시지 요청
+  // 단계 이동 시 메시지 유지
+  const goToNextStage = () => {
+    if (currentStage < stages.length - 1) {
+      setAllMessages((prev) => ({
+        ...prev,
+        [currentStage]: currentMessages,
+      }));
+      const nextMessages = allMessages[currentStage + 1] || [];
+      setCurrentMessages(nextMessages);
+      setCurrentStage((prev) => prev + 1);
+    } else {
+      alert("You've completed all stages!");
     }
-  }, [genre, image]);
+  };
+
+  const goToPreviousStage = () => {
+    if (currentStage > 0) {
+      setAllMessages((prev) => ({
+        ...prev,
+        [currentStage]: currentMessages,
+      }));
+      const previousMessages = allMessages[currentStage - 1] || [];
+      setCurrentMessages(previousMessages);
+      setCurrentStage((prev) => prev - 1);
+    }
+  };
+
+  // 단계 변경 시 기존 메시지 로드
+  useEffect(() => {
+    const savedMessages = allMessages[currentStage] || [];
+    setCurrentMessages(savedMessages);
+  }, [currentStage]);
 
   return (
     <div className="relative h-screen bg-gray-800 text-white">
-      {/* 메인 이미지 영역 */}
+      {/* 배경 이미지 */}
       <div
-        className={`absolute top-0 w-full h-screen ${isExpanded ? "opacity-40" : "opacity-100"} transition-opacity duration-300`}
+        className={`absolute inset-0 ${
+          isExpanded ? "opacity-40" : "opacity-100"
+        } transition-opacity duration-300`}
+        onClick={() => {
+          if (isExpanded) toggleExpansion();
+        }}
       >
         <img
-          src="/images/game-start.jpeg"
-          alt="Game Main"
+          src={stages[currentStage].bg}
+          alt={`Stage ${currentStage + 1}`}
           className="w-full h-full object-cover"
         />
-        {isExpanded && (
-          <div
-            onClick={toggleExpansion} // 클릭 시 채팅창 축소
-            className="absolute bottom-0 w-full h-full cursor-pointer"
-          ></div>
-        )}
       </div>
 
-      {/* AI 출력창 */}
+      {/* 채팅창 */}
       <div
-        onClick={!isExpanded ? toggleExpansion : undefined} // 확장 시 클릭 가능
-        className={`absolute bottom-0 w-full bg-gray-900 text-white ${isExpanded ? "h-[80%] bg-opacity-80 backdrop-blur-sm" : "h-24"} transition-all duration-300 ease-in-out flex flex-col`}
+        className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-purple text-white ${
+          isExpanded ? "h-[85%] bg-opacity-20 backdrop-blur-md" : "h-[20%]"
+        } transition-all duration-300 ease-in-out flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* 출력창 헤더 */}
-        <div className="flex justify-between items-center border-b pb-2 mb-2 p-4">
+        <div
+          className="flex justify-between items-center border-b pb-4 p-4 cursor-pointer"
+          onClick={toggleExpansion}
+        >
           <h2 className="text-lg font-semibold">
-            {isExpanded ? "스토리" : "채팅창"}
+            {isExpanded
+              ? `스토리 진행 - 단계 ${currentStage + 1}`
+              : "채팅창 열기"}
           </h2>
         </div>
 
-        {/* 출력 내용 / 채팅 */}
+        {/* 채팅 메시지 */}
         <div
-          className={`overflow-y-auto flex-grow px-4 space-y-2 ${isExpanded ? "block" : "hidden"}`}
+          className={`overflow-y-auto flex-grow px-4 space-y-2 ${
+            isExpanded ? "block" : "hidden"
+          }`}
         >
-          {messages.map((message, index) => (
+          {currentMessages.map((message, index) => (
             <div
               key={index}
-              className={`mb-2 ${message.sender === "user" ? "text-right" : "text-left"}`}
+              className={`mb-2 ${
+                message.sender === "user" ? "text-right" : "text-left"
+              }`}
             >
               <p
-                className={`inline-block px-3 py-1 rounded-lg ${
-                  message.sender === "user" ? "bg-white text-black" : "bg-custom-purple text-white"
+                className={`inline-block px-3 py-2 rounded-lg ${
+                  message.sender === "user"
+                    ? "bg-white text-black"
+                    : "bg-blue-600 text-white"
                 }`}
               >
                 {message.text}
@@ -143,29 +201,50 @@ const Gaming: React.FC = () => {
           ))}
         </div>
 
-        {/* 입력창 및 보내기 버튼 */}
-        {isExpanded && ( // isExpanded가 true일 때만 표시
+        {/* 메시지 입력창 */}
+        {isExpanded && (
           <div className="p-4 bg-gray-900">
             <div className="flex items-center space-x-2">
               <input
                 type="text"
                 value={userInput}
-                onChange={handleUserInputChange}
+                onChange={(e) => setUserInput(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"
                 placeholder="메시지를 입력하세요..."
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-custom-purple text-white font-bold py-2 px-4 rounded-r-lg hover:bg-blue-600"
+                className="bg-blue-600 text-white font-bold py-2 px-4 rounded-r-lg hover:bg-blue-700"
               >
-                {loading ? "전송 중..." : "send"}
+                {loading ? "전송 중..." : "Send"}
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Next 버튼 */}
+      {!isExpanded && (
+        <button
+          onClick={goToNextStage}
+          className="absolute right-4 bottom-4 bg-custom-purple text-white font-bold py-2 px-4 rounded-full hover:bg-blue-700"
+        >
+          Next
+        </button>
+      )}
+
+      {/* Back 버튼 */}
+      {!isExpanded && currentStage > 0 && (
+        <button
+          onClick={goToPreviousStage}
+          className="absolute left-4 bottom-4 bg-gray-500 text-white font-bold py-2 px-4 rounded-full hover:bg-gray-700"
+        >
+          Back
+        </button>
+      )}
     </div>
   );
 };
 
-export default Gaming;
+export default GamePage;
