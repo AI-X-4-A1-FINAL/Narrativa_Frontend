@@ -127,16 +127,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 기존 컨테이너 정지 및 삭제
       - name: Stop and remove existing container
         run: |
-          docker ps -q --filter "name=narrativa_front" | xargs -r docker stop
-          docker ps -aq --filter "name=narrativa_front" | xargs -r docker rm
+          $containers = docker ps -q --filter "name=narrativa_front"
+          if ($containers) {
+            docker stop $containers
+            docker rm $containers
+          }
 
-      # 기존 이미지 삭제
       - name: Remove old Docker image
         run: |
-          docker images --filter=reference="${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q | xargs -r docker rmi
+          $images = docker images --filter "reference=${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q
+          if ($images) {
+            docker rmi $images
+          }
 
       # 새 이미지 풀
       - name: Pull new Docker image
