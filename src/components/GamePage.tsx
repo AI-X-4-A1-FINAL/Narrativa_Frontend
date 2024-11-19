@@ -35,7 +35,7 @@ const Gaming: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/generate-story", {
+      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/generate-story`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
