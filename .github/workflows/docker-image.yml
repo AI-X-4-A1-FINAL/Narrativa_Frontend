@@ -93,6 +93,23 @@ jobs:
             --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }}
           docker push $DOCKER_TAG
 
+                # 시크릿 값 확인 단계
+      - name: Validate Secrets
+        run: |
+          echo "Checking secrets..."
+          if [ -z "$REACT_APP_KAKAO_CLIENT_ID" ]; then echo "REACT_APP_KAKAO_CLIENT_ID is missing!"; fi
+          if [ -z "$REACT_APP_KAKAO_AUTH_CODE_PATH" ]; then echo "REACT_APP_KAKAO_AUTH_CODE_PATH is missing!"; fi
+          if [ -z "$REACT_APP_KAKAO_REDIRECT_URI" ]; then echo "REACT_APP_KAKAO_REDIRECT_URI is missing!"; fi
+          if [ -z "$REACT_APP_GOOGLE_CLIENT_ID" ]; then echo "REACT_APP_GOOGLE_CLIENT_ID is missing!"; fi
+          if [ -z "$REACT_APP_GOOGLE_AUTH_CODE_PATH" ]; then echo "REACT_APP_GOOGLE_AUTH_CODE_PATH is missing!"; fi
+          if [ -z "$REACT_APP_GOOGLE_REDIRECT_URI" ]; then echo "REACT_APP_GOOGLE_REDIRECT_URI is missing!"; fi
+          if [ -z "$REACT_APP_GITHUB_CLIENT_ID" ]; then echo "REACT_APP_GITHUB_CLIENT_ID is missing!"; fi
+          if [ -z "$REACT_APP_GITHUB_AUTH_CODE_PATH" ]; then echo "REACT_APP_GITHUB_AUTH_CODE_PATH is missing!"; fi
+          if [ -z "$REACT_APP_URI" ]; then echo "REACT_APP_URI is missing!"; fi
+          if [ -z "$REACT_APP_SPRING_URI" ]; then echo "REACT_APP_SPRING_URI is missing!"; fi
+          echo "Secrets validation completed."
+
+
   deploy_local:
     runs-on: self-hosted
     needs: auto_merge_build_deploy
