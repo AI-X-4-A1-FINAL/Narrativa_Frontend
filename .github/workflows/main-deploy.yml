@@ -3,10 +3,10 @@ name: Deploy to AWS EC2 for Main
 on:
   push:
     branches:
-      - dev  # main 브랜치에 푸시가 발생하면 실행
+      - main  # main 브랜치에 푸시가 발생하면 실행
   pull_request:
     branches:
-      - dev  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
+      - main  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
   workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
 
 jobs:
