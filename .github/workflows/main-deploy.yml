@@ -8,6 +8,7 @@ on:
     branches:
       - main  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
   workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
+
 jobs:
   deploy_to_ec2:
     runs-on: ubuntu-latest
@@ -37,12 +38,14 @@ jobs:
         env:
             HOST: ${{ secrets.EC2_HOST }}
             USER: ${{ secrets.EC2_USER }}
+            REACT_APP_URI: ${{ secrets.REACT_APP_URI }}
+            REACT_APP_SPRING_URI: ${{ secrets.REACT_APP_SPRING_URI }}
             REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
             REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
-            REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
+            REACT_APP_KAKAO_REDIRECT_URI_PART: ${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}
             REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
             REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
-            REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
+            REACT_APP_GOOGLE_REDIRECT_URI_PART: ${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}
             REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
             REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
         run: |
@@ -52,20 +55,29 @@ jobs:
             # SSH into EC2 instance and run docker commands
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
               # Set environment variables on EC2 instance
+              export REACT_APP_URI=$REACT_APP_URI
+              export REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI
               export REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID
               export REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH
-              export REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI
+              export REACT_APP_KAKAO_REDIRECT_URI_PART=$REACT_APP_KAKAO_REDIRECT_URI_PART
               export REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
               export REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH
-              export REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI
+              export REACT_APP_GOOGLE_REDIRECT_URI_PART=$REACT_APP_GOOGLE_REDIRECT_URI_PART
               export REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID
               export REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH
 
               # Docker login and deploy commands
               docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
               docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+              # Stop and remove the existing container
               docker stop narrativa_front || true
               docker rm narrativa_front || true
+
+              # Remove old image
+              docker images --filter "dangling=true" -q | xargs -r docker rmi
+
+              # Run new Docker container with the new image
               docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
             EOF
 
