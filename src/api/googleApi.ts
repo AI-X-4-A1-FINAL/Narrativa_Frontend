@@ -6,6 +6,6 @@ const redirect_uri = react_app_uri + redirect_uri_part
 
 export const getGoogleLoginLink = (): string => {
     const googleURL = `${auth_code_path}?client_id=${rest_api_key}&redirect_uri=${redirect_uri}&response_type=code&scope=email profile`;
-
+    console.log('googleURL: ', googleURL);
     return googleURL;
 }
