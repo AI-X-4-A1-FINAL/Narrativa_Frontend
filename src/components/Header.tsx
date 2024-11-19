@@ -40,7 +40,7 @@ const Header: React.FC = () => {
             {/* 상단 이미지 컨테이너 */}
             <div className="flex justify-between items-center w-full">
                 <Link to="/home">
-                    <img src="/images/Group 18317.png" alt="Bookmarks" className="h-16 mt-5 " />
+                    <img src="/images/Group 18317.png" alt="Bookmarks" className="h-16 mt-5" />
                 </Link>
 
                 {/* 프로필 아이콘 및 드롭다운 메뉴 */}

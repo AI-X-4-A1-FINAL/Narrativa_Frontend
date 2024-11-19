@@ -26,7 +26,7 @@ const GameIntro: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-50 flex flex-col items-center justify-center min-h-screen p-8">
+    <div className="">
       <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg mb-6">
         <img
           src={image}
@@ -55,12 +55,14 @@ const GameIntro: React.FC = () => {
           준비가 되셨다면 시작 버튼을 눌러 주세요!
         </p>
       </div>
-      <button
+      <div className="flex flex-col items-center">
+        <button
         onClick={handleStart}
         className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
       >
         Start Game
       </button>
+      </div>
     </div>
   );
 };
