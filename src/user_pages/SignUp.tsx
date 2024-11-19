@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
 import axios from "axios";
-import { useSelector, useDispatch } from 'react-redux';
-import { updateUsername, updateEmail, updateProfileUrl } from "../reducer/userSlice";
-import { AppDispatch, RootState } from "../store/store";
 
 // 회원 가입시 필요한 데이터
 interface SignUpData {
