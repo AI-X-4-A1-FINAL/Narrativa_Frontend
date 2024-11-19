@@ -12,7 +12,6 @@ interface SignUpData {
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-
   const [nickname, setNickname] = useState(
     Math.random().toString(36).substring(2, 10) // 초기 랜덤 닉네임 생성
   );
@@ -201,7 +200,6 @@ const SignUp: React.FC = () => {
           )}
         </div>
       </div>
-      {/* 확인 버튼 */}
       <div className="flex space-x-4 mt-4">
         <button
           className="px-4 py-2 text-white bg-custom-purple rounded hover:bg-blue-900"
