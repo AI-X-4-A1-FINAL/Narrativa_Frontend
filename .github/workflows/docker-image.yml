@@ -133,7 +133,7 @@ jobs:
       - name: Run new Docker container
         run: |
           docker run -d --name narrativa_front `
-            -p 3000:3000 `
+            -p 3010:3010 `
             -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} `
             -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} `
             -e REACT_APP_KAKAO_REDIRECT_URI_PART=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }} `
