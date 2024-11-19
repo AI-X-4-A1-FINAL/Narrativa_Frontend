@@ -13,7 +13,7 @@ import Bookmarks from "./user_pages/Bookmarks";
 import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
-import SignUp from "./user_pages/SignUp";
+import GamePage from "./components/GamePage";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -22,16 +22,14 @@ const App: React.FC = () => {
   const isMainPage = location.pathname === "/";
 
   // Header를 숨길 경로 리스트
-  const noHeaderRoutes = ["/login", "/delete-account", "/"];
+  const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
 
   return (
     <>
       {isMainPage ? (
-        // Main 페이지에서는 별도의 레이아웃
         <Main />
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between bg-black">
-          {/* 특정 경로에서는 Header를 숨김 */}
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main className="flex-grow pt-32 px-4 w-full max-w-xl mx-auto bg-white">
             <Routes>
@@ -41,7 +39,7 @@ const App: React.FC = () => {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/game-intro" element={<GameIntro />} />
-              <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/game-page" element={<GamePage />} />
             </Routes>
           </main>
         </div>
