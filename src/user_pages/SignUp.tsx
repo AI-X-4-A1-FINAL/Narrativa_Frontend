@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
 import axios from "axios";
+import { useSelector, useDispatch } from 'react-redux';
+import { updateUsername, updateEmail, updateProfileUrl } from "../reducer/userSlice";
+import { AppDispatch, RootState } from "../store/store";
 
 // 회원 가입시 필요한 데이터
 interface SignUpData {
@@ -24,6 +27,9 @@ const SignUp: React.FC = () => {
 
   const [signupError, setSignupError] = useState<string>('');
   const [signupSuccess, setSignupSuccess] = useState<string>('');
+
+  // User 정보
+
 
   useEffect(() => {
     // URL에서 쿼리 파라미터 추출
@@ -99,6 +105,18 @@ const SignUp: React.FC = () => {
 
   // 회원가입시 회원가입 정보 확인하여, 이메일 유효o => 회원가입 가능
   const handleConfirmClick = async () => {
+    // const user = useSelector((state: RootState) => state.user); // Redux에서 유저 상태 가져오기
+    // const dispatch = useDispatch<AppDispatch>();
+
+    // const [newUsername, setNewUsername] = useState(user.username);
+    // const [newEmail, setNewEmail] = useState(user.email);
+    // const [newProfileUrl, setNewProfileUrl] = useState(user.profileUrl);
+
+    // const handleUpdate = () => {
+    //   dispatch(updateUsername(newUsername)); // 유저명 업데이트
+    //   dispatch(updateEmail(newEmail)); // 이메일 업데이트
+    //   dispatch(updateProfileUrl(newProfileUrl)); // 프로필 URL 업데이트
+    // };
 
     // 요청 본문에 들어갈 데이터
     const signUpData: SignUpData = {
