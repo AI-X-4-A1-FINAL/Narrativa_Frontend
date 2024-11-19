@@ -7,13 +7,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./ 
 RUN npm install
 
-# 앱 소스 코드 복사 및 빌드
-COPY . . 
-RUN npm run build
-
-# 2. 배포 단계
-FROM node:18-alpine
-
 # Docker build에서 환경 변수를 받을 수 있도록 ARG 추가
 ARG REACT_APP_KAKAO_CLIENT_ID
 ARG REACT_APP_KAKAO_AUTH_CODE_PATH
@@ -45,6 +38,13 @@ ENV REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI
 ENV REACT_APP_SPRING_LOCAL_URI=$REACT_APP_SPRING_LOCAL_URI
 ENV REACT_APP_ML_URI=$REACT_APP_ML_URI
 ENV REACT_APP_ML_LOCAL_URI=$REACT_APP_ML_LOCAL_URI
+
+# 앱 소스 코드 복사 및 빌드
+COPY . . 
+RUN npm run build
+
+# 2. 배포 단계
+FROM node:18-alpine
 
 # `serve` 설치 (정적 파일을 서빙하기 위한 라이브러리)
 RUN npm install -g serve && npm cache clean --force
