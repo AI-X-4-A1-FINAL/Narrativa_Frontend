@@ -68,7 +68,7 @@ jobs:
           # 기존 이미지 삭제
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
-          # 새 컨테이너 실행
+          # 기존 컨테이너 이름 충돌을 방지하고 새 컨테이너 실행 (강제 삭제 후 실행)
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front \
             -e REACT_APP_URI=$REACT_APP_URI \
             -e REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
