@@ -1,8 +1,8 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
     // 장르 선택 함수
     const handleClick = (genre: string, tags: string[], image: string) => {
@@ -82,72 +82,10 @@ const Home: React.FC = () => {
                             />
                         </div>
                     </div>
-             
-        
+                
+            </div>
         </div>
-        </div>
-
-        {/* 두 번째 이미지 */}
-        <div className="w-full">
-          <div className="text-left font-semibold opacity-90">
-            # 로맨스 # 연애
-          </div>
-          <div className=" rounded-lg overflow-hidden shadow-lg">
-            <img
-              src="/images/romance.png"
-              alt="Romance Genre Cover"
-              className="w-full h-[600px] "
-              onClick={() =>
-                handleClick(
-                  "연애",
-                  ["연애", "시뮬레이션", "로맨스", "로맨스 판타지"],
-                  "/images/romance.png"
-                )
-              }
-            />
-          </div>
-        </div>
-
-        {/* 세 번째 이미지 */}
-        <div className="w-full">
-          <div className="text-left font-semibold opacity-90">
-            # 육성 # 성장물
-          </div>
-          <div className=" rounded-lg overflow-hidden shadow-lg">
-            <img
-              src="/images/growth.png"
-              alt="Growth Genre Cover"
-              className="w-full h-[600px] "
-              onClick={() =>
-                handleClick(
-                  "성장물",
-                  ["육성", "시뮬레이션", "키우기", "성장물"],
-                  "/images/growth.png"
-                )
-              }
-            />
-          </div>
-        </div>
-
-        {/* 네 번째 이미지 */}
-        <div className="w-full">
-          <div className="text-left font-semibold opacity-90">
-            # 추리 # 미스테리
-          </div>
-          <div className=" rounded-lg overflow-hidden shadow-lg">
-            <img
-              src="/images/mystery.png"
-              alt="Mystery Genre Cover"
-              className="w-full h-[600px]"
-              onClick={() =>
-                handleClick("추리", ["추리", "미스테리"], "/images/mystery.png")
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Home;
