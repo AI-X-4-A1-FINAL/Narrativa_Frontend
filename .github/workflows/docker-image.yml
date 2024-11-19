@@ -83,10 +83,10 @@ jobs:
           docker build -t $DOCKER_TAG . \
             --build-arg REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
             --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-            --build-arg REACT_APP_KAKAO_REDIRECT_URI_PART=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }} \
+            --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
             --build-arg REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
             --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-            --build-arg REACT_APP_GOOGLE_REDIRECT_URI_PART=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }} \
+            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
             --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
             --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
             --build-arg REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
@@ -136,10 +136,10 @@ jobs:
             -p 3010:3010 `
             -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} `
             -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} `
-            -e REACT_APP_KAKAO_REDIRECT_URI_PART=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }} `
+            -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} `
             -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} `
             -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} `
-            -e REACT_APP_GOOGLE_REDIRECT_URI_PART=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }} `
+            -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} `
             -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} `
             -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} `
             -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} `
