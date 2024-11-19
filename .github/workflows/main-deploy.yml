@@ -1,0 +1,85 @@
+name: Deploy to AWS EC2 for Main
+
+on:
+  push:
+    branches:
+      - dev  # main 브랜치에 푸시가 발생하면 실행
+  pull_request:
+    branches:
+      - dev  # main 브랜치에 PR이 생성되거나 업데이트될 때 실행
+  workflow_dispatch:  # 수동으로 실행할 수 있도록 설정
+
+jobs:
+  deploy_to_ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image to Docker Hub
+        run: |
+          docker build -t narrativa_front:latest .
+          docker tag narrativa_front:latest ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+      - name: Set up SSH key
+        run: |
+            echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+            chmod 400 ec2_key.pem
+
+      - name: Deploy Docker container to EC2
+        env:
+            HOST: ${{ secrets.EC2_HOST }}
+            USER: ${{ secrets.EC2_USER }}
+            REACT_APP_URI: ${{ secrets.REACT_APP_URI }}
+            REACT_APP_SPRING_URI: ${{ secrets.REACT_APP_SPRING_URI }}
+            REACT_APP_KAKAO_CLIENT_ID: ${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
+            REACT_APP_KAKAO_AUTH_CODE_PATH: ${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
+            REACT_APP_KAKAO_REDIRECT_URI: ${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
+            REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+            REACT_APP_GOOGLE_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
+            REACT_APP_GOOGLE_REDIRECT_URI: ${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
+            REACT_APP_GITHUB_CLIENT_ID: ${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
+            REACT_APP_GITHUB_AUTH_CODE_PATH: ${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
+        run: |
+            # Disable command echoing to prevent sensitive data from appearing in logs
+            set +x
+
+            # SSH into EC2 instance and run docker commands
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST << EOF
+              # Set environment variables on EC2 instance
+              export REACT_APP_URI=$REACT_APP_URI
+              export REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI
+              export REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID
+              export REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH
+              export REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI
+              export REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
+              export REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH
+              export REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI
+              export REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID
+              export REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH
+
+              # Docker login and deploy commands
+              docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+              docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+
+              # Stop and remove the existing container
+              docker stop narrativa_front || true
+              docker rm narrativa_front || true
+
+              # Remove old image
+              docker images --filter "dangling=true" -q | xargs -r docker rmi
+
+              # Run new Docker container with the new image
+              docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            EOF
+
+            # Re-enable command echoing
+            set -x

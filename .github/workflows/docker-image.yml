@@ -105,24 +105,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-          # 기존 컨테이너 정지 및 삭제
+      # 기존 컨테이너 정지 및 삭제
       - name: Stop and remove existing container
         run: |
-          $containers = docker ps -q --filter "name=narrativa_front"
-          if ($containers) {
-            $containers | ForEach-Object { docker stop $_ }
+          $containerIds = docker ps -q --filter "name=narrativa_front"
+          if ($containerIds) {
+            $containerIds | ForEach-Object { docker stop $_ }
           }
-          $containers = docker ps -aq --filter "name=narrativa_front"
-          if ($containers) {
-            $containers | ForEach-Object { docker rm $_ }
+          $allContainerIds = docker ps -aq --filter "name=narrativa_front"
+          if ($allContainerIds) {
+            $allContainerIds | ForEach-Object { docker rm $_ }
           }
 
       # 기존 이미지 삭제
       - name: Remove old Docker image
         run: |
-          $images = docker images --filter "reference=${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q
-          if ($images) {
-            $images | ForEach-Object { docker rmi $_ }
+          $imageIds = docker images --filter=reference="${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q
+          if ($imageIds) {
+            $imageIds | ForEach-Object { docker rmi $_ }
           }
 
       # 새 이미지 풀
@@ -148,8 +148,3 @@ jobs:
             -e REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }} `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
-      # 컨테이너 내 환경 변수 확인
-      - name: Validate environment variables in container
-        run: |
-          $output = docker exec narrativa_front env
-          $output -match 'REACT_APP_'
