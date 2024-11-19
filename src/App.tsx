@@ -1,6 +1,4 @@
 import React from "react";
-import { Provider } from 'react-redux';
-import store from './store';
 import {
   BrowserRouter as Router,
   Route,
@@ -53,13 +51,11 @@ const App: React.FC = () => {
 };
 
 const AppWithRouter: React.FC = () => (
-  <Provider store={store}>
-    <Router>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </Router>
-  </Provider>
+  <Router>
+    <Routes>
+      <Route path="/*" element={<App />} />
+    </Routes>
+  </Router>
 );
 
 export default AppWithRouter;
