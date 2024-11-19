@@ -57,7 +57,7 @@ const GameIntro: React.FC = () => {
       </div>
       <button
         onClick={handleStart}
-        className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
+        className="bg-custom-purple text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
       >
         Start Game
       </button>

@@ -22,16 +22,14 @@ const App: React.FC = () => {
   const isMainPage = location.pathname === "/";
 
   // Header를 숨길 경로 리스트
-  const noHeaderRoutes = ["/login", "/delete-account", "/"];
+  const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
 
   return (
     <>
       {isMainPage ? (
-        // Main 페이지에서는 별도의 레이아웃
         <Main />
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between bg-black">
-          {/* 특정 경로에서는 Header를 숨김 */}
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main className="flex-grow pt-32 px-4 w-full max-w-xl mx-auto bg-white">
             <Routes>
