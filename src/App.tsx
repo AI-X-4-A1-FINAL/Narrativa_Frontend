@@ -13,6 +13,7 @@ import Bookmarks from "./user_pages/Bookmarks";
 import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
+import GamePage from "./components/GamePage";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -40,6 +41,7 @@ const App: React.FC = () => {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/game-intro" element={<GameIntro />} />
+              <Route path="/game-page" element={<GamePage />} />
             </Routes>
           </main>
         </div>
