@@ -13,6 +13,8 @@ import Bookmarks from "./user_pages/Bookmarks";
 import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
+import SignUp from "./user_pages/SignUp";
+import GamePage from "./components/GamePage";
 
 const App: React.FC = () => {
   const location = useLocation();
