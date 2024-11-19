@@ -26,8 +26,8 @@ const Bookmarks: React.FC = () => {
                     {Object.keys(genreImages).map((genre) => (
                         <button
                             key={genre}
-                            className={`text-black px-4 py-2 w-1/4 text-center rounded-full hover:bg-custom-purple hover:text-white ${
-                                selectedGenre === genre ? 'bg-custom-purple text-white' : ''
+                            className={`text-black px-4 py-2 w-1/4 text-center rounded-full hover:bg-custom-violet hover:text-white ${
+                                selectedGenre === genre ? 'bg-custom-violet text-white' : ''
                             }`}
                             style={{ borderRadius: '50px' }}
                             onClick={() => setSelectedGenre(genre)}

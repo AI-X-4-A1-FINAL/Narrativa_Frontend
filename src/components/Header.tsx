@@ -86,7 +86,7 @@ const Header: React.FC = () => {
             {/* 공지사항: Home 페이지에서만 렌더링 */}
             {location.pathname === "/home" && (
                 <div className="mt-1 bg-gray-100 text-center p-2 rounded-lg">
-                    <p className="text-gray-700"> 📣 공지사항 : 2024년 12월 20일 앱 출시 📣 </p>
+                    <p className="text-gray-700 text-sm"> 📣 공지사항 : 2024년 12월 20일 앱 출시 📣 </p>
                 </div>
             )}
         </header>

@@ -34,7 +34,7 @@ const GameIntro: React.FC = () => {
           className="w-full h-[400px] object-cover rounded-2xl"
         />
       </div>
-      <div className="text-center text-gray-700 mb-4">
+      <div className="text-center text-black mb-4">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
         <div className="mb-4">
           {tags.map((tag, index) => (
@@ -57,7 +57,7 @@ const GameIntro: React.FC = () => {
       </div>
       <button
         onClick={handleStart}
-        className="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
+        className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
       >
         Start Game
       </button>
