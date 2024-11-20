@@ -52,6 +52,11 @@ jobs:
         run: |
           git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
             TARGET_BRANCH=${TARGET_BRANCH#origin/}
+            DIFF_COUNT=$(git rev-list --count "origin/$TARGET_BRANCH" --not origin/dev)
+            if [ "$DIFF_COUNT" -eq 0 ]; then
+              echo "No new commits in $TARGET_BRANCH; skipping PR creation."
+              continue
+            fi
             PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
             if [ -z "$PR_URL" ]; then
               PR_URL=$(gh pr create --base dev --head "$TARGET_BRANCH" --title "Auto merge $TARGET_BRANCH into dev" --body "자동 생성된 Pull Request")
