@@ -67,7 +67,7 @@ jobs:
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
-            # 기존 이미지 삭제
+            # 기존 이미지 삭제 (덧붙여서 필요시 수행)
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
             # 새 컨테이너 실행
@@ -78,4 +78,3 @@ jobs:
 
             # 민감 정보 로그 재활성화
             set -x
-            
