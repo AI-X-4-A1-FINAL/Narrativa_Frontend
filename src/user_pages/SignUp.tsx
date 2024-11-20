@@ -8,7 +8,6 @@ interface SignUpData {
   id: number;
   username: string;
   profile_url: string | null;
-  login_type: String;
 }
 
 const SignUp: React.FC = () => {
@@ -20,7 +19,6 @@ const SignUp: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false); // 닉네임 편집 상태
   const [signupMessage, setSignupMessage] = useState('');
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
-  const [loginType, setLoginType] = useState('');
 
   const [signupError, setSignupError] = useState<string>('');
   const [signupSuccess, setSignupSuccess] = useState<string>('');
@@ -34,22 +32,13 @@ const SignUp: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const username = params.get('username');
     const profileUrl = params.get('profile_url');
-    const userId = params.get('id');
-    const loginType = params.get('type');
 
     // 추출한 값 저장
-    if (username){
+    if (username && profileUrl) {
       setNickname(username);
-    } 
-    if (profileUrl){
       setProfileUrl(profileUrl);
-    } 
-    if (userId){
-      setUserId(Number(userId));
     }
-    if (loginType){
-      setLoginType(loginType);
-    } 
+    
   }, []);
 
   // 닉네임 변경 처리
@@ -70,7 +59,6 @@ const SignUp: React.FC = () => {
       id: userId,
       username: nickname,
       profile_url: profileUrl,
-      login_type: loginType,
     };
 
     try {
