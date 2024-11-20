@@ -59,10 +59,14 @@ jobs:
             PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
             if [ -z "$PR_URL" ]; then
               PR_URL=$(gh pr create --base dev --head "$TARGET_BRANCH" --title "Auto merge $TARGET_BRANCH into dev" --body "자동 생성된 Pull Request")
+              echo "Created PR: $PR_URL"
+            else
+              echo "PR already exists: $PR_URL"
             fi
             echo "Attempting to merge $PR_URL"
             gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
           done
+
 
       - name: Log in to Docker Hub
         if: env.has_new_commits == 'true'
