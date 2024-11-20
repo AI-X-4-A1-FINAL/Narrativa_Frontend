@@ -1,9 +1,6 @@
 name: Auto Merge, Build, and Deploy to Docker Hub
 
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     types:
       - closed  # PR이 dev에 병합된 경우에만 실행
