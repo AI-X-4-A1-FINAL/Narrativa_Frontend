@@ -62,22 +62,15 @@ git checkout -b hotfix/critical-bug
 ## 🗝️ 디렉토리 구조
 
 ```
-Narrativa_Backend/
+Narrativa_Frontend/
 ├── .github/
-│   └── workflows/          # CI/CD 설정
-├── config/                 # 서브모듈 설정
+│   └── workflows/        
+├── public/                 
 ├── src/
-│   └── main/
-│       └── java/com/nova/narrativa/
-│           ├── common/     # 공통 모듈
-│           └── domain/     # 도메인별 모듈
-│               ├── admin/
-│               ├── game/
-│               ├── llm/
-│               ├── notice/
-│               ├── tti/
-│               ├── ttm/
-│               └── user/
+│   └── action/
+│   └── api/
+│   └── components/
+│   └── user_pages/
 └── resources/
 ```
 
