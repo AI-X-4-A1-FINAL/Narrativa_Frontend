@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import Lottie from "lottie-react";
-import loadingLottie from "./Animation.json";
+import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
 
 const Main: React.FC = () => {
@@ -42,7 +42,7 @@ const Main: React.FC = () => {
           <div className="flex flex-col items-center justify-center w-full mt-10">
             <Lottie
               animationData={loadingLottie}
-              className="w-64"
+              className="w-128"
             />
           </div>
         )}
