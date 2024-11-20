@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface LocationState {
   genre: string;
@@ -14,6 +14,7 @@ interface Message {
 
 const GamePage: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { genre, tags, image } = (location.state as LocationState) || {};
 
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
@@ -116,9 +117,10 @@ const GamePage: React.FC = () => {
       const nextMessages = allMessages[currentStage + 1] || [];
       setCurrentMessages(nextMessages);
       setCurrentStage((prev) => prev + 1);
-    } else {
-      alert("You've completed all stages!");
     }
+  };
+  const goToEnding = () => {
+    navigate("/game-ending");
   };
 
   const goToPreviousStage = () => {
@@ -174,6 +176,13 @@ const GamePage: React.FC = () => {
               : "채팅창 열기"}
           </h2>
         </div>
+        {currentStage === 0 && !isExpanded && (
+          <div className="p-4">
+            <p className="text-sm text-white">
+              {stages[currentStage]?.content || "콘텐츠가 없습니다."}
+            </p>
+          </div>
+        )}
 
         {/* 채팅 메시지 */}
         <div
@@ -192,7 +201,7 @@ const GamePage: React.FC = () => {
                 className={`inline-block px-3 py-2 rounded-lg ${
                   message.sender === "user"
                     ? "bg-white text-black"
-                    : "bg-blue-600 text-white"
+                    : "bg-custom-purple text-white"
                 }`}
               >
                 {message.text}
@@ -227,10 +236,14 @@ const GamePage: React.FC = () => {
       {/* Next 버튼 */}
       {!isExpanded && (
         <button
-          onClick={goToNextStage}
-          className="absolute right-4 bottom-4 bg-custom-purple text-white font-bold py-2 px-4 rounded-full hover:bg-blue-700"
+          onClick={
+            currentStage < stages.length - 1
+              ? goToNextStage // 다음 단계로 이동
+              : () => navigate("/game-ending") // 결말 페이지로 이동
+          }
+          className="absolute right-4 bottom-4 text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple"
         >
-          Next
+          {currentStage < stages.length - 1 ? "Next" : "Game"}
         </button>
       )}
 
@@ -238,7 +251,7 @@ const GamePage: React.FC = () => {
       {!isExpanded && currentStage > 0 && (
         <button
           onClick={goToPreviousStage}
-          className="absolute left-4 bottom-4 bg-gray-500 text-white font-bold py-2 px-4 rounded-full hover:bg-gray-700"
+          className="absolute left-4 bottom-4  text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple"
         >
           Back
         </button>

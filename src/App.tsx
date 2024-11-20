@@ -14,7 +14,10 @@ import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
 import GamePage from "./components/GamePage";
+import GameEnding from "./components/GameEnding";
 import SignUp from "./user_pages/SignUp";
+import WrongPage from "./action/WrongPage";
+import Loading from "./action/Loading";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -41,7 +44,10 @@ const App: React.FC = () => {
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/game-intro" element={<GameIntro />} />
               <Route path="/game-page" element={<GamePage />} />
+              <Route path="/game-ending" element={<GameEnding />} />
               <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/*" element={<WrongPage />} />
+              <Route path="/loading" element={<Loading />} />
             </Routes>
           </main>
         </div>
