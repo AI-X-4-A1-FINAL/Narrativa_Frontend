@@ -1,6 +1,9 @@
 name: Auto Merge, Build, and Deploy to Docker Hub
 
 on:
+  push:
+    branches:
+      - dev  # dev 브랜치에서 푸시 시 실행
   schedule:
     - cron: '05 15 * * *'  # 매일 00:05 (KST 기준)
   workflow_dispatch:  # 수동 실행 가능
@@ -11,6 +14,7 @@ permissions:
 
 jobs:
   auto_merge_build_deploy:
+    if: github.ref == 'refs/heads/dev'  # dev 브랜치에서만 실행
     runs-on: ubuntu-latest
     outputs:
       has_new_commits: ${{ env.has_new_commits }}
@@ -82,31 +86,31 @@ jobs:
           # Docker 빌드 전에 환경 변수 정의
           export REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
           export REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
-          export REACT_APP_KAKAO_REDIRECT_URI_PART=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}
+          export REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
           export REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
           export REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
-          export REACT_APP_GOOGLE_REDIRECT_URI_PART=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}
+          export REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
           export REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
           export REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
-          export REACT_APP_URI=${{ secrets.REACT_APP_URI }}
-          export REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }}
-          export REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_URI }}
+          export REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }}
+          export REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}
+          export REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}
 
           # Docker 빌드 실행
           export DOCKER_TAG=${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-          docker build -t $DOCKER_TAG . \
+          docker build -f dockerfile.local -t $DOCKER_TAG . \
             --build-arg REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
             --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
-            --build-arg REACT_APP_KAKAO_REDIRECT_URI_PART=$REACT_APP_KAKAO_REDIRECT_URI_PART \
+            --build-arg REACT_APP_KAKAO_REDIRECT_URI=$REACT_APP_KAKAO_REDIRECT_URI \
             --build-arg REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
             --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
-            --build-arg REACT_APP_GOOGLE_REDIRECT_URI_PART=$REACT_APP_GOOGLE_REDIRECT_URI_PART \
+            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=$REACT_APP_GOOGLE_REDIRECT_URI \
             --build-arg REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
             --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
-            --build-arg REACT_APP_URI=$REACT_APP_URI \
-            --build-arg REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
-            --build-arg REACT_APP_ML_URI=$REACT_APP_ML_URI \
-          
+            --build-arg REACT_APP_URI=$REACT_APP_LOCAL_URI \
+            --build-arg REACT_APP_SPRING_URI=$REACT_APP_SPRING_LOCAL_URI \
+            --build-arg REACT_APP_ML_URI=$REACT_APP_ML_LOCAL_URI 
+
           # Docker 이미지 푸시
           docker push $DOCKER_TAG
 
@@ -150,13 +154,13 @@ jobs:
             -p 3010:3010 `
             -e "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" `
             -e "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}" `
+            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" `
             -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" `
             -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}" `
+            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" `
             -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" `
             -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_URI }}" `
-            -e "REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_URI }}" `
-            -e "REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_URI }}" `
+            -e "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" `
+            -e "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" `
+            -e "REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}" `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
