@@ -1,3 +1,19 @@
+name: Auto Merge, Build, and Deploy to Docker Hub
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - dev
+  schedule:
+    - cron: '05 15 * * *'  # 매일 00:05 (KST 기준)
+  workflow_dispatch:  # 수동 실행 가능
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   auto_merge_build_deploy:
     if: github.ref == 'refs/heads/dev'  # dev 브랜치에서만 실행
