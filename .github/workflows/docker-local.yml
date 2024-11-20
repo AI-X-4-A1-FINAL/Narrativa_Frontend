@@ -141,8 +141,8 @@ jobs:
             -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" `
             -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" `
             -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP.GOOGLE_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" `
-            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" `
+            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP.GOOGLE_REDIRECT_URI }}" `
+            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }}" `
             -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" `
             -e "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" `
             -e "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" `
@@ -153,7 +153,9 @@ jobs:
         shell: powershell
         run: |
           docker exec narrativa_front printenv > container_env.log
-          if ! docker exec narrativa_front printenv | findstr "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}"; then
+          if (docker exec narrativa_front printenv | Select-String "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}") {
+            echo "All environment variables verified successfully!"
+          } else {
             exit 1
-          fi
-          echo "All environment variables verified successfully!"
+          }
+
