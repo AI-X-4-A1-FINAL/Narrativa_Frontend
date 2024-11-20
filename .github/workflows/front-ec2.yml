@@ -3,12 +3,12 @@ name: Deploy to AWS EC2 for Main
 on:
     push:
       branches:
-        - main
+        - dev
     pull_request:
       types:
         - closed  # PR이 dev에 병합된 경우에만 실행
       branches:
-        - main
+        - dev
     workflow_dispatch:
 
 jobs:
