@@ -6,7 +6,7 @@ on:
         - dev
     pull_request:
       types:
-        - closed  # PR이 dev에 병합된 경우에만 실행
+        - closed
       branches:
         - dev
     workflow_dispatch:
@@ -73,8 +73,9 @@ jobs:
           # 기존 컨테이너 이름 충돌을 방지하고 새 컨테이너 실행 (강제 삭제 후 실행)
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
+          # 컨테이너 내 환경 변수 확인
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
+
           # 민감 정보 로그 재활성화
           set -x
 
-        #   # 컨테이너 내 환경 변수 확인
-        #   ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
