@@ -56,25 +56,26 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          # 민감 정보 로그 방지
-          set +x
+            # 민감 정보 로그 방지
+            set +x
 
-          # 기존 컨테이너 강제 중지 및 제거
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker stop"
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker rm"
+            # 기존 컨테이너 강제 중지 및 제거 (강제 제거)
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker stop || true"
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker rm -f || true"
 
-          # Docker Hub에서 최신 이미지 가져오기
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
+            # Docker Hub에서 최신 이미지 가져오기
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
-          # 기존 이미지 삭제
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
+            # 기존 이미지 삭제
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
-          # 새 컨테이너 실행
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
+            # 새 컨테이너 실행
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
-          # 컨테이너 내 환경 변수 확인
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
+            # 컨테이너 내 환경 변수 확인
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
 
-          # 민감 정보 로그 재활성화
-          set -x
+            # 민감 정보 로그 재활성화
+            set -x
+            
