@@ -142,26 +142,28 @@ const GamePage: React.FC = () => {
   }, [currentStage]);
 
   return (
-    <div className="relative h-screen bg-gray-800 text-white">
+    <div className="relative w-full h-screen bg-gray-800 text-white">
       {/* 배경 이미지 */}
       <div
         className={`absolute inset-0 ${
           isExpanded ? "opacity-40" : "opacity-100"
-        } transition-opacity duration-300`}
+        } transition-opacity duration-300 max-w-lg`}
         onClick={() => {
           if (isExpanded) toggleExpansion();
         }}
+        
       >
         <img
           src={stages[currentStage].bg}
           alt={`Stage ${currentStage + 1}`}
-          className="w-full h-full object-cover"
+          className="w-screen h-screen object-cover" // Image stretches to full screen and covers the area
         />
-      </div>
+    </div>
+
 
       {/* 채팅창 */}
       <div
-        className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-purple text-white ${
+        className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-violet text-white ${
           isExpanded ? "h-[85%] bg-opacity-20 backdrop-blur-md" : "h-[20%]"
         } transition-all duration-300 ease-in-out flex flex-col`}
         onClick={(e) => e.stopPropagation()}
@@ -170,7 +172,7 @@ const GamePage: React.FC = () => {
           className="flex justify-between items-center border-b pb-4 p-4 cursor-pointer"
           onClick={toggleExpansion}
         >
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold " >
             {isExpanded
               ? `스토리 진행 - 단계 ${currentStage + 1}`
               : "채팅창 열기"}
@@ -224,7 +226,7 @@ const GamePage: React.FC = () => {
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-blue-600 text-white font-bold py-2 px-4 rounded-r-lg hover:bg-blue-700"
+                className="bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg "
               >
                 {loading ? "전송 중..." : "Send"}
               </button>
@@ -241,7 +243,7 @@ const GamePage: React.FC = () => {
               ? goToNextStage // 다음 단계로 이동
               : () => navigate("/game-ending") // 결말 페이지로 이동
           }
-          className="absolute right-4 bottom-4 text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple"
+          className="absolute right-4 bottom-4 text-white font-bold py-2 px-4 rounded-full hover:bg-custom-violet"
         >
           {currentStage < stages.length - 1 ? "Next" : "Game"}
         </button>
@@ -251,7 +253,7 @@ const GamePage: React.FC = () => {
       {!isExpanded && currentStage > 0 && (
         <button
           onClick={goToPreviousStage}
-          className="absolute left-4 bottom-4  text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple"
+          className="absolute left-4 bottom-4  text-white font-bold py-2 px-4 rounded-full hover:bg-custom-violet"
         >
           Back
         </button>
