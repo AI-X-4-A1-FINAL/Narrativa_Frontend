@@ -45,7 +45,7 @@ const App: React.FC = () => {
               <Route path="/game-intro" element={<GameIntro />} />
               <Route path="/game-page" element={<GamePage />} />
               <Route path="/game-ending" element={<GameEnding />} />
-              <Route path="/api/users/sign-up" element={<SignUp />} />
+              <Route path="/sign-up" element={<SignUp />} />
               <Route path="/*" element={<WrongPage />} />
               <Route path="/loading" element={<Loading />} />
             </Routes>
