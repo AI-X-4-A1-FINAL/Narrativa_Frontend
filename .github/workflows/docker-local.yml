@@ -74,8 +74,21 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set environment variables from secrets
+        run: |
+          echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" >> $GITHUB_ENV
+          echo "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" >> $GITHUB_ENV
+          echo "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" >> $GITHUB_ENV
+          echo "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}" >> $GITHUB_ENV
+
       - name: Build and push Docker image to Docker Hub
-        if: env.has_new_commits == 'true'
         run: |
           git fetch origin dev
           git checkout dev
@@ -88,8 +101,8 @@ jobs:
             --build-arg REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
             --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
             --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
-            --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
-            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+            --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }} \
+            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }} \
             --build-arg REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }} \
             --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} \
             --build-arg REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}
@@ -134,28 +147,17 @@ jobs:
       - name: Run new Docker container
         shell: powershell
         run: |
-          docker run -d --name narrativa_front `
-            -p 3010:3010 `
-            -e "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" `
-            -e "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" `
-            -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" `
-            -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP.GOOGLE_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP.GOOGLE_REDIRECT_URI }}" `
-            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }}" `
-            -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" `
-            -e "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" `
-            -e "REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}" `
+          docker run -d --name narrativa_front ``
+            -p 3010:3010 ``
+            -e "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" ``
+            -e "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" ``
+            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" ``
+            -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" ``
+            -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP.GOOGLE_AUTH_CODE_PATH }}" ``
+            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP.GOOGLE_REDIRECT_URI }}" ``
+            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }}" ``
+            -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" ``
+            -e "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" ``
+            -e "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" ``
+            -e "REACT_APP_ML_URI=${{ secrets.REACT_APP.ML_LOCAL_URI }}" ``
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-
-      - name: Verify environment variables in container
-        shell: powershell
-        run: |
-          docker exec narrativa_front printenv > container_env.log
-          if (docker exec narrativa_front printenv | Select-String "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}") {
-            echo "All environment variables verified successfully!"
-          } else {
-            exit 1
-          }
-
