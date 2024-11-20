@@ -18,9 +18,6 @@ jobs:
   auto_merge_build_deploy:
     if: github.ref == 'refs/heads/dev'  # dev 브랜치에서만 실행
     runs-on: ubuntu-latest
-    outputs:
-      has_new_commits: ${{ env.has_new_commits }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -37,11 +34,13 @@ jobs:
         id: check_commits
         run: |
           git fetch --all
-          NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
-          echo "Number of new commits in feat/* branches: $NEW_COMMITS_COUNT"
-          if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
+          # 병합되지 않은 feat/* 브랜치 찾기
+          TARGET_BRANCHES=$(git branch -r --no-merged origin/dev | grep 'origin/feat/' | sed 's|origin/||')
+          if [ -z "$TARGET_BRANCHES" ]; then
+            echo "No feat/* branches to process."
             echo "has_new_commits=false" >> $GITHUB_ENV
           else
+            echo "Target branches: $TARGET_BRANCHES"
             echo "has_new_commits=true" >> $GITHUB_ENV
           fi
 
@@ -50,8 +49,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
-          git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
-            TARGET_BRANCH=${TARGET_BRANCH#origin/}
+          git fetch --all
+          git branch -r --no-merged origin/dev | grep 'origin/feat/' | sed 's|origin/||' | while read -r TARGET_BRANCH; do
             DIFF_COUNT=$(git rev-list --count "origin/$TARGET_BRANCH" --not origin/dev)
             if [ "$DIFF_COUNT" -eq 0 ]; then
               echo "No new commits in $TARGET_BRANCH; skipping PR creation."
@@ -61,6 +60,7 @@ jobs:
             if [ -z "$PR_URL" ]; then
               PR_URL=$(gh pr create --base dev --head "$TARGET_BRANCH" --title "Auto merge $TARGET_BRANCH into dev" --body "자동 생성된 Pull Request")
             fi
+            echo "Attempting to merge $PR_URL"
             gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
           done
 
