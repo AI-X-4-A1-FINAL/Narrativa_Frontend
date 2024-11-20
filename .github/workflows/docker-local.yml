@@ -3,7 +3,12 @@ name: Auto Merge, Build, and Deploy to Docker Hub
 on:
   push:
     branches:
-      - dev  # dev 브랜치에서 푸시 시 실행
+      - dev
+  pull_request:
+    types:
+      - closed  # PR이 dev에 병합된 경우에만 실행
+    branches:
+      - dev
   schedule:
     - cron: '05 15 * * *'  # 매일 00:05 (KST 기준)
   workflow_dispatch:  # 수동 실행 가능
