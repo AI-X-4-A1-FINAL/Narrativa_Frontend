@@ -84,8 +84,8 @@ jobs:
           echo "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" >> $GITHUB_ENV
           echo "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" >> $GITHUB_ENV
           echo "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" >> $GITHUB_ENV
-          echo "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" >> $GITHUB_ENV
-          echo "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_LOCAL_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" >> $GITHUB_ENV
           echo "REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_LOCAL_URI }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image to Docker Hub
