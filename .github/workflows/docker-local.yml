@@ -56,16 +56,25 @@ jobs:
               echo "No new commits in $TARGET_BRANCH; skipping PR creation."
               continue
             fi
+
+            # PR이 이미 존재하는지 확인
             PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
+            
             if [ -z "$PR_URL" ]; then
+              # 새 PR 생성
               PR_URL=$(gh pr create --base dev --head "$TARGET_BRANCH" --title "Auto merge $TARGET_BRANCH into dev" --body "자동 생성된 Pull Request")
               echo "Created PR: $PR_URL"
             else
               echo "PR already exists: $PR_URL"
             fi
-            echo "Attempting to merge $PR_URL"
-            gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
+
+            # PR 병합 시도
+            if [ -n "$PR_URL" ]; then
+              echo "Attempting to merge $PR_URL"
+              gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
+            fi
           done
+
 
 
       - name: Log in to Docker Hub
