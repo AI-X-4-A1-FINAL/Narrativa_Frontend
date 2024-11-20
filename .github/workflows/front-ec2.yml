@@ -32,7 +32,6 @@ jobs:
         run: |
           docker build -f dockerfile.ec2 --build-arg REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
                                          --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
-                                         --build-arg REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_URI }} \
                                          --build-arg REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
                                          --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
                                          --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
