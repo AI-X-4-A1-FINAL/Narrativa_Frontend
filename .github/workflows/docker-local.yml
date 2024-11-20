@@ -51,6 +51,7 @@ jobs:
         run: |
           git fetch --all
           git branch -r --no-merged origin/dev | grep 'origin/feat/' | sed 's|origin/||' | while read -r TARGET_BRANCH; do
+            # dev와 TARGET_BRANCH 간의 커밋 차이를 계산
             DIFF_COUNT=$(git rev-list --count "origin/$TARGET_BRANCH" --not origin/dev)
             if [ "$DIFF_COUNT" -eq 0 ]; then
               echo "No new commits in $TARGET_BRANCH; skipping PR creation."
@@ -74,8 +75,6 @@ jobs:
               gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
             fi
           done
-
-
 
       - name: Log in to Docker Hub
         if: env.has_new_commits == 'true'
