@@ -22,6 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Git 설정
       - name: Configure Git
         env:
           GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
@@ -30,10 +31,9 @@ jobs:
           git config --global user.email "$GIT_USER_EMAIL"
           git config --global user.name "$GIT_USER_NAME"
       
-
-          - name: Check for new commits in feat/* branches
-          id: check_commits
-          run: |
+      - name: Check for new commits in feat/* branches
+        id: check_commits
+        run: |
             git fetch --all
             NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
             if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
