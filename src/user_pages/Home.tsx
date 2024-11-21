@@ -46,34 +46,39 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-4 text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
-      <div className="">
+    <div className="w-full text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
+      <div className="flex flex-col items-center">
         {genres.map((genre) => (
           <div
             key={genre.name}
-            className="w-full max-w-lg mx-auto rounded-2xl overflow-hidden bg-gray-50"
+            className="w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
           >
-            <div className="text-left font-semibold text-gray-600 opacity-100 ">
-              {genre.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block text-md font-semibold mr-2 px-1 py-1 rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
             <div
-              className="cursor-pointer"
+              className="relative cursor-pointer"
               onClick={() => handleClick(genre.name, genre.tags, genre.image)}
             >
               <img
                 src={genre.image}
                 alt={`${genre.name} Genre Cover`}
-                className="w-full h-full object-cover rounded-2xl mb-8"
+                className="w-full h-[400px] object-cover rounded-2xl"
               />
+              {/* Overlay for larger screens: visible on hover */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
+                <div>
+                  <h3 className="text-2xl font-bold">{genre.name}</h3>
+                  <div className="mt-2">
+                    {genre.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-block text-sm font-semibold mr-2 px-2 py-1 rounded-full bg-gray-800 bg-opacity-60"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-            
           </div>
         ))}
       </div>
