@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
-import { getCookie } from "../api/cookie";
 import { useCookies } from "react-cookie";
 import axiosBaseURL from "../api/axios";
-
-interface UserProps {
-  userId: string;
-}
 
 const Profile: React.FC = () => {
   const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
@@ -108,6 +103,21 @@ const Profile: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // 쿠키 삭제 함수
+const handleRemoveCookie = () => {
+  if (userId !== null) {
+    // userId를 문자열로 변환하여 removeCookie에 전달
+    removeCookie('id'); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+    console.log("쿠키가 삭제되었습니다.");
+
+    // 탈퇴 성공 후 alert 창 띄우기
+    alert('로그 아웃이 완료되었습니다.');
+
+    // 메인 화면으로 리디렉션
+    navigate('/');
+  }
+};
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
@@ -236,9 +246,11 @@ const Profile: React.FC = () => {
           {isLoading ? '탈퇴 중...' : '회원탈퇴'}
         </button>
         {error && <div style={{ color: 'red' }}>{error}</div>}
-        <Link to="/logout" className="hover:underline">
+        
+        {/* 로그 아웃 버튼 */}
+        <button onClick={handleRemoveCookie}>
           로그아웃
-        </Link>
+        </button>
       </div>
     </div>
   );
