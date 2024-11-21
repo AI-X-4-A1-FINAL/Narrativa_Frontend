@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface LocationState {
@@ -25,6 +25,11 @@ const GamePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentStage, setCurrentStage] = useState<number>(0); // 현재 스테이지
+  const [musicUrl, setMusicUrl] = useState<string | null>(null); // 음악 URL 저장
+  const [musicLoading, setMusicLoading] = useState<boolean>(false); // 음악 로딩 상태
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const stages = [
     { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
@@ -40,6 +45,26 @@ const GamePage: React.FC = () => {
     { bg: "/images/stage9.jpeg", content: "Final Stage! Stage 10!" },
   ];
 
+  // 음악 API 호출
+  const fetchMusic = async (stageGenre: string) => {
+    setMusicLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${stageGenre}`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setMusicUrl(data.url); // API에서 가져온 음악 URL 설정
+    } catch (error) {
+      console.error("Error fetching music URL:", error);
+      setMusicUrl(null); // 음악 URL 초기화
+    } finally {
+      setMusicLoading(false);
+    }
+  };
+
   // 채팅창 확장/축소 토글
   const toggleExpansion = () => {
     setIsExpanded((prev) => !prev);
@@ -49,28 +74,17 @@ const GamePage: React.FC = () => {
   const handleSendMessage = () => {
     if (userInput.trim() === "") return;
 
-    // 새 메시지 생성 (타입 명시)
     const newMessage: Message = { sender: "user", text: userInput };
+    setCurrentMessages((prev) => [...prev, newMessage]);
+    setAllMessages((prev) => ({
+      ...prev,
+      [currentStage]: [...(prev[currentStage] || []), newMessage],
+    }));
 
-    // 현재 단계 메시지 업데이트
-    setCurrentMessages((prev: Message[]) => [...prev, newMessage]);
-
-    // 모든 단계 메시지 상태 업데이트
-    setAllMessages((prev: { [key: number]: Message[] }) => {
-      const stageMessages: Message[] = prev[currentStage] || []; // 현재 단계의 메시지 배열 초기화
-      return {
-        ...prev,
-        [currentStage]: [...stageMessages, newMessage], // 새 메시지 추가
-      };
-    });
-
-    // API 호출
     fetchOpponentMessage(userInput);
-
-    setUserInput(""); // 입력 필드 초기화
+    setUserInput("");
   };
 
-  // 상대방 메시지 비동기 가져오기
   const fetchOpponentMessage = async (userInput: string) => {
     setLoading(true);
     try {
@@ -82,19 +96,20 @@ const GamePage: React.FC = () => {
           body: JSON.stringify({
             genre,
             affection: 50,
-            cut: currentStage + 1, // 현재 단계에 맞게 API 요청
+            cut: currentStage + 1,
             user_input: userInput,
           }),
         }
       );
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
       if (data && data.story) {
-        const opponentMessage = { sender: "opponent", text: data.story };
+        setCurrentMessages((prev) => [
+          ...prev,
+          { sender: "opponent", text: data.story },
+        ]);
       }
     } catch (error) {
       console.error("Error fetching opponent message:", error);
@@ -107,7 +122,17 @@ const GamePage: React.FC = () => {
     }
   };
 
-  // 단계 이동 시 메시지 유지
+  const togglePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   const goToNextStage = () => {
     if (currentStage < stages.length - 1) {
       setAllMessages((prev) => ({
@@ -118,9 +143,6 @@ const GamePage: React.FC = () => {
       setCurrentMessages(nextMessages);
       setCurrentStage((prev) => prev + 1);
     }
-  };
-  const goToEnding = () => {
-    navigate("/game-ending");
   };
 
   const goToPreviousStage = () => {
@@ -135,34 +157,63 @@ const GamePage: React.FC = () => {
     }
   };
 
-  // 단계 변경 시 기존 메시지 로드
   useEffect(() => {
+    // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];
     setCurrentMessages(savedMessages);
-  }, [currentStage]);
+  
+    // 새로운 단계의 음악 가져오기
+    if (genre) {
+      fetchMusic(genre);
+    }
+  }, [currentStage, genre]);
+  
+  // 음악이 로드된 후 자동 재생
+  useEffect(() => {
+    if (audioRef.current && musicUrl) {
+      // 음악이 로드되었을 때 자동 재생 시도
+      audioRef.current.play().catch((error) => {
+        console.error("Auto-play was prevented:", error);
+      });
+      setIsPlaying(true); // 재생 상태 업데이트
+    }
+  }, [musicUrl]);
+  
+  
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
       {/* 배경 이미지 */}
-      <div
-        className={`absolute inset-0 ${
-          isExpanded ? "opacity-40" : "opacity-100"
-        } transition-opacity duration-300 max-w-lg`}
-        onClick={() => {
-          if (isExpanded) toggleExpansion();
-        }}
-        
-      >
+      <div className="absolute inset-0">
         <img
           src={stages[currentStage].bg}
           alt={`Stage ${currentStage + 1}`}
-          className="w-screen h-screen object-cover" // Image stretches to full screen and covers the area
+          className="w-screen h-screen object-cover"
         />
-    </div>
+      </div>
+
+      {/* 음악 플레이어 */}
+      <div className="absolute top-0 left-4">
+        {musicLoading ? (
+          <p className="text-white">Loading music...</p>
+        ) : musicUrl ? (
+          <div className="flex flex-col items-center">
+            <audio ref={audioRef} src={musicUrl} />
+            <button
+              onClick={togglePlayPause}
+              className="bg-gray-900 text-white font-bold py-2 px-4 mt-4 rounded-full hover:bg-custom-purple"
+            >
+              {isPlaying ? "⏸" : "▶"}
+            </button>
+          </div>
+        ) : (
+          <p className="text-white">No music available</p>
+        )}
+      </div>
 
 
-      {/* 채팅창 */}
-      <div
+       {/* 채팅창 */}
+       <div
         className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-violet text-white ${
           isExpanded ? "h-[85%] bg-opacity-20 backdrop-blur-md" : "h-[20%]"
         } transition-all duration-300 ease-in-out flex flex-col`}
@@ -263,3 +314,4 @@ const GamePage: React.FC = () => {
 };
 
 export default GamePage;
+
