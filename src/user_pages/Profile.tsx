@@ -169,7 +169,7 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className="px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-purple hover:bg-blue-900"
+          className="px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900"
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>

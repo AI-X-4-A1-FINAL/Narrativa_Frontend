@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import Lottie from "lottie-react";
-import loadingLottie from "./Animation.json";
+import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
 
 const Main: React.FC = () => {
   const [showLoadingLottie, setShowLoadingLottie] = useState(false);
-  
 
   const handleComplete = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
@@ -15,7 +14,7 @@ const Main: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">
-      <main className={`flex-grow w-full max-w-xl overflow-visible ${showLoadingLottie ? "bg-custom-violet" : "bg-black"}`}>
+      <main className={`flex-grow w-full h-full max-w-lg overflow-hidden relative ${showLoadingLottie ? "bg-custom-violet" : "bg-black"}`}>
 
         {/* 첫 번째 애니메이션 */}
         {!showLoadingLottie && (
@@ -23,35 +22,43 @@ const Main: React.FC = () => {
             animationData={backLottie}
             onComplete={handleComplete} // 애니메이션이 끝나면 상태를 true로 변경
             loop={false}
-            className="relative top-0 h-full"
+            className="relative inset-0 w-full h-full object-cover min-h-screen scale-[1.2]" // 모바일 대응
           />
         )}
- 
-        {/* 위쪽 이미지 */}
+
+        {/* 이미지 섹션 */}
         {showLoadingLottie && (
-          <img
-            src="/images/NARRATIVA.png"
-            alt="Header Image"
-            className="w-auto h-[90px] mt-40 ml-20 flex-col flex items-center justify-center"
-          />
+          <div className="flex flex-col items-center mt-40">
+            <img
+              src="/images/NARRATIVA.png"
+              alt="Header Image"
+              className="w-auto h-[80px]"
+            />
+          </div>
         )}
 
-        {/* 아래쪽 Lottie 애니메이션 */}
-        <div className="flex-col flex items-center justify-center w-full">
-          {showLoadingLottie && (
-            <Lottie
-              animationData={loadingLottie}
-              className="w-64 mt-12"
+        {/* 아래쪽 애니메이션 섹션 */}
+        {showLoadingLottie && (
+          <div className="flex flex-col items-center justify-center w-full mt-10 ml-5">
+            <img
+              src="/images/nati_1.gif"
+              alt="NATI"
+              className="w-auto h-64"
             />
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* START 버튼 */}
-        <Link to="/login">
-          <button className="flex-col flex items-center justify-center w-full font-custom-font text-white rounded mt-24 hover:bg-color-white">
-            START
-          </button>
-        </Link>
+        {/* START 버튼 섹션 */}
+        {showLoadingLottie && (
+          <div className="flex flex-col items-center mt-10">
+            <Link to="/login">
+              <button 
+              className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded">
+                START
+              </button>
+            </Link>
+          </div>
+        )}
 
       </main>
     </div>
@@ -59,3 +66,4 @@ const Main: React.FC = () => {
 };
 
 export default Main;
+

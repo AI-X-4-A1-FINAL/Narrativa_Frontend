@@ -22,26 +22,25 @@ const Login: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center">
-      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12 mt-32 " />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12" />
       
-        {photos.map((photo, index) => (
-          <button
-            key={index}
-            onClick={() => {
-              const link = photo.onClick();
-              window.location.href = link;
-            }}
-            className="mb-3 focus:outline-none flex justify-center w-full"
-          >
-            <img
-              src={photo.src}
-              alt={photo.alt}
-              className="w-72 h-auto object-contain rounded-md mx-auto"
-            />
-          </button>
-        ))}
-      
+      {photos.map((photo, index) => (
+        <button
+          key={index}
+          onClick={() => {
+            const link = photo.onClick();
+            window.location.href = link;
+          }}
+          className="mb-3 focus:outline-none flex justify-center w-full"
+        >
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            className="w-64 h-auto object-contain rounded-md mx-auto"
+          />
+        </button>
+      ))}
     </div>
   );
 };
