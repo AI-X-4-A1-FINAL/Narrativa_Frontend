@@ -39,8 +39,7 @@ jobs:
             echo "has_new_commits=false" >> $GITHUB_ENV
           else
             echo "has_new_commits=true" >> $GITHUB_ENV
-          fi
-
+          
       - name: Create or Find PRs from feat/* branches to dev
         if: env.has_new_commits == 'true'
         env:
@@ -82,11 +81,10 @@ jobs:
           echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> .env
           echo "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" >> .env
           echo "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" >> .env
-          echo "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }}" >> .env
-          echo "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}" >> .env
+          echo "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" >> .env
+          echo "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}" >> .env
           echo "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" >> .env
           echo "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" >> .env
-          echo "REACT_APP_ML_URI=${{ secrets.REACT_APP.ML_LOCAL_URI }}" >> .env
 
       - name: Build and push Docker image to Docker Hub
         run: |
@@ -97,15 +95,14 @@ jobs:
           docker build -f dockerfile.local -t $DOCKER_TAG . \
             --build-arg REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
             --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-            --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP.KAKAO_REDIRECT_URI }} \
+            --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
             --build-arg REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
             --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP.GOOGLE_REDIRECT_URI }} \
-            --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP.GITHUB_CLIENT_ID }} \
-            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }} \
+            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+            --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
             --build-arg REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }} \
-            --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} \
-            --build-arg REACT_APP_ML_URI=${{ secrets.REACT_APP.ML_LOCAL_URI }}
+            --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} 
           docker push $DOCKER_TAG
 
     outputs:
@@ -114,7 +111,7 @@ jobs:
   deploy_local:
     runs-on: self-hosted
     needs: auto_merge_build_deploy
-    if: github.ref == 'refs/heads/dev' 
+    if: github.ref == 'refs/heads/dev'
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -144,10 +141,26 @@ jobs:
         run: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
+      - name: Create .env file
+        shell: powershell
+        run: |
+          @"
+          REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
+          REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
+          REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
+          REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
+          REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}
+          REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}
+          REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}
+          "@ | Set-Content .env
+
       - name: Run new Docker container
         shell: powershell
         run: |
           docker run -d --name narrativa_front `
             -p 3010:3010 `
-            --env-file .env `
+            --env-file ./.env `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
