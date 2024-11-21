@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
 import { getCookie } from "../api/cookie";
 import { useCookies } from "react-cookie";
+import axiosBaseURL from "../api/axios";
+
+interface UserProps {
+  userId: string;
+}
 
 const Profile: React.FC = () => {
+  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
-  const [isEditingIntro, setIsEditingIntro] = useState(false);
 
   const [nickname, setNickname] = useState<string>(""); // 닉네임 초기 상태 비우기
-  const [intro, setIntro] = useState<string>("hi good to see you");
 
   const [isdarkModeOn, setIsdarkModeOn] = useState(false);
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
@@ -18,6 +23,9 @@ const Profile: React.FC = () => {
 
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const [userId, setUserId] = useState(-1);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
       setter(prev => !prev);
@@ -57,7 +65,6 @@ const Profile: React.FC = () => {
     try {
       const profileData = {
         nickname,
-        intro,
         avatar: randomName, // 프로필 이미지 키
       };
 
@@ -77,6 +84,28 @@ const Profile: React.FC = () => {
         console.error(error.message);
         alert("프로필 저장 중 오류가 발생했습니다.");
       }
+    }
+  };
+
+  // 회원 탈퇴 요청 함수
+  const deactivateAccount = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axiosBaseURL.put(`/api/users/${userId}/deactivate`);
+      console.log('Account Deactivated:', response.data);
+
+      // 탈퇴 성공 후 alert 창 띄우기
+      alert('회원 탈퇴가 완료되었습니다.');
+
+      // 메인 화면으로 리디렉션
+      navigate('/');
+    } catch (error) {
+      console.error('Error deactivating account:', error);
+      setError('회원 탈퇴에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,35 +164,6 @@ const Profile: React.FC = () => {
             </button>
           )}
         </h1>
-
-        {isEditingIntro ? (
-          <input
-            type="text"
-            value={intro}
-            onChange={(e) => setIntro(e.target.value)}
-            onBlur={() => setIsEditingIntro(false)}
-            className="text-sm text-center w-auto px-1 border border-gray-300 rounded-md"
-            style={{
-              width: `${intro.length + 3}ch`,
-            }}
-          />
-        ) : (
-          <p className="text-sm mb-2 relative" title="Message">
-            {intro}
-            {isEditMode && (
-              <button
-                onClick={() => setIsEditingIntro(true)}
-                className="absolute -right-6 top-1 text-lg ml-2"
-              >
-                <img
-                  src="/images/edit_pen.png"
-                  alt="Edit Nickname"
-                  className="w-6 h-6"
-                />
-              </button>
-            )}
-          </p>
-        )}
       </div>
 
       <div className="flex space-x-4">
@@ -226,16 +226,16 @@ const Profile: React.FC = () => {
   </label>
 </div>
 
-
-
-
-
-
       <div className="text-sm text-gray-500 space-x-2 pt-1 mb-12 mt-24">
-        <Link to="/delete-account" className="hover:underline">
-          회원탈퇴
-        </Link>
-        <span>|</span>
+        {/* 탈퇴 요청 버튼 */}
+        <button
+        onClick={deactivateAccount}
+        disabled={isLoading}
+        className="hover:underline"
+        >
+          {isLoading ? '탈퇴 중...' : '회원탈퇴'}
+        </button>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
         <Link to="/logout" className="hover:underline">
           로그아웃
         </Link>
