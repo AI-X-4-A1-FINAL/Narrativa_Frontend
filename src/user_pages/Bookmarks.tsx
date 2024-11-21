@@ -6,16 +6,16 @@ const Bookmarks: React.FC = () => {
 
     // 각 장르에 대한 이미지 데이터
     const genreImages: { [key: string]: string[] } = {
-        추리: ['images/choori.png', 'images/choori2.png', 'images/choori3.png', 'images/choori4.png'],
+        추리: ['images/game-start.jpeg', 'images/game-start.jpeg', 'images/game-start.jpeg', 'images/game-start.jpeg'],
         공포: ['images/horror1.png', 'images/horror2.png', 'images/horror3.png', 'images/horror4.png'],
         연애: ['images/romance1.png', 'images/romance2.png', 'images/romance3.png', 'images/romance4.png'],
         성장: ['images/growth1.png', 'images/growth2.png', 'images/growth3.png', 'images/growth4.png'],
     };
 
     return (
-        <div className="bg-white text-gray-800 p-8 min-h-screen">
-            <div className="w-full mx-auto">
-                {/* Genre Selection Section */}
+        <div className="flex flex-col items-center w-full mx-auto pt-4 bg-white text-gray-800 p-2 min-h-screen">
+            <div className="w-full mx-auto mt-20">
+                {/* Genre Selection Section */} 
                 <div
                     className="w-full p-4 mb-9 flex justify-around items-center"
                     style={{

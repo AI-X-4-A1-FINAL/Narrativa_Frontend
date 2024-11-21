@@ -36,8 +36,8 @@ const SignUp: React.FC = () => {
     const profileUrl = params.get('profile_url');
     const userId = params.get('id');
     const loginType = params.get('type');
-    console.log('param: ', params);
-    console.log('param userId: ', userId);
+    // console.log('param: ', params);
+    // console.log('param userId: ', userId);
 
     // 추출한 값 저장
     if (username){
@@ -79,7 +79,7 @@ const SignUp: React.FC = () => {
       // BE에 axios 요청해서 회원가입
       console.log('signUpData: ', signUpData);
       const response = await axios.post(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/sign-up`,
+        `${process.env.REACT_APP_SPRING_URI}/sign-up`,
         signUpData,
         {
           headers: {

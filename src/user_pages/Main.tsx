@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import Lottie from "lottie-react";
-import loadingLottie from "./Animation.json";
+import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
 
 const Main: React.FC = () => {
@@ -39,10 +39,11 @@ const Main: React.FC = () => {
 
         {/* 아래쪽 애니메이션 섹션 */}
         {showLoadingLottie && (
-          <div className="flex flex-col items-center justify-center w-full mt-10">
-            <Lottie
-              animationData={loadingLottie}
-              className="w-64"
+          <div className="flex flex-col items-center justify-center w-full mt-10 ml-5">
+            <img
+              src="/images/nati_1.gif"
+              alt="NATI"
+              className="w-auto h-64"
             />
           </div>
         )}
@@ -51,7 +52,8 @@ const Main: React.FC = () => {
         {showLoadingLottie && (
           <div className="flex flex-col items-center mt-10">
             <Link to="/login">
-              <button className="flex items-center justify-center w-40 h-12 font-custom-font text-white bg-custom-violet rounded">
+              <button 
+              className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded">
                 START
               </button>
             </Link>

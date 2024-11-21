@@ -18,16 +18,46 @@
 
 Narrativa_Frontend 프로젝트를 로컬 환경에서 클론하고, 빌드 및 실행하는 방법을 설명합니다.
 
-
-
 ### 1. 프로젝트 클론
-
+```bash
+git clone https://github.com/AI-X-4-A1-FINAL/Narrativa_Frontend.git
+cd narrativa-frontend
+```
 
 ### 2. 빌드 및 설치
+```bash
+./gradlew clean build
+```
 
 ### 3. 환경 설정
+`src/main/resources/application.yml` 파일을 다음과 같이 설정합니다:
+
+```yaml
+# yaml 예시
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/[데이터베이스 이름]?useSSL=false&serverTimezone=Asia/Seoul
+    username: [데이터베이스 사용자 이름]
+    password: [데이터베이스 비밀번호]
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+```
 
 ### 4. 실행
+```bash
+./gradlew bootRun
+
+# http:/
 
 ## 🗝️ 브랜치 관리 규칙
 
@@ -50,6 +80,7 @@ Narrativa_Frontend 프로젝트를 로컬 환경에서 클론하고, 빌드 및 
     - 명명규칙: `hotfix/{이슈번호}`
     - 예: `hotfix/critical-bug`
 
+
 ### 브랜치 사용 예시
 ```bash
 # 기능 브랜치 생성
@@ -62,22 +93,15 @@ git checkout -b hotfix/critical-bug
 ## 🗝️ 디렉토리 구조
 
 ```
-Narrativa_Backend/
+Narrativa_Frontend/
 ├── .github/
-│   └── workflows/          # CI/CD 설정
-├── config/                 # 서브모듈 설정
+│   └── workflows/        
+├── public/                 
 ├── src/
-│   └── main/
-│       └── java/com/nova/narrativa/
-│           ├── common/     # 공통 모듈
-│           └── domain/     # 도메인별 모듈
-│               ├── admin/
-│               ├── game/
-│               ├── llm/
-│               ├── notice/
-│               ├── tti/
-│               ├── ttm/
-│               └── user/
+│   └── action/
+│   └── api/
+│   └── components/
+│   └── user_pages/
 └── resources/
 ```
 

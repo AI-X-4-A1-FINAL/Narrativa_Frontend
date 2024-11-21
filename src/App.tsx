@@ -28,6 +28,13 @@ const App: React.FC = () => {
   // Header를 숨길 경로 리스트
   const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
 
+  // Skip pt-32 for specific routes (including /bookmarks)
+  const noPaddingRoutes = ["/bookmarks"]; // Add '/bookmarks' here
+
+  // Determine whether padding is required
+  const isHeaderVisible = !noHeaderRoutes.includes(location.pathname);
+  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname); // Check if padding should be applied
+
   return (
     <>
       {isMainPage ? (
@@ -35,7 +42,11 @@ const App: React.FC = () => {
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between bg-black">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
-          <main className="flex-grow pt-32 px-4 w-full max-w-lg mx-auto bg-white">
+          <main
+            className={`flex-grow w-full max-w-lg mx-auto bg-white ${
+              isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""
+            }`}
+          >
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/home" element={<Home />} />
