@@ -39,10 +39,11 @@ const Main: React.FC = () => {
 
         {/* 아래쪽 애니메이션 섹션 */}
         {showLoadingLottie && (
-          <div className="flex flex-col items-center justify-center w-full mt-10">
-            <Lottie
-              animationData={loadingLottie}
-              className="w-128"
+          <div className="flex flex-col items-center justify-center w-full mt-10 ml-5">
+            <img
+              src="/images/nati_1.gif"
+              alt="NATI"
+              className="w-auto h-64"
             />
           </div>
         )}
@@ -51,7 +52,8 @@ const Main: React.FC = () => {
         {showLoadingLottie && (
           <div className="flex flex-col items-center mt-10">
             <Link to="/login">
-              <button className="flex items-center justify-center w-40 h-12 font-custom-font text-white bg-custom-violet rounded">
+              <button 
+              className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded">
                 START
               </button>
             </Link>
