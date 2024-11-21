@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "boring-avatars";
+import { getCookie } from "../api/cookie";
+import { useCookies } from "react-cookie";
 
 const Profile: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -14,6 +16,9 @@ const Profile: React.FC = () => {
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
   const [isNotificationsOn, setIsNotificationsOn] = useState(false);
 
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const [userId, setUserId] = useState(-1);
+
   const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
       setter(prev => !prev);
   };
@@ -25,6 +30,10 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
+    // 'id' 쿠키 값 가져오기
+    if (cookies.id) {
+      setUserId(cookies.id);  
+    }
     const fetchProfileData = async () => {
       try {
         const response = await fetch("/api/user/profile"); // 프로필 데이터 API 호출
@@ -40,6 +49,8 @@ const Profile: React.FC = () => {
 
     fetchProfileData();
   }, []);
+
+  console.log('userId: ', userId);
 
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
