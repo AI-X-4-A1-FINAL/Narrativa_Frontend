@@ -5,9 +5,10 @@ import axios from "axios";
 
 // 회원 가입시 필요한 데이터
 interface SignUpData {
-  id: number;
+  user_id: string;
   username: string;
   profile_url: string | null;
+  login_type: String;
 }
 
 const SignUp: React.FC = () => {
@@ -15,10 +16,11 @@ const SignUp: React.FC = () => {
   const [nickname, setNickname] = useState(
     Math.random().toString(36).substring(2, 10) // 초기 랜덤 닉네임 생성
   );
-  const [userId, setUserId] = useState(-1);
+  const [userId, setUserId] = useState('');
   const [isEditing, setIsEditing] = useState(false); // 닉네임 편집 상태
   const [signupMessage, setSignupMessage] = useState('');
   const [profileUrl, setProfileUrl] = useState<string | null>(null);
+  const [loginType, setLoginType] = useState('');
 
   const [signupError, setSignupError] = useState<string>('');
   const [signupSuccess, setSignupSuccess] = useState<string>('');
@@ -32,13 +34,24 @@ const SignUp: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const username = params.get('username');
     const profileUrl = params.get('profile_url');
+    const userId = params.get('id');
+    const loginType = params.get('type');
+    // console.log('param: ', params);
+    // console.log('param userId: ', userId);
 
     // 추출한 값 저장
-    if (username && profileUrl) {
+    if (username){
       setNickname(username);
+    } 
+    if (profileUrl){
       setProfileUrl(profileUrl);
+    } 
+    if (userId){
+      setUserId(userId);
     }
-    
+    if (loginType){
+      setLoginType(loginType);
+    } 
   }, []);
 
   // 닉네임 변경 처리
@@ -56,15 +69,17 @@ const SignUp: React.FC = () => {
 
     // 요청 본문에 들어갈 데이터
     const signUpData: SignUpData = {
-      id: userId,
+      user_id: userId,
       username: nickname,
       profile_url: profileUrl,
+      login_type: loginType,
     };
 
     try {
       // BE에 axios 요청해서 회원가입
+      console.log('signUpData: ', signUpData);
       const response = await axios.post(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/sign-up`,
+        `${process.env.REACT_APP_SPRING_URI}/sign-up`,
         signUpData,
         {
           headers: {
@@ -72,14 +87,16 @@ const SignUp: React.FC = () => {
           },
         }
       );
+      
       // 201 리턴시만 home으로 이동
       if (response.status === 201) {
         navigate("/home");
       }  
     } catch (error: any) {
-      if (error.response) {
-        setSignupError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-        setSignupSuccess('');
+      console.log('error.response', error.response);
+
+      if (error.response.status === 409) {
+        navigate("/home");
       } else {
         setSignupError('네트워크 오류가 발생했습니다.');
         setSignupSuccess('');

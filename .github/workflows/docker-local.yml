@@ -1,6 +1,11 @@
 name: Auto Merge, Build, and Deploy to Docker Hub
 
 on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - dev
   schedule:
     - cron: '05 15 * * *'  # 매일 00:05 (KST 기준)
   workflow_dispatch:  # 수동 실행 가능
@@ -11,10 +16,8 @@ permissions:
 
 jobs:
   auto_merge_build_deploy:
+    if: github.ref == 'refs/heads/dev'  # dev 브랜치에서만 실행
     runs-on: ubuntu-latest
-    outputs:
-      has_new_commits: ${{ env.has_new_commits }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -27,44 +30,44 @@ jobs:
         run: |
           git config --global user.email "$GIT_USER_EMAIL"
           git config --global user.name "$GIT_USER_NAME"
-
-      # feat/* 브랜치에서 dev 브랜치에 새 커밋이 있는지 확인
+      
       - name: Check for new commits in feat/* branches
         id: check_commits
         run: |
-          git fetch --all
-          NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
-          echo "Number of new commits in feat/* branches: $NEW_COMMITS_COUNT"
-          if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
-            echo "No new commits in feat/* branches."
-            echo "has_new_commits=false" >> $GITHUB_ENV
-          else
-            echo "Found new commits in feat/* branches."
-            echo "has_new_commits=true" >> $GITHUB_ENV
-          fi
-
-      # 각 feat/* 브랜치의 변경 사항을 dev 브랜치로 PR 생성 및 병합
-      - name: Create or Merge PRs from feat/* branches to dev
+            git fetch --all
+            NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
+            if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
+              echo "has_new_commits=false" >> $GITHUB_ENV
+            else
+              echo "has_new_commits=true" >> $GITHUB_ENV
+            fi
+  
+      - name: Create or Find PRs from feat/* branches to dev
         if: env.has_new_commits == 'true'
         env:
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         run: |
-          echo "Attempting to create or merge PRs from feat/* branches to dev."
           git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
-            TARGET_BRANCH=${TARGET_BRANCH#origin/} # Remove 'origin/' prefix
-            echo "Processing branch: $TARGET_BRANCH"
+            TARGET_BRANCH=${TARGET_BRANCH#origin/}
             PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
             if [ -z "$PR_URL" ]; then
               PR_URL=$(gh pr create --base dev --head "$TARGET_BRANCH" --title "Auto merge $TARGET_BRANCH into dev" --body "자동 생성된 Pull Request" || echo "")
-              echo "PR created: $PR_URL"
-            else
-              echo "Existing PR found: $PR_URL"
             fi
-            # PR 자동 병합
-            gh pr merge "$PR_URL" --squash --delete-branch --auto || echo "Merge failed for $TARGET_BRANCH"
           done
 
-      # Docker 빌드 및 Docker Hub 푸시
+      - name: Auto-merge pull requests
+        if: env.has_new_commits == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        run: |
+          git for-each-ref --format '%(refname:short)' refs/remotes/origin/feat/* | while read -r TARGET_BRANCH; do
+            TARGET_BRANCH=${TARGET_BRANCH#origin/}
+            PR_URL=$(gh pr list --base dev --head "$TARGET_BRANCH" --json url --jq '.[0].url' || echo "")
+            if [ -n "$PR_URL" ]; then
+              gh pr merge "$PR_URL" --merge || echo "Merge failed for $PR_URL."
+            fi
+          done
+
       - name: Log in to Docker Hub
         if: env.has_new_commits == 'true'
         uses: docker/login-action@v2
@@ -72,48 +75,45 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set environment variables from secrets to .env file
+        run: |
+          echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> .env
+          echo "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" >> .env
+          echo "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}" >> .env
+          echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> .env
+          echo "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" >> .env
+          echo "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" >> .env
+          echo "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" >> .env
+          echo "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}" >> .env
+          echo "REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}" >> .env
+          echo "REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}" >> .env
+
       - name: Build and push Docker image to Docker Hub
-        if: env.has_new_commits == 'true' && github.ref == 'refs/heads/dev'
         run: |
           git fetch origin dev
           git checkout dev
-          git pull origin dev  # 최신 dev 브랜치 가져오기
-
-          # Docker 빌드 전에 환경 변수 정의
-          export REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
-          export REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
-          export REACT_APP_KAKAO_REDIRECT_URI_PART=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}
-          export REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
-          export REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
-          export REACT_APP_GOOGLE_REDIRECT_URI_PART=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}
-          export REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
-          export REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}
-          export REACT_APP_URI=${{ secrets.REACT_APP_URI }}
-          export REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }}
-          export REACT_APP_ML_URI=${{ secrets.REACT_APP_ML_URI }}
-
-          # Docker 빌드 실행
+          git pull origin dev
           export DOCKER_TAG=${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
-          docker build -t $DOCKER_TAG . \
-            --build-arg REACT_APP_KAKAO_CLIENT_ID=$REACT_APP_KAKAO_CLIENT_ID \
-            --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=$REACT_APP_KAKAO_AUTH_CODE_PATH \
-            --build-arg REACT_APP_KAKAO_REDIRECT_URI_PART=$REACT_APP_KAKAO_REDIRECT_URI_PART \
-            --build-arg REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID \
-            --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=$REACT_APP_GOOGLE_AUTH_CODE_PATH \
-            --build-arg REACT_APP_GOOGLE_REDIRECT_URI_PART=$REACT_APP_GOOGLE_REDIRECT_URI_PART \
-            --build-arg REACT_APP_GITHUB_CLIENT_ID=$REACT_APP_GITHUB_CLIENT_ID \
-            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=$REACT_APP_GITHUB_AUTH_CODE_PATH \
-            --build-arg REACT_APP_URI=$REACT_APP_URI \
-            --build-arg REACT_APP_SPRING_URI=$REACT_APP_SPRING_URI \
-            --build-arg REACT_APP_ML_URI=$REACT_APP_ML_URI \
-          
-          # Docker 이미지 푸시
+          docker build -f dockerfile.local -t $DOCKER_TAG . \
+            --build-arg REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
+            --build-arg REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
+            --build-arg REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
+            --build-arg REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
+            --build-arg REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
+            --build-arg REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+            --build-arg REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+            --build-arg REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+            --build-arg REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }} \
+            --build-arg REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }} 
           docker push $DOCKER_TAG
+
+    outputs:
+      has_new_commits: ${{ env.has_new_commits }}
 
   deploy_local:
     runs-on: self-hosted
     needs: auto_merge_build_deploy
-    if: needs.auto_merge_build_deploy.outputs.has_new_commits == 'true' && github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev'
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -143,20 +143,26 @@ jobs:
         run: |
           docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
 
+      - name: Create .env file
+        shell: powershell
+        run: |
+          @"
+          REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}
+          REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}
+          REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }}
+          REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}
+          REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}
+          REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP.GITHUB_AUTH_CODE_PATH }}
+          REACT_APP_URI=${{ secrets.REACT_APP_LOCAL_URI }}
+          REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_LOCAL_URI }}
+          "@ | Set-Content .env
+
       - name: Run new Docker container
         shell: powershell
         run: |
           docker run -d --name narrativa_front `
             -p 3010:3010 `
-            -e "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" `
-            -e "REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI_PART }}" `
-            -e "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" `
-            -e "REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI_PART }}" `
-            -e "REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }}" `
-            -e "REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }}" `
-            -e "REACT_APP_LOCAL_URI=${{ secrets.REACT_APP_URI }}" `
-            -e "REACT_APP_SPRING_LOCAL_URI=${{ secrets.REACT_APP_SPRING_URI }}" `
-            -e "REACT_APP_ML_LOCAL_URI=${{ secrets.REACT_APP_ML_URI }}" `
+            --env-file ./.env `
             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
