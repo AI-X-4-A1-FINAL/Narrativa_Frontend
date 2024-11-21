@@ -79,7 +79,7 @@ const SignUp: React.FC = () => {
       // BE에 axios 요청해서 회원가입
       console.log('signUpData: ', signUpData);
       const response = await axios.post(
-        `${process.env.REACT_APP_SPRING_URI}/sign-up`,
+        `${process.env.REACT_APP_SPRING_URI}/api/users/sign-up`,
         signUpData,
         {
           headers: {
