@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
+import { useCookies } from "react-cookie";
+import axiosBaseURL from "../api/axios";
 
 const Profile: React.FC = () => {
+  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
-  const [isEditingIntro, setIsEditingIntro] = useState(false);
 
   const [nickname, setNickname] = useState<string>(""); // 닉네임 초기 상태 비우기
-  const [intro, setIntro] = useState<string>("hi good to see you");
 
   const [isdarkModeOn, setIsdarkModeOn] = useState(false);
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
   const [isNotificationsOn, setIsNotificationsOn] = useState(false);
+
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const [userId, setUserId] = useState(-1);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
       setter(prev => !prev);
@@ -25,6 +33,10 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
+    // 'id' 쿠키 값 가져오기
+    if (cookies.id) {
+      setUserId(cookies.id);  
+    }
     const fetchProfileData = async () => {
       try {
         const response = await fetch("/api/user/profile"); // 프로필 데이터 API 호출
@@ -41,12 +53,13 @@ const Profile: React.FC = () => {
     fetchProfileData();
   }, []);
 
+  console.log('userId: ', userId);
+
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
     try {
       const profileData = {
         nickname,
-        intro,
         avatar: randomName, // 프로필 이미지 키
       };
 
@@ -68,6 +81,43 @@ const Profile: React.FC = () => {
       }
     }
   };
+
+  // 회원 탈퇴 요청 함수
+  const deactivateAccount = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axiosBaseURL.put(`/api/users/${userId}/deactivate`);
+      console.log('Account Deactivated:', response.data);
+
+      // 탈퇴 성공 후 alert 창 띄우기
+      alert('회원 탈퇴가 완료되었습니다.');
+
+      // 메인 화면으로 리디렉션
+      navigate('/');
+    } catch (error) {
+      console.error('Error deactivating account:', error);
+      setError('회원 탈퇴에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 쿠키 삭제 함수
+const handleRemoveCookie = () => {
+  if (userId !== null) {
+    // userId를 문자열로 변환하여 removeCookie에 전달
+    removeCookie('id'); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+    console.log("쿠키가 삭제되었습니다.");
+
+    // 탈퇴 성공 후 alert 창 띄우기
+    alert('로그 아웃이 완료되었습니다.');
+
+    // 메인 화면으로 리디렉션
+    navigate('/');
+  }
+};
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
@@ -124,35 +174,6 @@ const Profile: React.FC = () => {
             </button>
           )}
         </h1>
-
-        {isEditingIntro ? (
-          <input
-            type="text"
-            value={intro}
-            onChange={(e) => setIntro(e.target.value)}
-            onBlur={() => setIsEditingIntro(false)}
-            className="text-sm text-center w-auto px-1 border border-gray-300 rounded-md"
-            style={{
-              width: `${intro.length + 3}ch`,
-            }}
-          />
-        ) : (
-          <p className="text-sm mb-2 relative" title="Message">
-            {intro}
-            {isEditMode && (
-              <button
-                onClick={() => setIsEditingIntro(true)}
-                className="absolute -right-6 top-1 text-lg ml-2"
-              >
-                <img
-                  src="/images/edit_pen.png"
-                  alt="Edit Nickname"
-                  className="w-6 h-6"
-                />
-              </button>
-            )}
-          </p>
-        )}
       </div>
 
       <div className="flex space-x-4">
@@ -215,19 +236,21 @@ const Profile: React.FC = () => {
   </label>
 </div>
 
-
-
-
-
-
       <div className="text-sm text-gray-500 space-x-2 pt-1 mb-12 mt-24">
-        <Link to="/delete-account" className="hover:underline">
-          회원탈퇴
-        </Link>
-        <span>|</span>
-        <Link to="/logout" className="hover:underline">
+        {/* 탈퇴 요청 버튼 */}
+        <button
+        onClick={deactivateAccount}
+        disabled={isLoading}
+        className="hover:underline"
+        >
+          {isLoading ? '탈퇴 중...' : '회원탈퇴'}
+        </button>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        
+        {/* 로그 아웃 버튼 */}
+        <button onClick={handleRemoveCookie}>
           로그아웃
-        </Link>
+        </button>
       </div>
     </div>
   );

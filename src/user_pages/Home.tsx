@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 interface Genre {
   name: string;
@@ -9,6 +10,27 @@ interface Genre {
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+
+  // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const [cookieValue, setCookieValue] = useState<string | null>(null);
+
+  // 페이지 로드 시 쿠키 값을 가져오는 함수 호출
+  // useEffect(() => {
+  //   fetchCookieValueFromSpring();
+  // }, []); // 빈 배열을 넣으면 처음 한번만 실행
+
+  useEffect(() => {
+
+    // 'id' 쿠키 값 가져오기
+    if (cookies.id) {
+      setCookieValue(cookies.id);
+    } else {
+      setCookieValue(null);
+    }
+  }, [cookies]); // cookies가 변경될 때마다 실행
+
+  console.log('cookieValue: ', cookieValue);
 
   // 장르 데이터 배열
   const genres: Genre[] = [
@@ -43,7 +65,7 @@ const Home: React.FC = () => {
         image,
       },
     });
-  };
+  };  
 
   return (
     <div className="w-full text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
