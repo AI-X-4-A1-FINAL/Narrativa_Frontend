@@ -85,6 +85,8 @@ const GamePage: React.FC = () => {
     setUserInput("");
   };
 
+  console.log(`${process.env.REACT_APP_SPRING_URI}/generate-story`);
+
   const fetchOpponentMessage = async (userInput: string) => {
     setLoading(true);
     try {
@@ -161,13 +163,13 @@ const GamePage: React.FC = () => {
     // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];
     setCurrentMessages(savedMessages);
-  
+
     // 새로운 단계의 음악 가져오기
     if (genre) {
       fetchMusic(genre);
     }
   }, [currentStage, genre]);
-  
+
   // 음악이 로드된 후 자동 재생
   useEffect(() => {
     if (audioRef.current && musicUrl) {
@@ -178,8 +180,6 @@ const GamePage: React.FC = () => {
       setIsPlaying(true); // 재생 상태 업데이트
     }
   }, [musicUrl]);
-  
-  
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
@@ -211,9 +211,8 @@ const GamePage: React.FC = () => {
         )}
       </div>
 
-
-       {/* 채팅창 */}
-       <div
+      {/* 채팅창 */}
+      <div
         className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-violet text-white ${
           isExpanded ? "h-[85%] bg-opacity-20 backdrop-blur-md" : "h-[20%]"
         } transition-all duration-300 ease-in-out flex flex-col`}
@@ -223,7 +222,7 @@ const GamePage: React.FC = () => {
           className="flex justify-between items-center border-b pb-4 p-4 cursor-pointer"
           onClick={toggleExpansion}
         >
-          <h2 className="text-lg font-semibold " >
+          <h2 className="text-lg font-semibold ">
             {isExpanded
               ? `스토리 진행 - 단계 ${currentStage + 1}`
               : "채팅창 열기"}
@@ -314,4 +313,3 @@ const GamePage: React.FC = () => {
 };
 
 export default GamePage;
-
