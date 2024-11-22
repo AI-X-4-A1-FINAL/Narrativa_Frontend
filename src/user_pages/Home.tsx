@@ -25,18 +25,25 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
-    // 'id' 쿠키 값 가져오기
-    } else if (cookies.id) {
+    // if (cookies.id === undefined || cookies.id === null) {
+    //   navigate('/');
+    // // 'id' 쿠키 값 가져오기
+    // } else if (cookies.id) {
+    //   setCookieValue(cookies.id);
+    // } else {
+    //   setCookieValue(null);
+    // }
+
+    // if (!checkAuth(cookies.id)) {
+    //   navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    // }
+
+    if (cookies.id) {
       setCookieValue(cookies.id);
     } else {
       setCookieValue(null);
     }
 
-    if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    }
   }, [cookies, navigate]); // cookies가 변경될 때마다 실행
 
   console.log('cookieValue: ', cookieValue);
