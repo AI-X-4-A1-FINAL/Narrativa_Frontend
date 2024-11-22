@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "../api/axioInstance"; // axios 설정 파일
 
 interface LocationState {
   genre: string;
@@ -12,17 +13,32 @@ const GameIntro: React.FC = () => {
   const location = useLocation();
   const { genre, tags, image } = location.state as LocationState;
 
-  const handleStart = () => {
-    // 추가적인 데이터 검증이나 로직 삽입 가능
+  const handleStart = async () => {
     if (!genre) {
       alert("Genre information is missing!");
       return;
     }
 
-    // Game 페이지로 이동
-    navigate("/game-page", {
-      state: { genre, tags, image },
-    });
+    try {
+      // 백엔드로 데이터 전송
+      const response = await axios.post("/generate-story/start", {
+        genre,
+        tags, // 필요한 경우 태그도 함께 전송
+      });
+
+      // API 응답 처리 후 게임 페이지로 이동
+      navigate("/game-page", {
+        state: {
+          genre,
+          tags,
+          image,
+          initialStory: response.data.story, // 초기 스토리 전달
+        },
+      });
+    } catch (error) {
+      console.error("Error starting the game:", error);
+      alert("Failed to start the game. Please try again.");
+    }
   };
 
   return (
