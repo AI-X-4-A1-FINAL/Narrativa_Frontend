@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../api/axioInstance"; // axios 설정 파일
+import axios from "../api/axiosInstance"; // axios 설정 파일
+import AuthGuard from "../api/accessControl";
 
 interface LocationState {
   genre: string;
@@ -11,7 +13,8 @@ interface LocationState {
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { genre, tags, image } = location.state as LocationState;
+  const { genre, tags, image } = location.state as LocationState || {};
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
 
   const handleStart = async () => {
     if (!genre) {
@@ -41,6 +44,25 @@ const GameIntro: React.FC = () => {
     }
   };
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
+
+  useEffect(() => {
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    }
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    }
+  }, []);
+
   return (
     <div className="">
       <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg mb-6">
@@ -53,7 +75,7 @@ const GameIntro: React.FC = () => {
       <div className="text-center text-black mb-4">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
         <div className="mb-4">
-          {tags.map((tag, index) => (
+          {Array.isArray(tags) && tags.map((tag, index) => (
             <span
               key={index}
               className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200"
