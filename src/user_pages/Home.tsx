@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import AuthGuard from "../api/accessControl";
 
 interface Genre {
   name: string;
@@ -15,13 +16,15 @@ const Home: React.FC = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const [cookieValue, setCookieValue] = useState<string | null>(null);
 
-  // 페이지 로드 시 쿠키 값을 가져오는 함수 호출
-  // useEffect(() => {
-  //   fetchCookieValueFromSpring();
-  // }, []); // 빈 배열을 넣으면 처음 한번만 실행
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
 
   useEffect(() => {
-
     if (cookies.id === undefined || cookies.id === null) {
       navigate('/');
     // 'id' 쿠키 값 가져오기
@@ -29,6 +32,10 @@ const Home: React.FC = () => {
       setCookieValue(cookies.id);
     } else {
       setCookieValue(null);
+    }
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
     }
   }, [cookies, navigate]); // cookies가 변경될 때마다 실행
 

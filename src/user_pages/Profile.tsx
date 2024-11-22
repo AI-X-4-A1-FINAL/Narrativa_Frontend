@@ -4,6 +4,7 @@ import Avatar from "boring-avatars";
 import { useCookies } from "react-cookie";
 import axiosBaseURL from "../api/axios";
 import axios from "axios";
+import AuthGuard from "../api/accessControl";
 
 interface UserProfileInfo {
   username: string;
@@ -78,6 +79,14 @@ const Profile: React.FC = () => {
     }
   };
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
+
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
     console.log('cookies.id', cookies.id);
@@ -88,6 +97,10 @@ const Profile: React.FC = () => {
       fetchUserData(cookies.id);
     }
     setIsEditingNickname(false);
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근 불가 설정
+    }
   }, []);
 
   console.log('userId: ', userId);

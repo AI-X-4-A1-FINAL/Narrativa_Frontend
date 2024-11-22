@@ -3,6 +3,7 @@ import html2canvas from "html2canvas";
 import { FaDownload } from "react-icons/fa";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import AuthGuard from "../api/accessControl";
 
 const GameEnding: React.FC = () => {
   // 쿠키
@@ -37,10 +38,20 @@ const GameEnding: React.FC = () => {
     link.click();
   };
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number): Promise<boolean> => {
+    const isAuthenticated = await AuthGuard(userId);
+    return isAuthenticated;
+  };
+
   useEffect(() => {
     console.log('cookies.id', cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate('/');
+    }
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
     }
   }, []);
 

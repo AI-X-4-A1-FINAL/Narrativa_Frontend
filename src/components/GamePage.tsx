@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
+import AuthGuard from "../api/accessControl";
 
 interface LocationState {
   genre: string;
@@ -162,11 +163,23 @@ const GamePage: React.FC = () => {
     }
   };
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
+
   useEffect(() => {
     // 유저 정보 x '/' redirect
     console.log('cookies.id', cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate('/');
+    }
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
     }
 
     // 단계별 메시지 업데이트

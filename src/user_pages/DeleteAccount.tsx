@@ -1,17 +1,31 @@
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
+import AuthGuard from "../api/accessControl";
 
 const DeleteAccount: React.FC = () => {
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
+
+
   useEffect(() => {
     console.log('cookies.id', cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate('/');
     } 
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    }
   }, []);
 
   const handleDelete = async () => {
