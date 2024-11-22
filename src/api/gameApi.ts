@@ -1,4 +1,4 @@
-import axiosInstance from "./axioInstance";
+import axiosInstance from "./axiosInstance";
 
 interface GenerateStoryParams {
   genre: string;
