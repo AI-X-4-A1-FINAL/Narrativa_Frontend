@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../api/axiosInstance"; // axios 설정 파일
+import axios from "../api/axiosInstance";
 import AuthGuard from "../api/accessControl";
 
 interface LocationState {
@@ -16,26 +16,27 @@ const GameIntro: React.FC = () => {
   const { genre, tags, image } = location.state as LocationState || {};
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
 
+
   const handleStart = async () => {
     if (!genre) {
       alert("Genre information is missing!");
       return;
     }
-
+  
     try {
-      // 백엔드로 데이터 전송
       const response = await axios.post("/generate-story/start", {
         genre,
-        tags, // 필요한 경우 태그도 함께 전송
+        tags,
       });
+      
+      console.log("Initial Story:", response.data.story);
 
-      // API 응답 처리 후 게임 페이지로 이동
       navigate("/game-page", {
         state: {
           genre,
           tags,
           image,
-          initialStory: response.data.story, // 초기 스토리 전달
+          initialStory: response.data.story, // 초기 스토리 추가
         },
       });
     } catch (error) {
