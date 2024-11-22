@@ -88,13 +88,13 @@ const GamePage: React.FC = () => {
     setUserInput("");
   };
 
-  console.log(`${process.env.REACT_APP_SPRING_URI}/generate-story`);
+  console.log(`${process.env.REACT_APP_SPRING_URI}/generate-story/start`);
 
   const fetchOpponentMessage = async (userInput: string) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/generate-story`,
+        `${process.env.REACT_APP_SPRING_URI}/generate-story/start`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
