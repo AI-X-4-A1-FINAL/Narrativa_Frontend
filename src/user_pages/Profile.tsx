@@ -80,7 +80,10 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
-    if (Number(cookies.id) !== -1) {   // 'id' 쿠키 값 가져오기
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    } else if (Number(cookies.id) !== -1) {   // 'id' 쿠키 값 가져오기
       setUserId(cookies.id);
       fetchUserData(cookies.id);
     }
@@ -124,6 +127,7 @@ const Profile: React.FC = () => {
     setError(null);
 
     try {
+      console.log('cookies.id: ', cookies.id);
       const response = await axiosBaseURL.put(`/api/users/${userId}/deactivate`);
       console.log('Account Deactivated:', response.data);
 

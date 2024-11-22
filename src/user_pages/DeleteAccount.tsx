@@ -1,6 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 const DeleteAccount: React.FC = () => {
+  // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
+
+  useEffect(() => {
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    } 
+  }, []);
+
   const handleDelete = async () => {
     try {
       const response = await fetch("/api/delete-account", {
@@ -17,6 +30,8 @@ const DeleteAccount: React.FC = () => {
       alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
+
+
 
   return (
     <div className="flex flex-col items-center justify-center h-screen text-center">

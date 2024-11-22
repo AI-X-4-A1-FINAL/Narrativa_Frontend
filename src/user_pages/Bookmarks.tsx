@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const Bookmarks: React.FC = () => {
+
     // 현재 선택된 장르를 관리하는 상태
     const [selectedGenre, setSelectedGenre] = useState('추리');
 
@@ -11,6 +14,20 @@ const Bookmarks: React.FC = () => {
         연애: ['images/romance1.png', 'images/romance2.png', 'images/romance3.png', 'images/romance4.png'],
         성장: ['images/growth1.png', 'images/growth2.png', 'images/growth3.png', 'images/growth4.png'],
     };
+
+    // 쿠키 정보 
+    const [cookies, setCookie, removeCookie] = useCookies(['id']);
+
+    const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
+
+    // 데이터베이스에서 닉네임 가져오기
+  useEffect(() => {
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+        navigate('/');
+    }
+
+  }, []);
 
     return (
         <div className="flex flex-col items-center w-full mx-auto pt-4 bg-white text-gray-800 p-2 min-h-screen">

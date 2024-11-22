@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface LocationState {
@@ -10,7 +11,8 @@ interface LocationState {
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { genre, tags, image } = location.state as LocationState;
+  const { genre, tags, image } = location.state as LocationState || {};
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
 
   const handleStart = () => {
     // 추가적인 데이터 검증이나 로직 삽입 가능
@@ -25,6 +27,13 @@ const GameIntro: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    }
+  }, []);
+
   return (
     <div className="">
       <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg mb-6">
@@ -37,7 +46,7 @@ const GameIntro: React.FC = () => {
       <div className="text-center text-black mb-4">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
         <div className="mb-4">
-          {tags.map((tag, index) => (
+          {Array.isArray(tags) && tags.map((tag, index) => (
             <span
               key={index}
               className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200"

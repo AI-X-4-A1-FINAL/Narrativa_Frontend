@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface LocationState {
@@ -30,6 +31,8 @@ const GamePage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
 
   const stages = [
     { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
@@ -160,6 +163,12 @@ const GamePage: React.FC = () => {
   };
 
   useEffect(() => {
+    // 유저 정보 x '/' redirect
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    }
+
     // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];
     setCurrentMessages(savedMessages);
