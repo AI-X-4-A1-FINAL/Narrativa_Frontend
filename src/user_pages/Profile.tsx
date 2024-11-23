@@ -144,6 +144,9 @@ const Profile: React.FC = () => {
       const response = await axiosBaseURL.put(`/api/users/${userId}/deactivate`);
       console.log('Account Deactivated:', response.data);
 
+      removeCookie('id'); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+      console.log("쿠키가 삭제되었습니다.");
+
       // 탈퇴 성공 후 alert 창 띄우기
       alert('회원 탈퇴가 완료되었습니다.');
 
