@@ -34,6 +34,8 @@ const GamePage: React.FC = () => {
 
   const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
 
+  const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
+
   const stages = [
     { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
     { bg: "/images/stage10.jpeg", content: "Final Stage! Stage 1!" },
@@ -76,7 +78,7 @@ const GamePage: React.FC = () => {
 
   // 사용자 메시지 전송 및 API 호출
   const handleSendMessage = async () => {
-    if (userInput.trim() === "") return;
+    if (userInput.trim() === "" || loading) return;
 
     const newMessage: Message = { sender: "user", text: userInput };
     setCurrentMessages((prev) => [...prev, newMessage]);
@@ -85,9 +87,16 @@ const GamePage: React.FC = () => {
       [currentStage]: [...(prev[currentStage] || []), newMessage],
     }));
 
-    // 백엔드에 채팅 메시지를 보내는 부분
-    await fetchOpponentMessage(userInput);
-    setUserInput(""); // 입력창 초기화
+    setUserInput(""); // 입력 초기화
+    setInputCount((prev) => prev + 1); // 입력 횟수 증가
+
+    if (inputCount + 1 >= 5) {
+      // 5번 입력 후 다음 스테이지로 이동
+      setTimeout(() => goToNextStage(), 10000); // 10초 후 이동
+    } else {
+      // 백엔드 호출
+      await fetchOpponentMessage(userInput);
+    }
   };
 
   const fetchOpponentMessage = async (userInput: string) => {
@@ -139,6 +148,7 @@ const GamePage: React.FC = () => {
       const nextMessages = allMessages[currentStage + 1] || [];
       setCurrentMessages(nextMessages);
       setCurrentStage((prev) => prev + 1);
+      setInputCount(0); // 입력 횟수 초기화
     }
   };
 
