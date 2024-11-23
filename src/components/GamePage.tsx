@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
+import axios from "../api/axiosInstance";
 
 interface LocationState {
   genre: string;
@@ -95,37 +96,19 @@ const GamePage: React.FC = () => {
       const requestBody = {
         genre,
         currentStage, // 현재 단계 정보 추가
-        user_input: userInput, // 사용자가 입력한 메시지
+        userInput: userInput, // 사용자가 입력한 메시지
         initialStory, // 초기 세계관 (게임 시작 시 받은 스토리)
       };
-      
-      console.log("Request body:", requestBody); // 요청 데이터 로그 출력
   
-      const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/generate-story/chat`, // 새로운 엔드포인트 호출
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const response = await axios.post("/generate-story/chat", requestBody);
   
-      console.log("Response status:", response.status); // 응답 상태 로그 출력
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("Response data:", data); // 응답 데이터 로그 출력
-  
-      if (data && data.story) {
+      if (response.data && response.data.story) {
         setCurrentMessages((prev) => [
           ...prev,
-          { sender: "opponent", text: data.story }, // 백엔드에서 받은 이야기를 추가
+          { sender: "opponent", text: response.data.story }, // 백엔드에서 받은 이야기를 추가
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching opponent message:", error);
       setCurrentMessages((prev) => [
         ...prev,
