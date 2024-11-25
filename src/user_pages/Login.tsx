@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { getKakaoLoginLink } from '../api/kakaoApi';
 import { getGoogleLoginLink } from '../api/googleApi';
 import { getGithubLoginLink } from '../api/githubApi';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 스크롤 비활성화
