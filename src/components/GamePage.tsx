@@ -27,6 +27,7 @@ const GamePage: React.FC = () => {
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
     {}
   );
+
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>(""); // 사용자 입력
   const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
@@ -37,7 +38,6 @@ const GamePage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지의 끝을 가리킬 ref
-
   const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
 
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
@@ -209,7 +209,6 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     }
@@ -291,6 +290,9 @@ const GamePage: React.FC = () => {
             {isExpanded
               ? `스토리 진행 - 단계 ${currentStage + 1}`
               : "채팅창 열기"}
+            {isExpanded
+              ? `스토리 진행 - 단계 ${currentStage + 1}`
+              : "채팅창 열기"}
           </h2>
         </div>
 
@@ -331,14 +333,23 @@ const GamePage: React.FC = () => {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.stopPropagation();
+                    handleSendMessage(); // 엔터키가 눌리면 메시지 전송
+                  }
+                }}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"
                 placeholder="메시지를 입력하세요..."
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg "
+                disabled={loading}
+                className={`bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                {loading ? "전송 중..." : "Send"}
+                Send
               </button>
             </div>
           </div>
