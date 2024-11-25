@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import html2canvas from "html2canvas";
 import { FaDownload } from "react-icons/fa";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
+import AuthGuard from "../api/accessControl";
 
 const GameEnding: React.FC = () => {
+  const navigate = useNavigate();
+  
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+
   const handleDownload = async () => {
     // 캡처할 영역과 다운로드 버튼 선택
     const captureArea = document.querySelector(".capture-area");
@@ -30,6 +37,23 @@ const GameEnding: React.FC = () => {
     link.download = "game-section.jpg";
     link.click();
   };
+
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number): Promise<boolean> => {
+    const isAuthenticated = await AuthGuard(userId);
+    return isAuthenticated;
+  };
+
+  useEffect(() => {
+    console.log('cookies.id', cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate('/');
+    }
+
+    if (!checkAuth(cookies.id)) {
+      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    }
+  }, []);
 
   return (
     <div className="capture-area relative w-full p-8 text-black min-h-screen overflow-y-auto bg-gray-50">
