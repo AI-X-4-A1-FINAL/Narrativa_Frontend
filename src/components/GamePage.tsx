@@ -27,6 +27,7 @@ const GamePage: React.FC = () => {
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
     {}
   );
+
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>(""); // 사용자 입력
   const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
@@ -36,7 +37,7 @@ const GamePage: React.FC = () => {
   const [musicLoading, setMusicLoading] = useState<boolean>(false); // 음악 로딩 상태
   const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
+  const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지의 끝을 가리킬 ref
   const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
 
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
@@ -94,7 +95,7 @@ const GamePage: React.FC = () => {
     setUserInput(""); // 입력 초기화
     setInputCount((prev) => prev + 1); // 입력 횟수 증가
 
-    if (inputCount + 1 >= 5) {
+    if (inputCount + 1 >= 6) {
       // 5번 입력 후 다음 스테이지로 이동
       setTimeout(() => goToNextStage(), 10000); // 10초 후 이동
     } else {
@@ -159,26 +160,25 @@ const GamePage: React.FC = () => {
 
   const goToNextStage = () => {
     if (currentStage < stages.length - 1) {
+      // 현재 스테이지에서 마지막 메시지를 다음 스테이지로 이동
+      const newMessages = [...currentMessages]; // 현재 메시지 복사
       setAllMessages((prev) => ({
         ...prev,
-        [currentStage]: currentMessages,
+        [currentStage]: newMessages, // 현재 단계의 메시지로 저장
       }));
-      const nextMessages = allMessages[currentStage + 1] || [];
-      setCurrentMessages(nextMessages);
-      setCurrentStage((prev) => prev + 1);
+
+      // 다음 스테이지로 이동하면서 메시지 전달
+      setCurrentMessages(newMessages); // 현재 메시지 그대로 다음 스테이지로 설정
+      setCurrentStage((prev) => prev + 1); // 단계 증가
       setInputCount(0); // 입력 횟수 초기화
     }
   };
 
   const goToPreviousStage = () => {
     if (currentStage > 0) {
-      setAllMessages((prev) => ({
-        ...prev,
-        [currentStage]: currentMessages,
-      }));
-      const previousMessages = allMessages[currentStage] || [];
-      setCurrentMessages(previousMessages);
-      setCurrentStage((prev) => prev - 1);
+      const previousMessages = allMessages[currentStage - 1] || [];
+      setCurrentMessages(previousMessages); // 이전 단계 메시지 설정
+      setCurrentStage((prev) => prev - 1); // 단계 감소
     }
   };
 
@@ -209,7 +209,6 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     }
@@ -238,6 +237,13 @@ const GamePage: React.FC = () => {
       setIsPlaying(true); // 재생 상태 업데이트
     }
   }, [musicUrl]);
+
+  // 채팅 메시지가 추가될 때마다 자동으로 스크롤을 맨 아래로 이동
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentMessages]); // currentMessages가 변경될 때마다 실행
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
@@ -311,6 +317,8 @@ const GamePage: React.FC = () => {
               </p>
             </div>
           ))}
+          {/* 메시지 끝을 가리키는 요소 */}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* 메시지 입력창 */}
