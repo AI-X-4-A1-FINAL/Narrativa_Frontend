@@ -232,13 +232,6 @@ const GamePage: React.FC = () => {
     }
   }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
 
-  // 유저 유효성 검증
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
-    if (!isAuthenticated) {
-      navigate('/');
-    }
-  };
 
   //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
   useEffect(() => {
