@@ -1,8 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNotification } from "../Contexts/NotificationContext";
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const { isNotificationsOn } = useNotification();
+  const navigate = useNavigate();
+
+  const handleNotificationClick = () => {
+    navigate("/notification-list");
+  };
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -90,8 +98,11 @@ const Header: React.FC = () => {
       </div>
 
       {/* 공지사항: Home 페이지에서만 렌더링 */}
-      {location.pathname === "/home" && (
-        <div className="mt-1 bg-gray-100 dark:bg-gray-800 text-center p-2 rounded-lg">
+      {isNotificationsOn && location.pathname === "/home" && (
+        <div
+          className="mt-1 bg-gray-100 dark:bg-gray-800 text-center p-2 rounded-lg cursor-pointer"
+          onClick={handleNotificationClick}
+        >
           <p className="text-gray-700 dark:text-gray-300 text-sm">
             📣 공지사항 : 2024년 12월 20일 앱 출시 📣
           </p>

@@ -17,7 +17,10 @@ import GamePage from "./components/GamePage";
 import GameEnding from "./components/GameEnding";
 import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
-import { DarkModeProvider } from "./action/DarkModeContext";
+import { DarkModeProvider } from "./Contexts/DarkModeContext";
+import { NotificationProvider } from "./Contexts/NotificationContext";
+import NotificationList from "./user_pages/NotificationList";
+import Notification from "./components/Notification";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -58,6 +61,8 @@ const AppContent: React.FC = () => {
               <Route path="/game-ending" element={<GameEnding />} />
               <Route path="/*" element={<WrongPage />} />
               <Route path="/loading" element={<Loading />} />
+              <Route path="/notification-list" element={<NotificationList />} />
+              <Route path="/notification/:id" element={<Notification />} />
             </Routes>
           </main>
         </div>
@@ -68,9 +73,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
   <DarkModeProvider>
-    {" "}
-    {/* 다크 모드 상태를 전역적으로 제공 */}
-    <AppContent />
+    <NotificationProvider>
+      {" "}
+      {/* 다크 모드 상태를 전역적으로 제공 */}
+      <AppContent />
+    </NotificationProvider>
   </DarkModeProvider>
 );
 

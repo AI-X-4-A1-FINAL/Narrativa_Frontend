@@ -14,7 +14,7 @@ const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = (location.state as LocationState) || {};
-  // const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
 
   const handleStart = async () => {
     if (!genre) {

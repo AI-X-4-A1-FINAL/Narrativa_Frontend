@@ -4,7 +4,8 @@ import Avatar from "boring-avatars";
 import { useCookies } from "react-cookie";
 import axiosBaseURL from "../api/axios";
 import AuthGuard from "../api/accessControl";
-import { useDarkMode } from "../action/DarkModeContext";
+import { useDarkMode } from "../Contexts/DarkModeContext";
+import { useNotification } from "../Contexts/NotificationContext";
 
 interface UserProfileInfo {
   username: string;
@@ -22,7 +23,8 @@ const Profile: React.FC = () => {
 
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
-  const [isNotificationsOn, setIsNotificationsOn] = useState(false);
+  const { isNotificationsOn, toggleNotifications } = useNotification();
+  console.log("Profile - isNotificationsOn:", isNotificationsOn);
 
   const [cookies, setCookie, removeCookie] = useCookies(["id"]);
   const [userId, setUserId] = useState(-1);
@@ -153,7 +155,7 @@ const Profile: React.FC = () => {
       );
       console.log("Account Deactivated:", response.data);
 
-      removeCookie('id'); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
       console.log("쿠키가 삭제되었습니다.");
 
       // 탈퇴 성공 후 alert 창 띄우기
@@ -362,7 +364,7 @@ const Profile: React.FC = () => {
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
               isNotificationsOn ? "bg-custom-violet" : "bg-gray-300"
             }`}
-            onClick={() => handleToggle(setIsNotificationsOn)}
+            onClick={toggleNotifications}
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
