@@ -17,8 +17,9 @@ import GamePage from "./components/GamePage";
 import GameEnding from "./components/GameEnding";
 import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
+import { DarkModeProvider } from "./action/DarkModeContext";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Main 페이지(`/`) 여부 확인
@@ -28,21 +29,21 @@ const App: React.FC = () => {
   const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
 
   // Skip pt-32 for specific routes (including /bookmarks)
-  const noPaddingRoutes = ["/bookmarks"]; // Add '/bookmarks' here
+  const noPaddingRoutes = ["/bookmarks"];
 
   // Determine whether padding is required
   const isHeaderVisible = !noHeaderRoutes.includes(location.pathname);
-  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname); // Check if padding should be applied
+  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname);
 
   return (
     <>
       {isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between bg-black">
+        <div className="flex flex-col min-h-screen items-center justify-between bg-white">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main
-            className={`flex-grow w-full max-w-lg mx-auto bg-white ${
+            className={`flex-grow w-full max-w-lg mx-auto bg-white dark:bg-gray-900 dark:text-white ${
               isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""
             }`}
           >
@@ -64,6 +65,14 @@ const App: React.FC = () => {
     </>
   );
 };
+
+const App: React.FC = () => (
+  <DarkModeProvider>
+    {" "}
+    {/* 다크 모드 상태를 전역적으로 제공 */}
+    <AppContent />
+  </DarkModeProvider>
+);
 
 const AppWithRouter: React.FC = () => (
   <Router>

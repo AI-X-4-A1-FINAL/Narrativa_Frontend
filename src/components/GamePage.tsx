@@ -8,7 +8,7 @@ interface LocationState {
   genre: string;
   tags: string[];
   image: string;
-  userInput : string;
+  userInput: string;
   initialStory: string;
   previousUserInput: string;
 }
@@ -21,9 +21,12 @@ interface Message {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, initialStory, previousUserInput } = location.state as LocationState;
+  const { genre, tags, image, initialStory, previousUserInput } =
+    location.state as LocationState;
 
-  const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>({});
+  const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
+    {}
+  );
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState<string>(""); // 사용자 입력
   const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
@@ -34,7 +37,7 @@ const GamePage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
 
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
 
@@ -75,7 +78,6 @@ const GamePage: React.FC = () => {
   // 채팅창 확장/축소 토글
   const toggleExpansion = () => {
     setIsExpanded((prev) => !prev);
-    
   };
 
   // 사용자 메시지 전송 및 API 호출
@@ -106,18 +108,21 @@ const GamePage: React.FC = () => {
     try {
       const requestBody = {
         genre: genre || "", // 선택한 장르
-        currentStage,       // 현재 스테이지 값
-        initialStory,       // FastAPI에서 생성된 초기 스토리
-        userInput,          // 유저가 입력한 값
-        previousUserInput: previousUserInput || "" // 이전 입력값 (없으면 빈 문자열)
+        currentStage, // 현재 스테이지 값
+        initialStory, // FastAPI에서 생성된 초기 스토리
+        userInput, // 유저가 입력한 값
+        previousUserInput: previousUserInput || "", // 이전 입력값 (없으면 빈 문자열)
       };
       // console.log("Request Body:", requestBody); // 데이터 확인용
 
       const response = await axios.post("/generate-story/chat", requestBody);
-  
+
       if (response.data && response.data.story) {
-        const newMessage: Message = { sender: "opponent", text: response.data.story };
-  
+        const newMessage: Message = {
+          sender: "opponent",
+          text: response.data.story,
+        };
+
         setCurrentMessages((prev) => [...prev, newMessage]); // 현재 메시지 업데이트
         setAllMessages((prev) => ({
           ...prev,
@@ -126,8 +131,11 @@ const GamePage: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error fetching opponent message:", error);
-      const errorMessage: Message = { sender: "opponent", text: "오류가 발생했습니다. 다시 시도해주세요." };
-  
+      const errorMessage: Message = {
+        sender: "opponent",
+        text: "오류가 발생했습니다. 다시 시도해주세요.",
+      };
+
       setCurrentMessages((prev) => [...prev, errorMessage]); // 에러 메시지 추가
       setAllMessages((prev) => ({
         ...prev,
@@ -137,7 +145,7 @@ const GamePage: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   const togglePlayPause = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -178,7 +186,7 @@ const GamePage: React.FC = () => {
   const checkAuth = async (userId: number) => {
     const isAuthenticated = await AuthGuard(userId);
     if (!isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -186,8 +194,11 @@ const GamePage: React.FC = () => {
     // initialStory가 있을 때만 처리
     if (initialStory && currentStage === 0) {
       // 초기 스토리가 있을 경우, 바로 메시지 추가
-      const initialMessage: Message = { sender: "opponent", text: initialStory };
-      
+      const initialMessage: Message = {
+        sender: "opponent",
+        text: initialStory,
+      };
+
       setCurrentMessages([initialMessage]); // 첫 번째 스테이지 메시지로 추가
       setAllMessages((prev) => ({
         ...prev,
@@ -195,16 +206,16 @@ const GamePage: React.FC = () => {
       }));
     }
   }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
-  
+
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    console.log('cookies.id', cookies.id);
+    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
+      navigate("/");
     }
 
     if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
     }
 
     // 단계별 메시지 업데이트
@@ -270,29 +281,37 @@ const GamePage: React.FC = () => {
           onClick={toggleExpansion}
         >
           <h2 className="text-lg font-semibold">
-            {isExpanded ? `스토리 진행 - 단계 ${currentStage + 1}` : "채팅창 열기"}
+            {isExpanded
+              ? `스토리 진행 - 단계 ${currentStage + 1}`
+              : "채팅창 열기"}
           </h2>
         </div>
 
         {/* 채팅 메시지 */}
         <div
-          className={`overflow-y-auto flex-grow px-4 space-y-2 ${isExpanded ? "block" : "hidden"}`}
+          className={`overflow-y-auto flex-grow px-4 space-y-2 ${
+            isExpanded ? "block" : "hidden"
+          }`}
         >
-        {currentMessages.map((message, index) => (
-          <div
-            key={index}
-            className={`mb-2 ${message.sender === "user" ? "text-right" : "text-left"}`}
-          >
-            <p
-              className={`inline-block px-3 py-2 rounded-lg ${
-                message.sender === "user" ? "bg-white text-black" : "bg-custom-purple text-white"
+          {currentMessages.map((message, index) => (
+            <div
+              key={index}
+              className={`mb-2 ${
+                message.sender === "user" ? "text-right" : "text-left"
               }`}
             >
-              {message.text}
-            </p>
-          </div>
-        ))}
-          </div>
+              <p
+                className={`inline-block px-3 py-2 rounded-lg ${
+                  message.sender === "user"
+                    ? "bg-white text-black"
+                    : "bg-custom-purple text-white"
+                }`}
+              >
+                {message.text}
+              </p>
+            </div>
+          ))}
+        </div>
 
         {/* 메시지 입력창 */}
         {isExpanded && (
@@ -303,14 +322,23 @@ const GamePage: React.FC = () => {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.stopPropagation();
+                    handleSendMessage(); // 엔터키가 눌리면 메시지 전송
+                  }
+                }}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"
                 placeholder="메시지를 입력하세요..."
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg "
+                disabled={loading}
+                className={`bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                {loading ? "전송 중..." : "Send"}
+                Send
               </button>
             </div>
           </div>
