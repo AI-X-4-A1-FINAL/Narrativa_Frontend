@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 
 const GameEnding: React.FC = () => {
-  // 쿠키
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
-  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
+  const navigate = useNavigate();
+  
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
 
   const handleDownload = async () => {
     // 캡처할 영역과 다운로드 버튼 선택
