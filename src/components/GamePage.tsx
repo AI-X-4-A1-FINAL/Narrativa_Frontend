@@ -38,7 +38,7 @@ const GamePage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지의 끝을 가리킬 ref
 
-  // const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
 
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
 
@@ -174,18 +174,6 @@ const GamePage: React.FC = () => {
     }
   };
 
-  // const goToPreviousStage = () => {
-  //   if (currentStage > 0) {
-  //     setAllMessages((prev) => ({
-  //       ...prev,
-  //       [currentStage]: currentMessages,
-  //     }));
-  //     const previousMessages = allMessages[currentStage] || [];
-  //     setCurrentMessages(previousMessages);
-  //     setCurrentStage((prev) => prev - 1);
-  //   }
-  // };
-
   const goToPreviousStage = () => {
     if (currentStage > 0) {
       const previousMessages = allMessages[currentStage - 1] || [];
@@ -221,14 +209,14 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    // console.log('cookies.id', cookies.id);
-    // if (cookies.id === undefined || cookies.id === null) {
-    //   navigate('/');
-    // }
+    console.log("cookies.id", cookies.id);
+    if (cookies.id === undefined || cookies.id === null) {
+      navigate("/");
+    }
 
-    // if (!checkAuth(cookies.id)) {
-    //   navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    // }
+    if (!checkAuth(cookies.id)) {
+      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+    }
 
     // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];
