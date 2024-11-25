@@ -32,7 +32,7 @@ const GamePage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
 
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
 
@@ -188,14 +188,14 @@ const GamePage: React.FC = () => {
   
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    console.log('cookies.id', cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
-    }
+    // console.log('cookies.id', cookies.id);
+    // if (cookies.id === undefined || cookies.id === null) {
+    //   navigate('/');
+    // }
 
-    if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    }
+    // if (!checkAuth(cookies.id)) {
+    //   navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    // }
 
     // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];
