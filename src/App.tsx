@@ -17,8 +17,12 @@ import GamePage from "./components/GamePage";
 import GameEnding from "./components/GameEnding";
 import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
+import { DarkModeProvider } from "./Contexts/DarkModeContext";
+import { NotificationProvider } from "./Contexts/NotificationContext";
+import NotificationList from "./user_pages/NotificationList";
+import Notification from "./components/Notification";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const location = useLocation();
 
   // Main 페이지(`/`) 여부 확인
@@ -28,21 +32,21 @@ const App: React.FC = () => {
   const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
 
   // Skip pt-32 for specific routes (including /bookmarks)
-  const noPaddingRoutes = ["/bookmarks"]; // Add '/bookmarks' here
+  const noPaddingRoutes = ["/bookmarks"];
 
   // Determine whether padding is required
   const isHeaderVisible = !noHeaderRoutes.includes(location.pathname);
-  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname); // Check if padding should be applied
+  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname);
 
   return (
     <>
       {isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between bg-black">
+        <div className="flex flex-col min-h-screen items-center justify-between bg-white">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main
-            className={`flex-grow w-full max-w-lg mx-auto bg-white ${
+            className={`flex-grow w-full max-w-lg mx-auto bg-white dark:bg-gray-900 dark:text-white ${
               isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""
             }`}
           >
@@ -57,6 +61,8 @@ const App: React.FC = () => {
               <Route path="/game-ending" element={<GameEnding />} />
               <Route path="/*" element={<WrongPage />} />
               <Route path="/loading" element={<Loading />} />
+              <Route path="/notification-list" element={<NotificationList />} />
+              <Route path="/notification/:id" element={<Notification />} />
             </Routes>
           </main>
         </div>
@@ -64,6 +70,16 @@ const App: React.FC = () => {
     </>
   );
 };
+
+const App: React.FC = () => (
+  <DarkModeProvider>
+    <NotificationProvider>
+      {" "}
+      {/* 다크 모드 상태를 전역적으로 제공 */}
+      <AppContent />
+    </NotificationProvider>
+  </DarkModeProvider>
+);
 
 const AppWithRouter: React.FC = () => (
   <Router>
