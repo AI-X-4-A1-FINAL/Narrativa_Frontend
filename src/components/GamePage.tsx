@@ -81,7 +81,7 @@ const GamePage: React.FC = () => {
   // ML에서 사진을 받아오기
   const fetchBackgroundImageML = () => {
     // storyText를 이용하여 새로운 배경 이미지를 요청하는 로직
-    alert("hi");
+    alert("넘어가시지요.");
   };
 
   // 음악 API 호출
@@ -111,7 +111,7 @@ const GamePage: React.FC = () => {
 
   // 유저 답변 전송하고 AI한테 답 받아오기
   const handleSendMessage = async () => {
-    if (userInput.trim() === "" || loading) return;
+    if (userInput.trim() === "" || loading || inputDisabled) return; // 입력창 입력가능여부 체크
 
     const newMessage: Message = { sender: "user", text: userInput };
     setCurrentMessages((prev) => [...prev, newMessage]);
@@ -216,6 +216,7 @@ const GamePage: React.FC = () => {
       setCurrentMessages([lastMessage]); // 마지막 메시지를 현재 메시지로 설정
       setCurrentStage((prev) => prev + 1); // 단계 증가
       setInputCount(0); // 입력 횟수 초기화
+      setInputDisabled(false); // 입력 다시 활성화
     }
   };
 
@@ -426,10 +427,11 @@ const GamePage: React.FC = () => {
                 }}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"
                 placeholder="메시지를 입력하세요..."
+                disabled={inputDisabled} // 입력 비활성화
               />
               <button
                 onClick={handleSendMessage}
-                disabled={loading}
+                disabled={loading || inputDisabled} // 버튼 비활성화
                 className={`bg-custom-violet text-white font-bold py-2 px-4 rounded-r-lg ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
