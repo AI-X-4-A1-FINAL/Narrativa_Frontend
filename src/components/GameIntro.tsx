@@ -13,22 +13,21 @@ interface LocationState {
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { genre, tags, image } = location.state as LocationState || {};
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
-
+  const { genre, tags, image } = (location.state as LocationState) || {};
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
 
   const handleStart = async () => {
     if (!genre) {
       alert("Genre information is missing!");
       return;
     }
-  
+
     try {
       const response = await axios.post("/generate-story/start", {
         genre,
         tags,
       });
-      
+
       console.log("Initial Story:", response.data.story);
 
       navigate("/game-page", {
@@ -49,18 +48,18 @@ const GameIntro: React.FC = () => {
   const checkAuth = async (userId: number) => {
     const isAuthenticated = await AuthGuard(userId);
     if (!isAuthenticated) {
-      navigate('/');
+      navigate("/");
     }
   };
 
   useEffect(() => {
-    console.log('cookies.id', cookies.id);
+    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
+      navigate("/");
     }
 
     if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
     }
   }, []);
 
@@ -73,17 +72,18 @@ const GameIntro: React.FC = () => {
           className="w-full h-[400px] object-cover rounded-2xl"
         />
       </div>
-      <div className="text-center text-black mb-4">
+      <div className="text-center text-black mb-4 dark:text-white">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
         <div className="mb-4">
-          {Array.isArray(tags) && tags.map((tag, index) => (
-            <span
-              key={index}
-              className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200"
-            >
-              #{tag}
-            </span>
-          ))}
+          {Array.isArray(tags) &&
+            tags.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
+              >
+                #{tag}
+              </span>
+            ))}
         </div>
         <p>
           여기는 <span className="font-semibold">{genre}</span> 게임의 소개
@@ -96,11 +96,11 @@ const GameIntro: React.FC = () => {
       </div>
       <div className="flex flex-col items-center">
         <button
-        onClick={handleStart}
-        className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200"
-      >
-        Start Game
-      </button>
+          onClick={handleStart}
+          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
+        >
+          Start Game
+        </button>
       </div>
     </div>
   );
