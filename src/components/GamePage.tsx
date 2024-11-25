@@ -8,7 +8,9 @@ interface LocationState {
   genre: string;
   tags: string[];
   image: string;
+  userInput : string;
   initialStory: string;
+  previousUserInput: string;
 }
 
 interface Message {
@@ -19,7 +21,7 @@ interface Message {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, initialStory } = location.state as LocationState;
+  const { genre, tags, image, initialStory, previousUserInput } = location.state as LocationState;
 
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>({});
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
@@ -103,26 +105,34 @@ const GamePage: React.FC = () => {
     setLoading(true);
     try {
       const requestBody = {
-        genre,
-        currentStage, // 현재 단계 정보 추가
-        userInput: userInput, // 사용자가 입력한 메시지
-        initialStory, // 초기 세계관 (게임 시작 시 받은 스토리)
+        genre: genre || "", // 선택한 장르
+        currentStage,       // 현재 스테이지 값
+        initialStory,       // FastAPI에서 생성된 초기 스토리
+        userInput,          // 유저가 입력한 값
+        previousUserInput: previousUserInput || "" // 이전 입력값 (없으면 빈 문자열)
       };
-  
+      console.log("Request Body:", requestBody); // 데이터 확인용
+
       const response = await axios.post("/generate-story/chat", requestBody);
   
       if (response.data && response.data.story) {
-        setCurrentMessages((prev) => [
+        const newMessage: Message = { sender: "opponent", text: response.data.story };
+  
+        setCurrentMessages((prev) => [...prev, newMessage]); // 현재 메시지 업데이트
+        setAllMessages((prev) => ({
           ...prev,
-          { sender: "opponent", text: response.data.story }, // 백엔드에서 받은 이야기를 추가
-        ]);
+          [currentStage]: [...(prev[currentStage] || []), newMessage], // 전체 메시지 업데이트
+        }));
       }
     } catch (error: any) {
       console.error("Error fetching opponent message:", error);
-      setCurrentMessages((prev) => [
+      const errorMessage: Message = { sender: "opponent", text: "오류가 발생했습니다. 다시 시도해주세요." };
+  
+      setCurrentMessages((prev) => [...prev, errorMessage]); // 에러 메시지 추가
+      setAllMessages((prev) => ({
         ...prev,
-        { sender: "opponent", text: "오류가 발생했습니다. 다시 시도해주세요." },
-      ]);
+        [currentStage]: [...(prev[currentStage] || []), errorMessage],
+      }));
     } finally {
       setLoading(false);
     }
