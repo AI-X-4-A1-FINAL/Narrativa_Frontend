@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const [cookieValue, setCookieValue] = useState<string | null>(null);
 
   // 회원 상태
@@ -53,23 +53,23 @@ const Home: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const cookieId = cookies.id;
-    if (cookieId === undefined || cookieId === null) {
-      console.log('cookieId가 undefined or null 입니다.');
-      navigate('/');
-    // 'id' 쿠키 값 가져오기
-    } else if (cookieId) {
-      setCookieValue(cookieId);
-      getUserStatus(cookieId);
-      if (!checkAuth(cookieId)) {
-        navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-      }
-    } else {
-      setCookieValue(null);
-    }
+  // useEffect(() => {
+  //   const cookieId = cookies.id;
+  //   if (cookieId === undefined || cookieId === null) {
+  //     console.log('cookieId가 undefined or null 입니다.');
+  //     navigate('/');
+  //   // 'id' 쿠키 값 가져오기
+  //   } else if (cookieId) {
+  //     setCookieValue(cookieId);
+  //     getUserStatus(cookieId);
+  //     if (!checkAuth(cookieId)) {
+  //       navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+  //     }
+  //   } else {
+  //     setCookieValue(null);
+  //   }
 
-  }, [cookies, navigate]); // cookies가 변경될 때마다 실행
+  // }, [cookies, navigate]); // cookies가 변경될 때마다 실행
 
   // userState가 업데이트된 후에 실행되는 useEffect
   useEffect(() => {
@@ -81,7 +81,7 @@ const Home: React.FC = () => {
 
 
 
-  console.log('cookieValue: ', cookieValue);
+  // console.log('cookieValue: ', cookieValue);
 
   // 장르 데이터 배열
   const genres: Genre[] = [
