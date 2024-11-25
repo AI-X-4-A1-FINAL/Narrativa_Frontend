@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
 import { useCookies } from "react-cookie";
 import axiosBaseURL from "../api/axios";
-import axios from "axios";
 import AuthGuard from "../api/accessControl";
 
 interface UserProfileInfo {
@@ -143,6 +142,9 @@ const Profile: React.FC = () => {
       console.log('cookies.id: ', cookies.id);
       const response = await axiosBaseURL.put(`/api/users/${userId}/deactivate`);
       console.log('Account Deactivated:', response.data);
+
+      removeCookie('id'); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+      console.log("쿠키가 삭제되었습니다.");
 
       // 탈퇴 성공 후 alert 창 띄우기
       alert('회원 탈퇴가 완료되었습니다.');

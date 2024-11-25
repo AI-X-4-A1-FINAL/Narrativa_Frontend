@@ -6,10 +6,10 @@ import { useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 
 const Loading: React.FC = () => {
+  const navigate = useNavigate();
   const [showLoadingLottie, setShowLoadingLottie] = useState(true); // 기본값 true
 
   const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
-  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
   // 유저 유효성 검증
   const checkAuth = async (userId: number) => {

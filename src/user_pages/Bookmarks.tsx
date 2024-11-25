@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthGuard from '../api/accessControl';
 
 const Bookmarks: React.FC = () => {
+  const navigate = useNavigate();
 
   // 현재 선택된 장르를 관리하는 상태
   const [selectedGenre, setSelectedGenre] = useState('추리');
@@ -18,8 +19,6 @@ const Bookmarks: React.FC = () => {
 
   // 쿠키 정보 
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
-
-  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
   // 유저 유효성 검증
   const checkAuth = async (userId: number) => {

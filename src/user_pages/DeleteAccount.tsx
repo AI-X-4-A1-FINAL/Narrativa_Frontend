@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 
 const DeleteAccount: React.FC = () => {
+  const navigate = useNavigate();
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
   const [cookies, setCookie, removeCookie] = useCookies(['id']);
-  const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
   // 유저 유효성 검증
   const checkAuth = async (userId: number) => {
@@ -15,7 +15,6 @@ const DeleteAccount: React.FC = () => {
       navigate('/');
     }
   };
-
 
   useEffect(() => {
     console.log('cookies.id', cookies.id);
