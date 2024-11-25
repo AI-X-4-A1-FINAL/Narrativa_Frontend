@@ -13,7 +13,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const [cookieValue, setCookieValue] = useState<string | null>(null);
 
   // 유저 유효성 검증
@@ -24,27 +24,27 @@ const Home: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
-    // 'id' 쿠키 값 가져오기
-    } else if (cookies.id) {
-      setCookieValue(cookies.id);
-    } else {
-      setCookieValue(null);
-    }
+  // useEffect(() => {
+  //   if (cookies.id === undefined || cookies.id === null) {
+  //     navigate('/');
+  //   // 'id' 쿠키 값 가져오기
+  //   } else if (cookies.id) {
+  //     setCookieValue(cookies.id);
+  //   } else {
+  //     setCookieValue(null);
+  //   }
 
-    if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    }
+  //   if (!checkAuth(cookies.id)) {
+  //     navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+  //   }
 
-    if (cookies.id) {
-      setCookieValue(cookies.id);
-    } else {
-      setCookieValue(null);
-    }
+  //   if (cookies.id) {
+  //     setCookieValue(cookies.id);
+  //   } else {
+  //     setCookieValue(null);
+  //   }
 
-  }, [cookies, navigate]); // cookies가 변경될 때마다 실행
+  // }, [cookies, navigate]); // cookies가 변경될 때마다 실행
 
   console.log('cookieValue: ', cookieValue);
 
