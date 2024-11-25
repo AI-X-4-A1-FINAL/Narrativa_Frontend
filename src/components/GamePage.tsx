@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
+import axios from "../api/axiosInstance";
 
 interface LocationState {
   genre: string;
@@ -31,7 +32,9 @@ const GamePage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+
+  const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
 
   const stages = [
     { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
@@ -75,7 +78,7 @@ const GamePage: React.FC = () => {
 
   // 사용자 메시지 전송 및 API 호출
   const handleSendMessage = async () => {
-    if (userInput.trim() === "") return;
+    if (userInput.trim() === "" || loading) return;
 
     const newMessage: Message = { sender: "user", text: userInput };
     setCurrentMessages((prev) => [...prev, newMessage]);
@@ -84,9 +87,16 @@ const GamePage: React.FC = () => {
       [currentStage]: [...(prev[currentStage] || []), newMessage],
     }));
 
-    // 백엔드에 채팅 메시지를 보내는 부분
-    await fetchOpponentMessage(userInput);
-    setUserInput(""); // 입력창 초기화
+    setUserInput(""); // 입력 초기화
+    setInputCount((prev) => prev + 1); // 입력 횟수 증가
+
+    if (inputCount + 1 >= 5) {
+      // 5번 입력 후 다음 스테이지로 이동
+      setTimeout(() => goToNextStage(), 10000); // 10초 후 이동
+    } else {
+      // 백엔드 호출
+      await fetchOpponentMessage(userInput);
+    }
   };
 
   const fetchOpponentMessage = async (userInput: string) => {
@@ -95,37 +105,19 @@ const GamePage: React.FC = () => {
       const requestBody = {
         genre,
         currentStage, // 현재 단계 정보 추가
-        user_input: userInput, // 사용자가 입력한 메시지
+        userInput: userInput, // 사용자가 입력한 메시지
         initialStory, // 초기 세계관 (게임 시작 시 받은 스토리)
       };
-      
-      console.log("Request body:", requestBody); // 요청 데이터 로그 출력
   
-      const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/generate-story/chat`, // 새로운 엔드포인트 호출
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const response = await axios.post("/generate-story/chat", requestBody);
   
-      console.log("Response status:", response.status); // 응답 상태 로그 출력
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("Response data:", data); // 응답 데이터 로그 출력
-  
-      if (data && data.story) {
+      if (response.data && response.data.story) {
         setCurrentMessages((prev) => [
           ...prev,
-          { sender: "opponent", text: data.story }, // 백엔드에서 받은 이야기를 추가
+          { sender: "opponent", text: response.data.story }, // 백엔드에서 받은 이야기를 추가
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching opponent message:", error);
       setCurrentMessages((prev) => [
         ...prev,
@@ -156,6 +148,7 @@ const GamePage: React.FC = () => {
       const nextMessages = allMessages[currentStage + 1] || [];
       setCurrentMessages(nextMessages);
       setCurrentStage((prev) => prev + 1);
+      setInputCount(0); // 입력 횟수 초기화
     }
   };
 
@@ -195,14 +188,14 @@ const GamePage: React.FC = () => {
   
   useEffect(() => {
     // 유저 정보 x '/' redirect
-    console.log('cookies.id', cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
-    }
+    // console.log('cookies.id', cookies.id);
+    // if (cookies.id === undefined || cookies.id === null) {
+    //   navigate('/');
+    // }
 
-    if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    }
+    // if (!checkAuth(cookies.id)) {
+    //   navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+    // }
 
     // 단계별 메시지 업데이트
     const savedMessages = allMessages[currentStage] || [];

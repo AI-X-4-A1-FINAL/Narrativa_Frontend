@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);
   const [cookieValue, setCookieValue] = useState<string | null>(null);
 
   // 회원 상태

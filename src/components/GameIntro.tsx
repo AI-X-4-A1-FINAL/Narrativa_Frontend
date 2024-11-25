@@ -14,7 +14,7 @@ const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = location.state as LocationState || {};
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  // const [cookies, setCookie, removeCookie] = useCookies(['id']);
 
 
   const handleStart = async () => {
@@ -53,16 +53,16 @@ const GameIntro: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('cookies.id', cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
-    }
+  // useEffect(() => {
+  //   console.log('cookies.id', cookies.id);
+  //   if (cookies.id === undefined || cookies.id === null) {
+  //     navigate('/');
+  //   }
 
-    if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
-    }
-  }, []);
+  //   if (!checkAuth(cookies.id)) {
+  //     navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+  //   }
+  // }, []);
 
   return (
     <div className="">
