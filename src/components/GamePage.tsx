@@ -111,7 +111,7 @@ const GamePage: React.FC = () => {
         userInput,          // 유저가 입력한 값
         previousUserInput: previousUserInput || "" // 이전 입력값 (없으면 빈 문자열)
       };
-      console.log("Request Body:", requestBody); // 데이터 확인용
+      // console.log("Request Body:", requestBody); // 데이터 확인용
 
       const response = await axios.post("/generate-story/chat", requestBody);
   

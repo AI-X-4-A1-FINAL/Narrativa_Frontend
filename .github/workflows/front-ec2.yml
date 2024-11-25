@@ -56,7 +56,6 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-            # 민감 정보 로그 방지
             set +x
 
             # 기존 컨테이너 강제 중지 및 제거 (강제 제거)
@@ -71,10 +70,15 @@ jobs:
             ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
             # 새 컨테이너 실행
-            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
-
-            # 컨테이너 내 환경 변수 확인
-            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker exec narrativa_front env | grep 'REACT_APP_' || echo '환경 변수 검증 실패: 일부 값이 누락되었습니다.'"
-
-            # 민감 정보 로그 재활성화
-            set -x
+            ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front \
+               -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
+               -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
+               -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
+               -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
+               -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
+               -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
+               -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
+               -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+               -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+               -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+               ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
