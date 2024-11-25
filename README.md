@@ -3,10 +3,13 @@
 # Narrativa Frontend
 
 ![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.14-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![ESLint](https://img.shields.io/badge/ESLint-8.57.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
-![Prettier](https://img.shields.io/badge/Prettier-3.3.3-F7B93E?style=for-the-badge&logo=prettier&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20.8.0-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+
+노드 18.15.0
+npm 9.5.0
 
 ## 🗝️ 프로젝트 소개
 
@@ -19,45 +22,25 @@
 Narrativa_Frontend 프로젝트를 로컬 환경에서 클론하고, 빌드 및 실행하는 방법을 설명합니다.
 
 ### 1. 프로젝트 클론
+
 ```bash
 git clone https://github.com/AI-X-4-A1-FINAL/Narrativa_Frontend.git
 cd narrativa-frontend
 ```
 
-### 2. 빌드 및 설치
+### 2. 패키지 설치
+
 ```bash
-./gradlew clean build
+npm install
 ```
 
 ### 3. 환경 설정
-`src/main/resources/application.yml` 파일을 다음과 같이 설정합니다:
-
-```yaml
-# yaml 예시
-server:
-  port: 8080
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/[데이터베이스 이름]?useSSL=false&serverTimezone=Asia/Seoul
-    username: [데이터베이스 사용자 이름]
-    password: [데이터베이스 비밀번호]
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-```
 
 ### 4. 실행
-```bash
-./gradlew bootRun
 
-# http:/
+````bash
+npm start
+
 
 ## 🗝️ 브랜치 관리 규칙
 
@@ -88,25 +71,28 @@ git checkout -b feat/social-login
 
 # 긴급 수정 브랜치 생성
 git checkout -b hotfix/critical-bug
-```
+````
 
 ## 🗝️ 디렉토리 구조
 
 ```
 Narrativa_Frontend/
 ├── .github/
-│   └── workflows/        
-├── public/                 
+│   └── workflows/
+├── public/
 ├── src/
 │   └── action/
 │   └── api/
 │   └── components/
+│   └── Contexts/
 │   └── user_pages/
 └── resources/
 ```
 
 ## 🗝️ 팀 정보
+
 ### **Team Member**
+
 <a href="https://github.com/shaneee123" target="_blank">
   <img src="https://github.com/user-attachments/assets/6ec7ec21-a9b1-4ebe-932f-c78064dcabe7" 
        alt="se" 
