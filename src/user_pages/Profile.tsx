@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "boring-avatars";
 import { useCookies } from "react-cookie";
 import axiosBaseURL from "../api/axios";
-import axios from "axios";
 import AuthGuard from "../api/accessControl";
 
 interface UserProfileInfo {
