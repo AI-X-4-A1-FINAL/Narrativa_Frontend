@@ -304,10 +304,10 @@ const GamePage: React.FC = () => {
       navigate("/"); // 유저 상태코드 유효하지 않으면 접근
     }
     // 새로운 단계의 음악 가져오기
-    if (genre) {
+    if (genre && currentStage < stages.length) {
       fetchMusic(genre);
     }
-  }, [genre]);
+  }, [currentStage, genre]); // currentStage나 genre가 변경될 때마다 실행
 
   // 음악이 로드된 후 자동 재생
   useEffect(() => {
