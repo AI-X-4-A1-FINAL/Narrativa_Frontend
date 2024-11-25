@@ -290,9 +290,6 @@ const GamePage: React.FC = () => {
             {isExpanded
               ? `스토리 진행 - 단계 ${currentStage + 1}`
               : "채팅창 열기"}
-            {isExpanded
-              ? `스토리 진행 - 단계 ${currentStage + 1}`
-              : "채팅창 열기"}
           </h2>
         </div>
 
