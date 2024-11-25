@@ -8,9 +8,6 @@
 ![ESLint](https://img.shields.io/badge/ESLint-8.57.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-20.8.0-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
-노드 18.15.0
-npm 9.5.0
-
 ## 🗝️ 프로젝트 소개
 
 `Narrativa_Frontend`는 AI 기반 스토리 생성 플랫폼인 Narrativa 프로젝트의 프론트엔드 모듈입니다.<br />
@@ -31,47 +28,53 @@ cd narrativa-frontend
 ### 2. 패키지 설치
 
 ```bash
-npm install
+npm install
 ```
 
 ### 3. 환경 설정
 
+이 프로젝트는 **환경 변수**를 사용합니다. `.env` 파일은 보안상의 이유로 버전 관리에서 제외되며, 클론한 레포지토리에는 포함되어 있지 않습니다.
+
 ### 4. 실행
 
-````bash
-npm start
-
+```bash
+npm start
+```
 
 ## 🗝️ 브랜치 관리 규칙
 
 ### 브랜치 구조
+
 1. **메인 브랜치 (main)**
-    - 프로덕션 배포용 안정 브랜치
-    - PR을 통해서만 병합 가능
+
+   - 프로덕션 배포용 안정 브랜치
+   - PR을 통해서만 병합 가능
 
 2. **개발 브랜치 (dev)**
-    - 개발 중인 기능 통합 브랜치
-    - 배포 전 최종 테스트 진행
+
+   - 개발 중인 기능 통합 브랜치
+   - 배포 전 최종 테스트 진행
 
 3. **기능 브랜치 (feat/)**
-    - 새로운 기능 개발용
-    - 명명규칙: `feat/{기능명}`
-    - 예: `feat/social-login`
+
+   - 새로운 기능 개발용
+   - 명명규칙: `feat/{기능명}`
+   - 예: `feat/social-login`
 
 4. **긴급 수정 브랜치 (hotfix/)**
-    - 프로덕션 긴급 버그 수정용
-    - 명명규칙: `hotfix/{이슈번호}`
-    - 예: `hotfix/critical-bug`
-
+   - 프로덕션 긴급 버그 수정용
+   - 명명규칙: `hotfix/{이슈번호}`
+   - 예: `hotfix/critical-bug`
 
 ### 브랜치 사용 예시
+
 ```bash
 # 기능 브랜치 생성
 git checkout -b feat/social-login
 
 # 긴급 수정 브랜치 생성
 git checkout -b hotfix/critical-bug
-````
+```
 
 ## 🗝️ 디렉토리 구조
 
