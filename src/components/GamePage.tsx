@@ -39,22 +39,46 @@ const GamePage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지의 끝을 가리킬 ref
   const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
-
   const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
+  const [bgImage, setBgImage] = useState<string>(image || "/images/game-start.jpeg");  
+  const imageFetched = useRef(false);
 
   const stages = [
-    { bg: image || "/images/game-start.jpeg", content: "Welcome to Stage!" },
-    { bg: "/images/stage10.jpeg", content: "Final Stage! Stage 1!" },
-    { bg: "/images/stage1.jpeg", content: "You're now in Stage 2!" },
-    { bg: "/images/stage2.jpeg", content: "Keep going! Stage 3!" },
-    { bg: "/images/stage3.jpeg", content: "Almost there! Stage 4!" },
-    { bg: "/images/stage4.jpeg", content: "Final Stage! Stage 5!" },
-    { bg: "/images/stage5.jpeg", content: "Final Stage! Stage 6!" },
-    { bg: "/images/stage6.jpeg", content: "Final Stage! Stage 7!" },
-    { bg: "/images/stage7.jpeg", content: "Final Stage! Stage 8!" },
-    { bg: "/images/stage8.jpeg", content: "Final Stage! Stage 9!" },
-    { bg: "/images/stage9.jpeg", content: "Final Stage! Stage 10!" },
+    { content: "Welcome to Stage!" },
+    { content: "Final Stage! Stage 1!" },
+    { content: "You're now in Stage 2!" },
+    { content: "Keep going! Stage 3!" },
+    { content: "Almost there! Stage 4!" },
+    { content: "Final Stage! Stage 5!" },
+    { content: "Final Stage! Stage 6!" },
+    { content: "Final Stage! Stage 7!" },
+    { content: "Final Stage! Stage 8!" },
+    { content: "Final Stage! Stage 9!" },
+    { content: "Final Stage! Stage 10!" },
   ];
+
+
+  //사진을 받아오기
+  const fetchBackgroundImage = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/images/random`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('Received image URL:', data.imageUrl); // 받은 imageUrl 출력
+      setBgImage(data.imageUrl); // 서버에서 받은 이미지 URL 설정
+    } catch (error) {
+      console.error("Error fetching background image:", error);
+      setBgImage("/images/pikachu.jpg"); // 기본 이미지로 설정
+    }
+  };
+
+  // ML에서 사진을 받아오기
+  const fetchBackgroundImageML = () => {
+    // storyText를 이용하여 새로운 배경 이미지를 요청하는 로직
+    alert("hi");
+  }
 
   // 음악 API 호출
   const fetchMusic = async (stageGenre: string) => {
@@ -174,6 +198,7 @@ const GamePage: React.FC = () => {
     }
   };
 
+
   const goToPreviousStage = () => {
     if (currentStage > 0) {
       const previousMessages = allMessages[currentStage - 1] || [];
@@ -207,7 +232,54 @@ const GamePage: React.FC = () => {
     }
   }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
 
+  // 유저 유효성 검증
+  const checkAuth = async (userId: number) => {
+    const isAuthenticated = await AuthGuard(userId);
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  };
+
+  //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
   useEffect(() => {
+    if (!imageFetched.current) {
+      fetchBackgroundImage();
+      imageFetched.current = true; // 이미지가 이미 받아졌다고 표시
+    }
+  }, []); // 빈 배열로 첫 번째 렌더링에서만 실행되도록 설정
+
+  // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
+  useEffect(() => {
+    if (inputCount === 5) {
+      // 5번 입력 후 새로운 배경 이미지 요청
+
+      fetchBackgroundImageML();
+      setInputCount(0); // 입력 횟수 초기화
+    }
+
+  }, [inputCount]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
+
+
+  //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
+  useEffect(() => {
+    // initialStory가 있을 때만 처리
+    if (initialStory && currentStage === 0) {
+      // 초기 스토리가 있을 경우, 바로 메시지 추가
+      const initialMessage: Message = {
+        sender: "opponent",
+        text: initialStory,
+      };
+
+      setCurrentMessages([initialMessage]); // 첫 번째 스테이지 메시지로 추가
+      setAllMessages((prev) => ({
+        ...prev,
+        [0]: [initialMessage], // 첫 번째 단계의 메시지로 저장
+      }));
+    }
+  }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
+
+  useEffect(() => {
+
     // 유저 정보 x '/' redirect
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
@@ -245,12 +317,20 @@ const GamePage: React.FC = () => {
     }
   }, [currentMessages]); // currentMessages가 변경될 때마다 실행
 
+   // 채팅 메시지가 추가될 때마다 자동으로 스크롤을 맨 아래로 이동
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentMessages]); // currentMessages가 변경될 때마다 실행
+
+  
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
       {/* 배경 이미지 */}
       <div className="absolute inset-0">
         <img
-          src={stages[currentStage].bg}
+          src={bgImage} // 동적으로 업데이트된 배경 이미지 사용
           alt={`Stage ${currentStage + 1}`}
           className="w-screen h-screen object-cover"
         />
