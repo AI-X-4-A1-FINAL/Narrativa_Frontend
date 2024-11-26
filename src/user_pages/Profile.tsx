@@ -67,14 +67,14 @@ const Profile: React.FC = () => {
       }
 
       console.log("data.username: ", tmp_nickname);
-      console.log("data.profile_url: ", tmp_profileUrl);
+      // console.log("data.profile_url: ", tmp_profileUrl);
 
       // 상태에 사용자 데이터 저장
       setNickname(tmp_nickname);
       setProfileUrl(tmp_profileUrl);
 
       console.log("nickname: ", nickname);
-      console.log("profile_url: ", profileUrl);
+      // console.log("profile_url: ", profileUrl);
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message);
@@ -111,14 +111,69 @@ const Profile: React.FC = () => {
   console.log("userId: ", userId);
   // console.log('userData: ', userData);
 
+  // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
-    // 수정 완료 버튼 클릭 시 데이터베이스에 저장
+    console.log('img', img);
+
+    const profileImgData = {
+      image: profileUrl
+    };
+
     try {
-      const profileData = {
-        nickname,
-        profile_url: profileUrl, // 프로필 이미지 키
+      if (!img) {
+        alert("이미지를 선택해주세요.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", img);
+
+      // s3에 이미지 저장
+      const saveImgToS3 = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/api/s3/images/upload`,
+        {
+          method: "POST",
+          body: formData, // 수정된 데이터 전송
+        }
+      );
+
+      if(!saveImgToS3.ok) throw new Error("s3 이미지 업로드 실패");
+
+      // s3 저장 후 img url 얻음(해당 url 클릭시 이미지 조회 불가 -> 다음 단계에서 얻는 url 이용시 이미지 조회)
+      const text = await saveImgToS3.text();
+      const data = JSON.parse(text);
+
+      const imageUrlValue = data.imageUrl;
+      console.log('imageUrlValue: ', imageUrlValue);
+
+      const extractFilePath = (url: string): string => {
+        const parsedUrl = new URL(url); // URL 객체로 파싱
+        const path = parsedUrl.pathname; // 경로 부분 추출 ("/test/wfle.jpg")
+        
+        return path.substring(1); // "/"를 제외한 경로 부분만 반환
       };
 
+      const extractS3FilePath = extractFilePath(imageUrlValue);
+      console.log('extract path: ', extractS3FilePath);
+
+      // s3에 이미지 저장
+      const fetchPresignedUrl = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`
+      );
+      
+      if(!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
+
+      const presignedUrlText = await fetchPresignedUrl.text();
+      console.log('presignedUrlText', presignedUrlText);
+
+      setProfileUrl(presignedUrlText);
+
+      const profileData = {
+        nickname,
+        profile_url: presignedUrlText, // 프로필 이미지 키
+      };
+
+      // 닉네임, 프로필 url 저장
       const response = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`,
         {
@@ -132,9 +187,10 @@ const Profile: React.FC = () => {
 
       console.log("nickname: " + profileData.nickname);
       // console.log('profile_url: ' + profileData.profile_url);
-      if (!response.ok) throw new Error("Failed to save profile.");
+      if (!response.ok) throw new Error("닉네임, 프로필 url 저장 실패");
       alert("프로필이 성공적으로 저장되었습니다.");
       setIsEditMode(false); // 수정 모드 종료
+
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message);
@@ -223,6 +279,11 @@ const Profile: React.FC = () => {
     reader.readAsDataURL(file); // 파일을 Base64 형식으로 읽음
   };
 
+  useEffect(() => {
+    console.log('profileUrl updated: ', profileUrl);
+  }, [profileUrl])
+
+
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
       <div className="relative">
@@ -249,14 +310,6 @@ const Profile: React.FC = () => {
             />
           )}
 
-          {/* Hidden file input */}
-          <input
-            id="fileInput"
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
         </div>
         {/* isEditMode가 true일 때만 파일 업로드 기능 표시 */}
         {isEditMode && (
@@ -292,7 +345,7 @@ const Profile: React.FC = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               onBlur={() => setIsEditingNickname(false)}
-              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md"
+              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md dark:text-black"
               style={{
                 width: `${nickname.length + 3}ch`,
               }}
@@ -309,7 +362,7 @@ const Profile: React.FC = () => {
               <img
                 src="/images/edit_pen.png"
                 alt="Edit Nickname"
-                className="w-6 h-6"
+                className="w-6 h-6 dark:invert"
               />
             </button>
           )}
@@ -319,7 +372,9 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className="px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900"
+          className={`px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white ${
+            isEditMode ? "dark:text-black" : "dark:text-black"
+          }`}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
