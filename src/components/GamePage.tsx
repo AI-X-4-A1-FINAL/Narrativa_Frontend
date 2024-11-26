@@ -46,6 +46,7 @@ const GamePage: React.FC = () => {
   const imageFetched = useRef(false);
   const [responses, setResponses] = useState<any[]>([]); // 서버에서 받은 응답들을 저장하는 배열
   const [inputDisabled, setInputDisabled] = useState(false); // 입력 비활성화 상태
+  const prevStageRef = useRef<number>(currentStage);
 
   const stages = [
     { content: "Welcome to Stage!" },
@@ -80,9 +81,34 @@ const GamePage: React.FC = () => {
   };
 
   // ML에서 사진을 받아오기
-  const fetchBackgroundImageML = () => {
-    // storyText를 이용하여 새로운 배경 이미지를 요청하는 로직
-    alert("hi");
+  const fetchBackgroundImageML = async (script: string) => {
+    try {
+      // 이미지 생성 API URL
+      const apiUrl = "/api/images/generate-image"; // 실제 백엔드 API URL로 설정
+
+      // 요청 본문에 JSON 형태로 데이터를 전달
+      const requestBody = {
+        prompt: script, // 이미지 생성에 사용할 프롬프트
+        size: "1024x1024", // 이미지 크기 (기본값)
+        n: 1, // 생성할 이미지 개수 (기본값)
+      };
+
+      alert(requestBody);
+
+      // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
+      const response = await axios.post(apiUrl, requestBody);
+
+      // 응답이 성공적일 경우 처리
+      console.log("Image generated successfully:", response.data);
+
+      // 이미지를 화면에 표시하거나 반환하는 로직 추가
+    } catch (error: any) {
+      console.error("Error in fetchBackgroundImageML:", error);
+      //if (error.response) {
+      //console.error("Response Status:", error.response.status);
+      //console.error("Response Data:", error.response.data);
+      //}
+    }
   };
 
   // 음악 API 호출
@@ -112,15 +138,26 @@ const GamePage: React.FC = () => {
 
   // 유저 답변 전송하고 AI한테 답 받아오기
   const handleSendMessage = async () => {
-    if (userInput.trim() === "" || loading || inputDisabled) return; // 입력창 입력가능여부 체크
+    if (userInput.trim() === "" || loading || inputDisabled) {
+      const newMessage: Message = {
+        sender: "opponent",
+        text: "답을 입력해주세요",
+      };
+      setCurrentMessages((prev) => [...prev, newMessage]);
+      setAllMessages((prev) => ({
+        ...prev,
+        [currentStage]: [...(prev[currentStage] || []), newMessage],
+      }));
+      return; // 빈 입력일 경우 더 이상 진행하지 않음
+    }
 
-    const newMessage: Message = { sender: "user", text: userInput };
-    setCurrentMessages((prev) => [...prev, newMessage]);
+    // 사용자 메시지를 채팅창에 추가
+    const userMessage: Message = { sender: "user", text: userInput };
+    setCurrentMessages((prev) => [...prev, userMessage]);
     setAllMessages((prev) => ({
       ...prev,
-      [currentStage]: [...(prev[currentStage] || []), newMessage],
+      [currentStage]: [...(prev[currentStage] || []), userMessage],
     }));
-
     setUserInput(""); // 입력 초기화
     setInputCount((prev) => prev + 1); // 입력 횟수 증가
 
@@ -139,17 +176,12 @@ const GamePage: React.FC = () => {
 
       // 스테이지를 넘어가는 로직 추가
       await fetchOpponentMessage(userInput); // 상대 메시지 받아오기
-      // setTimeout(() => {
-      //   goToNextStage(); // 5초 후 다음 스테이지로 이동
-      // }, 5000); // 5초 후
     } else {
       await fetchOpponentMessage(userInput); // 여전히 입력이 가능하면 상대 메시지 받아오기
     }
   };
 
   const fetchOpponentMessage = async (userInput: string) => {
-    console.log("Selected genre:", genre);
-
     setLoading(true);
     try {
       const requestBody = {
@@ -275,13 +307,13 @@ const GamePage: React.FC = () => {
 
   // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
   useEffect(() => {
-    if (inputCount === 5) {
-      // 5번 입력 후 새로운 배경 이미지 요청
+    if (responses.length == 5) {
+      const script = JSON.stringify(responses[4], null, 2); // 5번째 응답을 alert로 출력
 
-      fetchBackgroundImageML();
+      fetchBackgroundImageML(script);
       setInputCount(0); // 입력 횟수 초기화
     }
-  }, [inputCount]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
+  }, [inputCount, responses]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
 
   useEffect(() => {
     // initialStory가 있을 때만 처리
@@ -301,18 +333,30 @@ const GamePage: React.FC = () => {
   }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
 
   useEffect(() => {
-    // 유저 정보 x '/' redirect
+    // 유저 정보 없는 경우 리다이렉트
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     }
     if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 인증 실패 시 접근 차단
     }
-    // 새로운 단계의 음악 가져오기
-    if (genre && currentStage < stages.length) {
-      fetchMusic(genre);
+
+    // 최초 스테이지(0)에서 음악 가져오기
+    if (genre && currentStage === 0 && !musicUrl) {
+      fetchMusic(genre); // 음악 URL 초기화
     }
-  }, [currentStage, genre]); // currentStage나 genre가 변경될 때마다 실행
+
+    if (
+      genre &&
+      currentStage > prevStageRef.current && // 이전 스테이지보다 클 때만
+      currentStage < stages.length // 최대 스테이지 이하일 때
+    ) {
+      fetchMusic(genre); // 새로운 음악 가져오기
+    }
+
+    // 이전 스테이지 업데이트
+    prevStageRef.current = currentStage;
+  }, [currentStage, genre, cookies.id]);
 
   // 음악이 로드된 후 자동 재생
   useEffect(() => {
@@ -427,7 +471,7 @@ const GamePage: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.stopPropagation();
-                    handleSendMessage();
+                    handleSendMessage(); // 엔터키가 눌리면 메시지 전송
                   }
                 }}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"
