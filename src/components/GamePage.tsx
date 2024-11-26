@@ -45,6 +45,7 @@ const GamePage: React.FC = () => {
   );
   const imageFetched = useRef(false);
   const [responses, setResponses] = useState<any[]>([]); // 서버에서 받은 응답들을 저장하는 배열
+  const [responses, setResponses] = useState<any[]>([]); // 서버에서 받은 응답들을 저장하는 배열
   const [inputDisabled, setInputDisabled] = useState(false); // 입력 비활성화 상태
   const prevStageRef = useRef<number>(currentStage);
 
