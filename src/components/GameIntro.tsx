@@ -17,13 +17,23 @@ const GameIntro: React.FC = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["id"]);
 
   const handleStart = async () => {
-    console.log("Selected genre:", genre);
     if (!genre) {
       alert("Genre information is missing!");
       return;
     }
 
     try {
+      // 초기화
+      navigate("/game-page", {
+        state: {
+          genre,
+          tags,
+          image,
+          initialStory: "", // 초기화
+        },
+      });
+
+      // 새 스토리 요청
       const response = await axios.post("/generate-story/start", {
         genre,
         tags,
@@ -31,12 +41,13 @@ const GameIntro: React.FC = () => {
 
       console.log("Initial Story:", response.data.story);
 
+      // 새로운 값으로 업데이트
       navigate("/game-page", {
         state: {
           genre,
           tags,
           image,
-          initialStory: response.data.story, // 초기 스토리 추가
+          initialStory: response.data.story, // 새로 받아온 스토리 저장
         },
       });
     } catch (error) {
