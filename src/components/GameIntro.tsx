@@ -39,8 +39,6 @@ const GameIntro: React.FC = () => {
         tags,
       });
 
-      console.log("Initial Story:", response.data.story);
-
       // 새로운 값으로 업데이트
       navigate("/game-page", {
         state: {
