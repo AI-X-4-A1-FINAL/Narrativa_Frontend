@@ -7,8 +7,8 @@ on:
     branches:
       - dev
   schedule:
-    - cron: '05 15 * * *'  # 매일 00:05 (KST 기준)
-  workflow_dispatch:  # 수동 실행 가능
+    - cron: "05 15 * * *" # 매일 00:05 (KST 기준)
+  workflow_dispatch: # 수동 실행 가능
 
 permissions:
   contents: write
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   auto_merge_build_deploy:
-    if: github.ref == 'refs/heads/dev'  # dev 브랜치에서만 실행
+    if: github.ref == 'refs/heads/dev' # dev 브랜치에서만 실행
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -30,18 +30,18 @@ jobs:
         run: |
           git config --global user.email "$GIT_USER_EMAIL"
           git config --global user.name "$GIT_USER_NAME"
-      
+
       - name: Check for new commits in feat/* branches
         id: check_commits
         run: |
-            git fetch --all
-            NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
-            if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
-              echo "has_new_commits=false" >> $GITHUB_ENV
-            else
-              echo "has_new_commits=true" >> $GITHUB_ENV
-            fi
-  
+          git fetch --all
+          NEW_COMMITS_COUNT=$(git rev-list --count --remotes="origin/feat/*" --not origin/dev)
+          if [ "$NEW_COMMITS_COUNT" -eq 0 ]; then
+            echo "has_new_commits=false" >> $GITHUB_ENV
+          else
+            echo "has_new_commits=true" >> $GITHUB_ENV
+          fi
+
       - name: Create or Find PRs from feat/* branches to dev
         if: env.has_new_commits == 'true'
         env:
@@ -121,10 +121,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # 기존 컨테이너와 이미지 제거
       - name: Stop and remove existing container
         shell: powershell
         run: |
-          $containers = docker ps -q --filter "name=narrativa_front"
+          $containers = docker ps -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/narrativa_front"
           if ($containers) {
             docker stop $containers
             docker rm $containers
