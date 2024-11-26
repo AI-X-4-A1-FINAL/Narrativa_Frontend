@@ -381,7 +381,7 @@ const Profile: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-12 dark:text-white">
+        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10">
           <span className="mr-48">다크모드</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -397,7 +397,7 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white">
+        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
           <span className="mr-48">배경음악</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -413,7 +413,7 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white">
+        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
           <span className="mr-48">공지사항</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -437,12 +437,12 @@ const Profile: React.FC = () => {
           disabled={isLoading}
           className="hover:underline"
         >
-          {isLoading ? "탈퇴 중..." : "회원탈퇴"}
+          {isLoading ? "탈퇴 중..." : "회원탈퇴 |"}
         </button>
         {error && <div style={{ color: "red" }}>{error}</div>}
 
         {/* 로그 아웃 버튼 */}
-        <button onClick={handleRemoveCookie}>로그아웃</button>
+        <button onClick={handleRemoveCookie}>| 로그아웃</button>
       </div>
     </div>
   );
