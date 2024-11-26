@@ -92,7 +92,7 @@ const GamePage: React.FC = () => {
       n: 1,  // 생성할 이미지 개수 (기본값)
     };
 
-    alert(requestBody);
+    //alert(requestBody);
 
     // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
     const response = await axios.post(apiUrl, requestBody)
@@ -100,6 +100,16 @@ const GamePage: React.FC = () => {
 
       // 응답이 성공적일 경우 처리
     console.log("Image generated successfully:", response.data);
+
+    const decodedString = atob(response.data)
+    const parsedData = JSON.parse(decodedString)
+    const imageURL = parsedData.imageUrl;
+
+
+    //console.log("decoded Image :", decodedString)
+    console.log("Image URL:", imageURL)
+
+    setBgImage(imageURL);  // 새로운 이미지 URL로 bgImage를 업데이트
     
     // 이미지를 화면에 표시하거나 반환하는 로직 추가
   } catch (error: any) {
