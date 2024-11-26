@@ -122,21 +122,21 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # 기존 컨테이너와 이미지 제거
-      - name: Stop and remove existing container
+      - name: Stop and remove existing containers
         shell: powershell
         run: |
-          $containers = docker ps -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/narrativa_front"
+          $containers = docker ps -a -q --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/narrativa_front"
           if ($containers) {
             docker stop $containers
             docker rm $containers
           }
 
-      - name: Remove old Docker image
+      - name: Remove old Docker images
         shell: powershell
         run: |
           $images = docker images --filter "reference=${{ secrets.DOCKER_USERNAME }}/narrativa_front" -q
           if ($images) {
-            docker rmi $images
+            docker rmi -f $images  # -f 플래그로 강제 삭제
           }
 
       - name: Pull new Docker image
