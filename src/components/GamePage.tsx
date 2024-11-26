@@ -86,35 +86,32 @@ const GamePage: React.FC = () => {
       // 이미지 생성 API URL
       const apiUrl = "/api/images/generate-image"; // 실제 백엔드 API URL로 설정
 
-      // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
+      // POST 요청 본문 데이터 정의
+      const requestBody = { script }; // 필요한 데이터를 여기에 추가
+
+      // POST 요청을 보내 JSON 형태로 데이터 전송
       const response = await axios.post(apiUrl, requestBody);
 
       // 응답이 성공적일 경우 처리
-    console.log("Image generated successfully:", response.data);
-
-    const decodedString = atob(response.data)
-    const parsedData = JSON.parse(decodedString)
-    const imageURL = parsedData.imageUrl;
-
-
-    //console.log("decoded Image :", decodedString)
-    console.log("Image URL:", imageURL)
-
-    setBgImage(imageURL);  // 새로운 이미지 URL로 bgImage를 업데이트
-    
-    // 이미지를 화면에 표시하거나 반환하는 로직 추가
-  } catch (error: any) {
-    console.error("Error in fetchBackgroundImageML:", error);
-    //if (error.response) {
       console.log("Image generated successfully:", response.data);
 
-      // 이미지를 화면에 표시하거나 반환하는 로직 추가
+      // 응답 데이터 디코딩 및 파싱
+      const decodedString = atob(response.data); // Base64 디코딩
+      const parsedData = JSON.parse(decodedString); // JSON 파싱
+      const imageURL = parsedData.imageUrl;
+
+      console.log("Image URL:", imageURL);
+
+      // 배경 이미지 상태 업데이트
+      setBgImage(imageURL);
     } catch (error: any) {
       console.error("Error in fetchBackgroundImageML:", error);
-      //if (error.response) {
-      //console.error("Response Status:", error.response.status);
-      //console.error("Response Data:", error.response.data);
-      //}
+
+      // 에러 응답 처리 (선택적)
+      if (error.response) {
+        console.error("Response Status:", error.response.status);
+        console.error("Response Data:", error.response.data);
+      }
     }
   };
 
