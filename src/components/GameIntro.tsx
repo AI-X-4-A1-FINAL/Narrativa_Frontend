@@ -17,6 +17,7 @@ const GameIntro: React.FC = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["id"]);
 
   const handleStart = async () => {
+    console.log("Selected genre:", genre);
     if (!genre) {
       alert("Genre information is missing!");
       return;

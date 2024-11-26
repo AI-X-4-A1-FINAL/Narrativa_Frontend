@@ -80,37 +80,10 @@ const GamePage: React.FC = () => {
   };
 
   // ML에서 사진을 받아오기
-  const fetchBackgroundImageML = async (script: string) => {
-    try {
-      // 이미지 생성 API URL
-      const apiUrl = '/api/images/generate-image';  // 실제 백엔드 API URL로 설정
-  
-       // 요청 본문에 JSON 형태로 데이터를 전달
-    const requestBody = {
-      prompt: script,  // 이미지 생성에 사용할 프롬프트
-      size: '1024x1024',  // 이미지 크기 (기본값)
-      n: 1,  // 생성할 이미지 개수 (기본값)
-    };
-
-    alert(requestBody);
-
-    // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
-    const response = await axios.post(apiUrl, requestBody)
-    
-
-      // 응답이 성공적일 경우 처리
-    console.log("Image generated successfully:", response.data);
-    
-    // 이미지를 화면에 표시하거나 반환하는 로직 추가
-  } catch (error: any) {
-    console.error("Error in fetchBackgroundImageML:", error);
-    //if (error.response) {
-      //console.error("Response Status:", error.response.status);
-      //console.error("Response Data:", error.response.data);
-    //}
-  }
+  const fetchBackgroundImageML = () => {
+    // storyText를 이용하여 새로운 배경 이미지를 요청하는 로직
+    alert("hi");
   };
- 
 
   // 음악 API 호출
   const fetchMusic = async (stageGenre: string) => {
@@ -175,6 +148,8 @@ const GamePage: React.FC = () => {
   };
 
   const fetchOpponentMessage = async (userInput: string) => {
+    console.log("Selected genre:", genre);
+
     setLoading(true);
     try {
       const requestBody = {
@@ -185,14 +160,11 @@ const GamePage: React.FC = () => {
         previousUserInput: previousUserInput || "", // 이전 입력값 (없으면 빈 문자열)
       };
       // console.log("Request Body:", requestBody); // 데이터 확인용
-      
-
 
       const response = await axios.post("/generate-story/chat", requestBody);
 
       // 서버 응답을 responses 배열에 추가
-    setResponses((prevResponses) => [...prevResponses, response.data]);
-
+      setResponses((prevResponses) => [...prevResponses, response.data]);
 
       if (response.data && response.data.story) {
         const newMessage: Message = {
@@ -206,7 +178,6 @@ const GamePage: React.FC = () => {
           [currentStage]: [...(prev[currentStage] || []), newMessage], // 전체 메시지 업데이트
         }));
       }
-
     } catch (error: any) {
       console.error("Error fetching opponent message:", error);
       const errorMessage: Message = {
@@ -304,16 +275,13 @@ const GamePage: React.FC = () => {
 
   // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
   useEffect(() => {
-    
-      if (responses.length == 5) {
-        const script = JSON.stringify(responses[4], null, 2); // 5번째 응답을 alert로 출력
+    if (inputCount === 5) {
+      // 5번 입력 후 새로운 배경 이미지 요청
 
-        fetchBackgroundImageML(script);
-        setInputCount(0); // 입력 횟수 초기화
-      }
-      
-
-  }, [inputCount, responses]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
+      fetchBackgroundImageML();
+      setInputCount(0); // 입력 횟수 초기화
+    }
+  }, [inputCount]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
 
   useEffect(() => {
     // initialStory가 있을 때만 처리
@@ -459,7 +427,7 @@ const GamePage: React.FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.stopPropagation();
-                    handleSendMessage(); // 엔터키가 눌리면 메시지 전송
+                    handleSendMessage();
                   }
                 }}
                 className="border-2 border-gray-300 text-black rounded-l-lg py-2 px-3 w-full"

@@ -82,6 +82,8 @@ const Home: React.FC = () => {
 
   // 장르 클릭 핸들러
   const handleClick = (genre: string, tags: string[], image: string) => {
+    console.log("Selected genre:", genre);
+
     navigate("/game-intro", {
       state: {
         genre,

@@ -10,8 +10,8 @@ const notices = [
 ];
 
 const Notification: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // URL에서 공지사항 ID 가져오기
-  const notice = notices.find((n) => n.id === Number(id)); // ID로 공지사항 찾기
+  const { id } = useParams<{ id: string }>();
+  const notice = notices.find((n) => n.id === Number(id));
 
   if (!notice) {
     return (
@@ -24,7 +24,7 @@ const Notification: React.FC = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto bg-gray-100 p-6 rounded-lg shadow-md">
+    <div className="max-w-lg mx-auto  p-6  ">
       <h1 className="text-2xl font-bold mb-4">{notice.title}</h1>
       <p className="text-gray-700">{notice.detail}</p>
     </div>

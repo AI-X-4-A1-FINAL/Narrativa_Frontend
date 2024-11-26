@@ -345,7 +345,7 @@ const Profile: React.FC = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               onBlur={() => setIsEditingNickname(false)}
-              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md"
+              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md dark:text-black"
               style={{
                 width: `${nickname.length + 3}ch`,
               }}
@@ -362,7 +362,7 @@ const Profile: React.FC = () => {
               <img
                 src="/images/edit_pen.png"
                 alt="Edit Nickname"
-                className="w-6 h-6"
+                className="w-6 h-6 dark:invert"
               />
             </button>
           )}
@@ -372,7 +372,9 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className="px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900"
+          className={`px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white ${
+            isEditMode ? "dark:text-black" : "dark:text-black"
+          }`}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
