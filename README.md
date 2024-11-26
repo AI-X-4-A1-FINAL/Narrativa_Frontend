@@ -2,11 +2,11 @@
 
 # Narrativa Frontend
 
+![Node.js](https://img.shields.io/badge/Node.js-20.8.0-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 ![ESLint](https://img.shields.io/badge/ESLint-8.57.1-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-20.8.0-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
 ## 🗝️ 프로젝트 소개
 
