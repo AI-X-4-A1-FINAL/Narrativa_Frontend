@@ -3,12 +3,12 @@ name: Deploy to AWS EC2 for Dev
 on:
   push:
     branches:
-      - dev
+      - main
   pull_request:
     types:
       - closed
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 jobs:
@@ -74,7 +74,7 @@ jobs:
         run: |
           set +x
 
-          # 기존 컨테이너 강제 중지 및 제거 (강제 제거)
+          # 기존 컨테이너 강제 중지 및 제거
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "
             container_id=\$(docker ps -aq --filter 'name=narrativa_front')
             if [ -n \"\$container_id\" ]; then
@@ -96,7 +96,7 @@ jobs:
           # 새 컨테이너 실행
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "
             echo 'Running new container...'
-            docker run -d -p 3010:3010 --name narrativa_front \
+            docker run -d -p 3010:3010 --name narrativa_front_\$(date +%s) \
               -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
               -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
               -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
