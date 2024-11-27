@@ -55,11 +55,6 @@ const GamePage: React.FC = () => {
     { content: "Keep going! Stage 3!" },
     { content: "Almost there! Stage 4!" },
     { content: "Final Stage! Stage 5!" },
-    { content: "Final Stage! Stage 6!" },
-    { content: "Final Stage! Stage 7!" },
-    { content: "Final Stage! Stage 8!" },
-    { content: "Final Stage! Stage 9!" },
-    { content: "Final Stage! Stage 10!" },
   ];
 
   //사진을 받아오기
