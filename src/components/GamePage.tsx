@@ -86,13 +86,13 @@ const GamePage: React.FC = () => {
       const apiUrl = '/api/images/generate-image';  // 실제 백엔드 API URL로 설정
   
        // 요청 본문에 JSON 형태로 데이터를 전달
-    const requestBody = {
-      prompt: script,  // 이미지 생성에 사용할 프롬프트
-      size: '1024x1024',  // 이미지 크기 (기본값)
-      n: 1,  // 생성할 이미지 개수 (기본값)
-    };
+      const requestBody = {
+        prompt: script,  // 이미지 생성에 사용할 프롬프트
+        size: '1024x1024',  // 이미지 크기 (기본값)
+        n: 1,  // 생성할 이미지 개수 (기본값)
+      };
 
-    //alert(requestBody);
+    console.log(requestBody);
 
     // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
     const response = await axios.post(apiUrl, requestBody)
@@ -316,8 +316,19 @@ const GamePage: React.FC = () => {
   useEffect(() => {
     
       if (responses.length == 5) {
-        const script = JSON.stringify(responses[4], null, 2); // 5번째 응답을 alert로 출력
+        // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
+          const combinedStory = responses.slice(0, 5)
+          .map(response => response.story) // 각 story 추출
+          .join(' ') // 공백을 기준으로 합침
+          .replace(/\n{2,}/g, ' ') // \n\n 이상인 부분을 공백으로 대체
+          .replace(/\d+\.\s?/g, '') // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
+          .replace(/(\d+)(?=\.)/g, '') // 선택지 번호 뒤의 숫자도 제거
 
+        // 최종적으로 하나의 story 객체 생성
+        const script = JSON.stringify({ story: combinedStory }, null, 2);
+        console.log(script);
+
+        // background 이미지 처리 함수 호출
         fetchBackgroundImageML(script);
         setInputCount(0); // 입력 횟수 초기화
       }
