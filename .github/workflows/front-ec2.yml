@@ -1,14 +1,14 @@
-name: Deploy to AWS EC2 for main
+name: Deploy to AWS EC2 for Dev
 
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     types:
       - closed
     branches:
-      - main
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -73,31 +73,44 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           set +x
-          set +x
 
-          # 기존 컨테이너 강제 중지 및 제거 (강제 제거)
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker stop || true"
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker ps -aq --filter 'name=narrativa_front' | xargs -r docker rm -f || true"
+          # 기존 컨테이너 강제 중지 및 제거
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "
+            container_id=\$(docker ps -aq --filter 'name=narrativa_front')
+            if [ -n \"\$container_id\" ]; then
+              echo 'Stopping and removing the existing container...'
+              docker stop \$container_id || true
+              docker rm -f \$container_id || true
+            fi
+          "
 
           # Docker Hub에서 최신 이미지 가져오기
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
+
+          # 최신 이미지 다운로드
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
           # 기존 이미지 삭제 (덧붙여서 필요시 수행)
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
-          # 기존 이미지 삭제 (덧붙여서 필요시 수행)
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
-          # 새 컨테이너 실행
-          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker run -d -p 3010:3010 --name narrativa_front \
-             -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
-             -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
-             -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
-             -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-             -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
-             -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
-             -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-             -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
-             -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
-             -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
-             ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
+          # 포트 사용 여부 확인 후 컨테이너 실행
+          ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "
+            echo 'Checking if port 3010 is available...'
+            if ! netstat -tuln | grep ':3010'; then
+              echo 'Port 3010 is free. Running new container...'
+              docker run -d -p 3010:3010 --name narrativa_front_\$(date +%s) \
+                -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
+                -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
+                -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
+                -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
+                -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
+                -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
+                -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
+                -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+                -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+                -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+                ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            else
+              echo 'Port 3010 is already in use. Skipping container start.'
+            fi
+          "
