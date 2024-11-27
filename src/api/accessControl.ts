@@ -11,21 +11,22 @@ const AuthGuard = async (userId: number) => {
 
   try {
     // 기존 쿠키 코드
-    const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`);
+    // const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`);
 
-    // const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`, {
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   credentials: 'include',  // 쿠키를 포함하여 요청 전송
-    // });
+    const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',  // 쿠키를 포함하여 요청 전송
+    });
     console.log('response url: ', response);
     if (!response.ok) {
       return false;
     }
     return true;
   } catch (err: any) {
+    console.log(err);
     return false;
   }
 }
