@@ -93,19 +93,24 @@ jobs:
           # 기존 이미지 삭제 (덧붙여서 필요시 수행)
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker images --filter 'dangling=true' -q | xargs -r docker rmi || true"
 
-          # 새 컨테이너 실행
+          # 포트 사용 여부 확인 후 컨테이너 실행
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "
-            echo 'Running new container...'
-            docker run -d -p 3010:3010 --name narrativa_front_\$(date +%s) \
-              -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
-              -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
-              -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
-              -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
-              -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
-              -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
-              -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
-              -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
-              -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
-              -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
-              ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
+            echo 'Checking if port 3010 is available...'
+            if ! netstat -tuln | grep ':3010'; then
+              echo 'Port 3010 is free. Running new container...'
+              docker run -d -p 3010:3010 --name narrativa_front_\$(date +%s) \
+                -e REACT_APP_URI=${{ secrets.REACT_APP_URI }} \
+                -e REACT_APP_SPRING_URI=${{ secrets.REACT_APP_SPRING_URI }} \
+                -e REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }} \
+                -e REACT_APP_KAKAO_AUTH_CODE_PATH=${{ secrets.REACT_APP_KAKAO_AUTH_CODE_PATH }} \
+                -e REACT_APP_KAKAO_REDIRECT_URI=${{ secrets.REACT_APP_KAKAO_REDIRECT_URI }} \
+                -e REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }} \
+                -e REACT_APP_GOOGLE_AUTH_CODE_PATH=${{ secrets.REACT_APP_GOOGLE_AUTH_CODE_PATH }} \
+                -e REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }} \
+                -e REACT_APP_GITHUB_CLIENT_ID=${{ secrets.REACT_APP_GITHUB_CLIENT_ID }} \
+                -e REACT_APP_GITHUB_AUTH_CODE_PATH=${{ secrets.REACT_APP_GITHUB_AUTH_CODE_PATH }} \
+                ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest
+            else
+              echo 'Port 3010 is already in use. Skipping container start.'
+            fi
           "
