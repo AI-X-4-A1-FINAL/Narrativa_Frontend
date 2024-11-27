@@ -3,12 +3,12 @@ name: Deploy to AWS EC2 for Dev
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     types:
       - closed
     branches:
-      - main
+      - dev
   workflow_dispatch:
 
 jobs:
