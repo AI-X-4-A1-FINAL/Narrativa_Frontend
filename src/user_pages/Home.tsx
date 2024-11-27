@@ -31,14 +31,14 @@ const Home: React.FC = () => {
     const isAuthenticated = await AuthGuard(userId);
     console.log('checkAuth isAuthenticated: ', isAuthenticated);
     if (!isAuthenticated) {
-      // navigate("/");
+      navigate("/");
     }
   };
 
   useEffect(() => {
     console.log('cookies: ', cookies);
     if (cookies.id === undefined || cookies.id === null) {
-      // navigate("/");
+      navigate("/");
       // 'id' 쿠키 값 가져오기
     } else if (cookies.id) {
       setCookieValue(cookies.id);
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
     }
 
     if (!checkAuth(cookies.id)) {
-      // navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
     }
 
     if (cookies.id) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import Lottie from "lottie-react";
 import loadingLottie from "./Animation2.json";
@@ -11,17 +11,6 @@ const Main: React.FC = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
     setShowLoadingLottie(true);
   };
-
-  const [id, setId] = useState('');
-
-  useEffect(() => {
-    // sessionStorage에서 'id' 값을 읽음
-    const idValue = sessionStorage.getItem('id');
-    if (idValue) {
-      setId(idValue);
-    }
-    console.log('idValue: ', idValue);
-  }, []);
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">
