@@ -86,6 +86,8 @@ jobs:
 
           # Docker Hub에서 최신 이미지 가져오기
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}"
+
+          # 최신 이미지 다운로드
           ssh -i "ec2_key.pem" -o "StrictHostKeyChecking=no" $USER@$HOST "docker pull ${{ secrets.DOCKER_USERNAME }}/narrativa_front:latest"
 
           # 기존 이미지 삭제 (덧붙여서 필요시 수행)
