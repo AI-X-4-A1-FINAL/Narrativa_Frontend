@@ -1,9 +1,8 @@
-
-
-const AuthGuard = async (userId: number) => {
-
+const AuthGuard = async (Id: number) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`);
+    const response = await fetch(
+      `${process.env.REACT_APP_SPRING_URI}/api/users/${Id}`
+    );
     if (!response.ok) {
       return false;
     }
@@ -12,7 +11,6 @@ const AuthGuard = async (userId: number) => {
     return false;
   }
   // return true;
-}
-  
+};
 
 export default AuthGuard;
