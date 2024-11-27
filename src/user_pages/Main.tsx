@@ -12,6 +12,17 @@ const Main: React.FC = () => {
     setShowLoadingLottie(true);
   };
 
+  const [id, setId] = useState('');
+
+  useEffect(() => {
+    // sessionStorage에서 'id' 값을 읽음
+    const idValue = sessionStorage.getItem('id');
+    if (idValue) {
+      setId(idValue);
+    }
+    console.log('idValue: ', idValue);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">
       <main className={`flex-grow w-full h-full max-w-lg overflow-hidden relative ${showLoadingLottie ? "bg-custom-violet" : "bg-black"}`}>
