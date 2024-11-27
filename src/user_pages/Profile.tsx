@@ -113,10 +113,10 @@ const Profile: React.FC = () => {
 
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
-    console.log('img', img);
+    console.log("img", img);
 
     const profileImgData = {
-      image: profileUrl
+      image: profileUrl,
     };
 
     try {
@@ -137,34 +137,36 @@ const Profile: React.FC = () => {
         }
       );
 
-      if(!saveImgToS3.ok) throw new Error("s3 이미지 업로드 실패");
+      if (!saveImgToS3.ok) throw new Error("s3 이미지 업로드 실패");
 
       // s3 저장 후 img url 얻음(해당 url 클릭시 이미지 조회 불가 -> 다음 단계에서 얻는 url 이용시 이미지 조회)
       const text = await saveImgToS3.text();
       const data = JSON.parse(text);
 
       const imageUrlValue = data.imageUrl;
-      console.log('imageUrlValue: ', imageUrlValue);
+      console.log("imageUrlValue: ", imageUrlValue);
 
       const extractFilePath = (url: string): string => {
         const parsedUrl = new URL(url); // URL 객체로 파싱
         const path = parsedUrl.pathname; // 경로 부분 추출 ("/test/wfle.jpg")
-        
+
         return path.substring(1); // "/"를 제외한 경로 부분만 반환
       };
 
       const extractS3FilePath = extractFilePath(imageUrlValue);
-      console.log('extract path: ', extractS3FilePath);
+      console.log("extract path: ", extractS3FilePath);
 
       // s3에 이미지 저장
       const fetchPresignedUrl = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`
+        `${
+          process.env.REACT_APP_SPRING_URI
+        }/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`
       );
-      
-      if(!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
+
+      if (!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
 
       const presignedUrlText = await fetchPresignedUrl.text();
-      console.log('presignedUrlText', presignedUrlText);
+      console.log("presignedUrlText", presignedUrlText);
 
       setProfileUrl(presignedUrlText);
 
@@ -190,7 +192,6 @@ const Profile: React.FC = () => {
       if (!response.ok) throw new Error("닉네임, 프로필 url 저장 실패");
       alert("프로필이 성공적으로 저장되었습니다.");
       setIsEditMode(false); // 수정 모드 종료
-
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message);
@@ -280,9 +281,8 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('profileUrl updated: ', profileUrl);
-  }, [profileUrl])
-
+    console.log("profileUrl updated: ", profileUrl);
+  }, [profileUrl]);
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
@@ -309,7 +309,6 @@ const Profile: React.FC = () => {
               colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
             />
           )}
-
         </div>
         {/* isEditMode가 true일 때만 파일 업로드 기능 표시 */}
         {isEditMode && (
@@ -345,7 +344,7 @@ const Profile: React.FC = () => {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               onBlur={() => setIsEditingNickname(false)}
-              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md dark:text-black"
+              className="text-2xl font-bold text-center w-auto px-1  rounded-md dark:text-black"
               style={{
                 width: `${nickname.length + 3}ch`,
               }}
@@ -372,9 +371,8 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className={`px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white ${
-            isEditMode ? "dark:text-black" : "dark:text-black"
-          }`}
+          className={`px-10 py-2 text-white  rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white 
+          `}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
