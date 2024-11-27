@@ -55,6 +55,11 @@ const GamePage: React.FC = () => {
     { content: "Keep going! Stage 3!" },
     { content: "Almost there! Stage 4!" },
     { content: "Final Stage! Stage 5!" },
+    { content: "Final Stage! Stage 6!" },
+    { content: "Final Stage! Stage 7!" },
+    { content: "Final Stage! Stage 8!" },
+    { content: "Final Stage! Stage 9!" },
+    { content: "Final Stage! Stage 10!" },
   ];
 
   //사진을 받아오기
@@ -81,28 +86,32 @@ const GamePage: React.FC = () => {
       // 이미지 생성 API URL
       const apiUrl = "/api/images/generate-image"; // 실제 백엔드 API URL로 설정
 
-      // 요청 본문에 JSON 형태로 데이터를 전달
-      const requestBody = {
-        prompt: script, // 이미지 생성에 사용할 프롬프트
-        size: "1024x1024", // 이미지 크기 (기본값)
-        n: 1, // 생성할 이미지 개수 (기본값)
-      };
+      // POST 요청 본문 데이터 정의
+      const requestBody = { script }; // 필요한 데이터를 여기에 추가
 
-      alert(requestBody);
-
-      // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
+      // POST 요청을 보내 JSON 형태로 데이터 전송
       const response = await axios.post(apiUrl, requestBody);
 
       // 응답이 성공적일 경우 처리
       console.log("Image generated successfully:", response.data);
 
-      // 이미지를 화면에 표시하거나 반환하는 로직 추가
+      // 응답 데이터 디코딩 및 파싱
+      const decodedString = atob(response.data); // Base64 디코딩
+      const parsedData = JSON.parse(decodedString); // JSON 파싱
+      const imageURL = parsedData.imageUrl;
+
+      console.log("Image URL:", imageURL);
+
+      // 배경 이미지 상태 업데이트
+      setBgImage(imageURL);
     } catch (error: any) {
       console.error("Error in fetchBackgroundImageML:", error);
-      //if (error.response) {
-      //console.error("Response Status:", error.response.status);
-      //console.error("Response Data:", error.response.data);
-      //}
+
+      // 에러 응답 처리 (선택적)
+      if (error.response) {
+        console.error("Response Status:", error.response.status);
+        console.error("Response Data:", error.response.data);
+      }
     }
   };
 
