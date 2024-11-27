@@ -231,8 +231,18 @@ const Profile: React.FC = () => {
   // 쿠키 삭제 함수
   const handleRemoveCookie = () => {
     if (userId !== null) {
+      // URL 객체를 사용하여 URL을 파싱
+      const parsedUrl = new URL(`${process.env.REACT_APP_SPRING_URI}`);
+      
+      // 호스트명에서 도메인만 추출 (도메인+상위 도메인)
+      const domainParts = parsedUrl.hostname.split('.');
+      
+      // 최상위 도메인 + 두 번째 레벨 도메인만 반환 (example.com, test.kr 등)
+      const cookieDomain = domainParts.slice(domainParts.length - 2).join('.');
+      console.log('cookieDomain: ', cookieDomain);
+
       // userId를 문자열로 변환하여 removeCookie에 전달
-      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
+      removeCookie("id", { domain: cookieDomain, path: "/" });  // removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
       console.log("쿠키가 삭제되었습니다.");
 
       // 탈퇴 성공 후 alert 창 띄우기
