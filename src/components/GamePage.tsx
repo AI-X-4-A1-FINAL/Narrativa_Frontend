@@ -309,6 +309,28 @@ const GamePage: React.FC = () => {
         )}
       </div>
 
+      {/* 뒤로가기 */}
+      <div className="absolute top-0 right-4">
+        <div className="flex flex-col items-center">
+          <button
+            onClick={() => {
+              if (window.confirm("정말 나가시겠습니까?")) {
+                navigate("/game-intro", {
+                  state: {
+                    genre,
+                    tags,
+                    image,
+                  },
+                });
+              }
+            }}
+            className="bg-gray-900 text-white font-bold py-2 px-4 mt-4 rounded-full hover:bg-custom-purple"
+          >
+            ↻
+          </button>
+        </div>
+      </div>
+
       {/* 채팅창 */}
       <div
         className={`absolute bottom-0 w-full bg-opacity-20 bg-custom-violet text-white ${

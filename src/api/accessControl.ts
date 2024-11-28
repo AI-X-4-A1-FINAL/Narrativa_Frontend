@@ -1,7 +1,6 @@
 const AuthGuard = async (userId: number) => {
   // console.log('userId: ', userId);
   // console.log('server url: ', process.env.REACT_APP_SPRING_URI);
-
   if (userId === undefined) {
     console.log("유저 아이디 타입이 undefined 입니다.");
     return false;
@@ -22,13 +21,16 @@ const AuthGuard = async (userId: number) => {
       }
     );
     // console.log('response url: ', response);
+
     if (!response.ok) {
       return false;
     }
     return true;
   } catch (err: any) {
+    console.log(err);
     return false;
   }
 };
-
+}
+  
 export default AuthGuard;

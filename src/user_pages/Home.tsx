@@ -30,6 +30,7 @@ const Home: React.FC = () => {
     // console.log('checkAuth userId: ', userId);
     const isAuthenticated = await AuthGuard(userId);
     // console.log('checkAuth isAuthenticated: ', isAuthenticated);
+
     if (!isAuthenticated) {
       navigate("/");
     }
