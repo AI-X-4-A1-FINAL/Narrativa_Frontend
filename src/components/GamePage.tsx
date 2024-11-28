@@ -149,13 +149,25 @@ const GamePage: React.FC = () => {
 
   // 유저 답변 전송하고 AI한테 답 받아오기
   const handleSendMessage = async () => {
-    if (userInput.trim() === "" || loading || inputDisabled) return; // 입력창 입력가능여부 체크
+    if (userInput.trim() === "" || loading || inputDisabled) {
+      const newMessage: Message = {
+        sender: "opponent",
+        text: "답을 입력해주세요",
+      };
+      setCurrentMessages((prev) => [...prev, newMessage]);
+      setAllMessages((prev) => ({
+        ...prev,
+        [currentStage]: [...(prev[currentStage] || []), newMessage],
+      }));
+      return; // 빈 입력일 경우 더 이상 진행하지 않음
+    }
 
-    const newMessage: Message = { sender: "user", text: userInput };
-    setCurrentMessages((prev) => [...prev, newMessage]);
+    // 사용자 메시지를 채팅창에 추가
+    const userMessage: Message = { sender: "user", text: userInput };
+    setCurrentMessages((prev) => [...prev, userMessage]);
     setAllMessages((prev) => ({
       ...prev,
-      [currentStage]: [...(prev[currentStage] || []), newMessage],
+      [currentStage]: [...(prev[currentStage] || []), userMessage],
     }));
 
     setUserInput(""); // 입력 초기화
