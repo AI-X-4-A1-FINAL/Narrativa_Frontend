@@ -27,13 +27,16 @@ const Home: React.FC = () => {
 
   // 유저 유효성 검증
   const checkAuth = async (userId: number) => {
+    console.log('checkAuth userId: ', userId);
     const isAuthenticated = await AuthGuard(userId);
+    console.log('checkAuth isAuthenticated: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
   };
 
   useEffect(() => {
+    console.log('cookies: ', cookies);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
       // 'id' 쿠키 값 가져오기

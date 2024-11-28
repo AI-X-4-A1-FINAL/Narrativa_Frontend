@@ -105,20 +105,16 @@ const GamePage: React.FC = () => {
    
     const imageURL = response.data;
 
+      console.log("Image URL:", imageURL);
 
-    //console.log("decoded Image :", decodedString)
-    console.log("Image URL:", imageURL)
+      // 배경 이미지 상태 업데이트
+      setBgImage(imageURL);
+    } catch (error: any) {
+      console.error("Error in fetchBackgroundImageML:", error);
 
-    setBgImage(imageURL);  // 새로운 이미지 URL로 bgImage를 업데이트
-    
-    // 이미지를 화면에 표시하거나 반환하는 로직 추가
-  } catch (error: any) {
-    console.error("Error in fetchBackgroundImageML:", error);
-    //if (error.response) {
-      //console.error("Response Status:", error.response.status);
-      //console.error("Response Data:", error.response.data);
-    //}
-  }
+     
+    }
+
   };
  
 
@@ -444,6 +440,28 @@ const GamePage: React.FC = () => {
         ) : (
           <p className="text-white">No music available</p>
         )}
+      </div>
+
+      {/* 뒤로가기 */}
+      <div className="absolute top-0 right-4">
+        <div className="flex flex-col items-center">
+          <button
+            onClick={() => {
+              if (window.confirm("정말 나가시겠습니까?")) {
+                navigate("/game-intro", {
+                  state: {
+                    genre,
+                    tags,
+                    image,
+                  },
+                });
+              }
+            }}
+            className="bg-gray-900 text-white font-bold py-2 px-4 mt-4 rounded-full hover:bg-custom-purple"
+          >
+            ↻
+          </button>
+        </div>
       </div>
 
       {/* 채팅창 */}
