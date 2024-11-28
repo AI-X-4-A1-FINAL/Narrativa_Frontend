@@ -46,6 +46,7 @@ const GamePage: React.FC = () => {
   const imageFetched = useRef(false);
   const [responses, setResponses] = useState<any[]>([]); // 서버에서 받은 응답들을 저장하는 배열
   const [inputDisabled, setInputDisabled] = useState(false); // 입력 비활성화 상태
+  const prevStageRef = useRef<number>(currentStage);
 
   const stages = [
     { content: "Welcome to Stage!" },
@@ -358,13 +359,25 @@ const GamePage: React.FC = () => {
       navigate("/");
     }
     if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 인증 실패 시 접근 차단
     }
-    // 새로운 단계의 음악 가져오기
-    if (genre && currentStage < stages.length) {
-      fetchMusic(genre);
+
+    // 최초 스테이지(0)에서 음악 가져오기
+    if (genre && currentStage === 0 && !musicUrl) {
+      fetchMusic(genre); // 음악 URL 초기화
     }
-  }, [currentStage, genre]); // currentStage나 genre가 변경될 때마다 실행
+
+    if (
+      genre &&
+      currentStage > prevStageRef.current && // 이전 스테이지보다 클 때만
+      currentStage < stages.length // 최대 스테이지 이하일 때
+    ) {
+      fetchMusic(genre); // 새로운 음악 가져오기
+    }
+
+    // 이전 스테이지 업데이트
+    prevStageRef.current = currentStage;
+  }, [currentStage, genre, cookies.id]);
 
   // 음악이 로드된 후 자동 재생
   useEffect(() => {
