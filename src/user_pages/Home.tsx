@@ -27,13 +27,16 @@ const Home: React.FC = () => {
 
   // 유저 유효성 검증
   const checkAuth = async (userId: number) => {
+    // console.log('checkAuth userId: ', userId);
     const isAuthenticated = await AuthGuard(userId);
+    // console.log('checkAuth isAuthenticated: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
   };
 
   useEffect(() => {
+    // console.log('cookies: ', cookies);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
       // 'id' 쿠키 값 가져오기
@@ -54,7 +57,7 @@ const Home: React.FC = () => {
     }
   }, [cookies, navigate]); // cookies가 변경될 때마다 실행
 
-  console.log("cookieValue: ", cookieValue);
+  // console.log("cookieValue: ", cookieValue);
 
   // 장르 데이터 배열
   const genres: Genre[] = [
@@ -82,7 +85,7 @@ const Home: React.FC = () => {
 
   // 장르 클릭 핸들러
   const handleClick = (genre: string, tags: string[], image: string) => {
-    console.log("Selected genre:", genre);
+    // console.log("Selected genre:", genre);
 
     navigate("/game-intro", {
       state: {
