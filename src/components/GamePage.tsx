@@ -99,11 +99,10 @@ const GamePage: React.FC = () => {
     
 
       // 응답이 성공적일 경우 처리
-    console.log("Image generated successfully:", response.data);
+    console.log("Image generated successfully:", response.data); //성공적으로 반환 받음
 
-    const decodedString = atob(response.data)
-    const parsedData = JSON.parse(decodedString)
-    const imageURL = parsedData.imageUrl;
+   
+    const imageURL = response.data;
 
 
     //console.log("decoded Image :", decodedString)
