@@ -48,8 +48,14 @@ const GameIntro: React.FC = () => {
           initialStory: response.data.story, // 새로 받아온 스토리 저장
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error starting the game:", error);
+      if (error.response) {
+        // 서버에서 응답한 오류 내용 출력
+        console.error("Server Error:", error.response.data);
+      } else {
+        console.error("Error Message:", error.message);
+      }
       alert("Failed to start the game. Please try again.");
     }
   };
@@ -63,7 +69,7 @@ const GameIntro: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("cookies.id", cookies.id);
+    // console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     }

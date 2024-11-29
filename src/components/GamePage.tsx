@@ -27,25 +27,24 @@ const GamePage: React.FC = () => {
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
     {}
   );
-
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
-  const [userInput, setUserInput] = useState<string>(""); // 사용자 입력
-  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
-  const [isExpanded, setIsExpanded] = useState(false); // 채팅창 확장 상태
-  const [currentStage, setCurrentStage] = useState<number>(0); // 현재 스테이지
-  const [musicUrl, setMusicUrl] = useState<string | null>(null); // 음악 URL
-  const [musicLoading, setMusicLoading] = useState<boolean>(false); // 음악 로딩 상태
-  const [isPlaying, setIsPlaying] = useState<boolean>(false); // 음악 재생 상태
+  const [userInput, setUserInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentStage, setCurrentStage] = useState<number>(0);
+  const [musicUrl, setMusicUrl] = useState<string | null>(null);
+  const [musicLoading, setMusicLoading] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지의 끝을 가리킬 ref
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
-  const [inputCount, setInputCount] = useState<number>(0); // 입력 횟수 카운트
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const [inputCount, setInputCount] = useState<number>(0);
   const [bgImage, setBgImage] = useState<string>(
     image || "/images/game-start.jpeg"
   );
   const imageFetched = useRef(false);
-  const [responses, setResponses] = useState<any[]>([]); // 서버에서 받은 응답들을 저장하는 배열
-  const [inputDisabled, setInputDisabled] = useState(false); // 입력 비활성화 상태
+  const [responses, setResponses] = useState<any[]>([]);
+  const [inputDisabled, setInputDisabled] = useState(false);
   const prevStageRef = useRef<number>(currentStage);
 
   const stages = [
@@ -55,14 +54,9 @@ const GamePage: React.FC = () => {
     { content: "Keep going! Stage 3!" },
     { content: "Almost there! Stage 4!" },
     { content: "Final Stage! Stage 5!" },
-    { content: "Final Stage! Stage 6!" },
-    { content: "Final Stage! Stage 7!" },
-    { content: "Final Stage! Stage 8!" },
-    { content: "Final Stage! Stage 9!" },
-    { content: "Final Stage! Stage 10!" },
   ];
 
-  //사진을 받아오기
+  // 이미지 받아오기
   const fetchBackgroundImage = async () => {
     try {
       const response = await fetch(
@@ -72,17 +66,27 @@ const GamePage: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Received image URL:", data.imageUrl); // 받은 imageUrl 출력
-      setBgImage(data.imageUrl); // 서버에서 받은 이미지 URL 설정
+      setBgImage(data.imageUrl);
     } catch (error) {
-      console.error("Error fetching background image:", error);
-      setBgImage("/images/pikachu.jpg"); // 기본 이미지로 설정
+      setBgImage("/images/pikachu.jpg");
     }
   };
 
-  // ML에서 사진을 받아오기
+  // ML에서 이미지 받아오기
   const fetchBackgroundImageML = async (script: string) => {
     try {
+
+//       const apiUrl = "/api/images/generate-image";
+//       const requestBody = { script };
+//       const response = await axios.post(apiUrl, requestBody);
+//       const decodedString = atob(response.data);
+//       const parsedData = JSON.parse(decodedString);
+//       const imageURL = parsedData.imageUrl;
+//       setBgImage(imageURL);
+//     } catch (error: any) {
+//       console.error("Error in fetchBackgroundImageML:", error);
+//       setBgImage("/images/pikachu.jpg");
+
       // 이미지 생성 API URL
       const apiUrl = '/api/images/generate-image';  // 실제 백엔드 API URL로 설정
   
@@ -112,7 +116,6 @@ const GamePage: React.FC = () => {
     } catch (error: any) {
       console.error("Error in fetchBackgroundImageML:", error);
 
-     
     }
 
   };
@@ -129,21 +132,18 @@ const GamePage: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setMusicUrl(data.url); // API에서 가져온 음악 URL 설정
+      setMusicUrl(data.url);
     } catch (error) {
-      console.error("Error fetching music URL:", error);
-      setMusicUrl(null); // 음악 URL 초기화
+      setMusicUrl(null);
     } finally {
       setMusicLoading(false);
     }
   };
 
-  // 채팅창 확장/축소 토글
   const toggleExpansion = () => {
     setIsExpanded((prev) => !prev);
   };
 
-  // 유저 답변 전송하고 AI한테 답 받아오기
   const handleSendMessage = async () => {
     if (userInput.trim() === "" || loading || inputDisabled) {
       const newMessage: Message = {
@@ -155,10 +155,9 @@ const GamePage: React.FC = () => {
         ...prev,
         [currentStage]: [...(prev[currentStage] || []), newMessage],
       }));
-      return; // 빈 입력일 경우 더 이상 진행하지 않음
+      return;
     }
 
-    // 사용자 메시지를 채팅창에 추가
     const userMessage: Message = { sender: "user", text: userInput };
     setCurrentMessages((prev) => [...prev, userMessage]);
     setAllMessages((prev) => ({
@@ -169,9 +168,9 @@ const GamePage: React.FC = () => {
     setUserInput(""); // 입력 초기화
     setInputCount((prev) => prev + 1); // 입력 횟수 증가
 
+
     if (inputCount + 1 >= 5) {
-      // 마지막 입력 후, 다음 단계로 진행하도록 설정
-      setInputDisabled(true); // 입력 비활성화
+      setInputDisabled(true);
       const nextMessage: Message = {
         sender: "opponent",
         text: "다음 스테이지로 넘어가세요.",
@@ -187,29 +186,37 @@ const GamePage: React.FC = () => {
       // setTimeout(() => {
       //   goToNextStage(); // 5초 후 다음 스테이지로 이동
       // }, 5000); // 5초 후
+
     } else {
-      await fetchOpponentMessage(userInput); // 여전히 입력이 가능하면 상대 메시지 받아오기
+      await fetchOpponentMessage(userInput);
     }
   };
 
   const fetchOpponentMessage = async (userInput: string) => {
     setLoading(true);
     try {
-      const requestBody = {
-        genre: genre || "", // 선택한 장르
-        currentStage, // 현재 스테이지 값
-        initialStory, // FastAPI에서 생성된 초기 스토리
-        userInput, // 유저가 입력한 값
-        previousUserInput: previousUserInput || "", // 이전 입력값 (없으면 빈 문자열)
-      };
-      // console.log("Request Body:", requestBody); // 데이터 확인용
-      
+      // 모든 대화 내용들을 리스트로 생성
+      const conversationHistory =
+        (allMessages[currentStage - 1] || []).length > 0
+          ? (allMessages[currentStage - 1] || []).map(
+              (msg: Message) => `${msg.sender}: ${msg.text}`
+            )
+          : [];
 
+      // 요청 본문 작성
+      const requestBody = {
+        genre: genre || "",
+        currentStage: currentStage > 0 ? currentStage : 1,
+        initialStory: initialStory || "",
+        userInput: userInput || "",
+        previousUserInput: previousUserInput || "",
+        conversationHistory: conversationHistory,
+      };
 
       const response = await axios.post("/generate-story/chat", requestBody);
 
-      // 서버 응답을 responses 배열에 추가
-    setResponses((prevResponses) => [...prevResponses, response.data]);
+      // 응답 처리
+      setResponses((prevResponses) => [...prevResponses, response.data]);
 
 
       if (response.data && response.data.story) {
@@ -217,22 +224,21 @@ const GamePage: React.FC = () => {
           sender: "opponent",
           text: response.data.story,
         };
-
-        setCurrentMessages((prev) => [...prev, newMessage]); // 현재 메시지 업데이트
+        setCurrentMessages((prev) => [...prev, newMessage]);
         setAllMessages((prev) => ({
           ...prev,
-          [currentStage]: [...(prev[currentStage] || []), newMessage], // 전체 메시지 업데이트
+          [currentStage]: [...(prev[currentStage] || []), newMessage],
         }));
       }
 
     } catch (error: any) {
-      console.error("Error fetching opponent message:", error);
+      console.error("Error in fetchOpponentMessage:", error); // 디버깅용 로그
       const errorMessage: Message = {
         sender: "opponent",
         text: "오류가 발생했습니다. 다시 시도해주세요.",
       };
 
-      setCurrentMessages((prev) => [...prev, errorMessage]); // 에러 메시지 추가
+      setCurrentMessages((prev) => [...prev, errorMessage]);
       setAllMessages((prev) => ({
         ...prev,
         [currentStage]: [...(prev[currentStage] || []), errorMessage],
@@ -255,39 +261,35 @@ const GamePage: React.FC = () => {
 
   const goToNextStage = () => {
     if (currentStage < stages.length - 1) {
-      // 현재 스테이지에서 마지막 메시지를 다음 스테이지로 이동
-      const newMessages = [...currentMessages]; // 현재 메시지 복사
-      const lastMessage = newMessages[newMessages.length - 1]; // 마지막 메시지 저장
+      const newMessages = [...currentMessages];
+      const lastMessage = newMessages[newMessages.length - 1];
 
       setAllMessages((prev) => ({
         ...prev,
-        [currentStage]: newMessages, // 현재 단계의 메시지로 저장
-        [currentStage + 1]: [lastMessage], // 마지막 메시지를 다음 스테이지에 추가
+        [currentStage]: newMessages,
+        [currentStage + 1]: [lastMessage],
       }));
 
-      // 다음 스테이지로 이동하면서 메시지 전달
-      setCurrentMessages([lastMessage]); // 마지막 메시지를 현재 메시지로 설정
-      setCurrentStage((prev) => prev + 1); // 단계 증가
-      setInputCount(0); // 입력 횟수 초기화
-      setInputDisabled(false); // 입력 다시 활성화
+      setCurrentMessages([lastMessage]);
+      setCurrentStage((prev) => prev + 1);
+      setInputCount(0);
+      setInputDisabled(false);
     }
   };
 
   const goToPreviousStage = () => {
     if (currentStage > 0) {
       const previousMessages = allMessages[currentStage - 1] || [];
-      setCurrentMessages(previousMessages); // 이전 단계 메시지 설정
-      setCurrentStage((prev) => prev - 1); // 단계 감소
+      setCurrentMessages(previousMessages);
+      setCurrentStage((prev) => prev - 1);
     }
   };
 
-  // currentStage가 변경될 때마다 해당 단계의 메시지를 복원
   useEffect(() => {
-    const savedMessages = allMessages[currentStage] || []; // 해당 스테이지의 메시지 로드
-    setCurrentMessages(savedMessages); // 현재 메시지로 설정
-  }, [currentStage, allMessages]); // currentStage 변경 시 실행
+    const savedMessages = allMessages[currentStage] || [];
+    setCurrentMessages(savedMessages);
+  }, [currentStage, allMessages]);
 
-  // 유저 유효성 검증
   const checkAuth = async (userId: number) => {
     const isAuthenticated = await AuthGuard(userId);
     if (!isAuthenticated) {
@@ -296,21 +298,27 @@ const GamePage: React.FC = () => {
   };
 
   useEffect(() => {
-    // initialStory가 있을 때만 처리
     if (initialStory && currentStage === 0) {
-      // 초기 스토리가 있을 경우, 바로 메시지 추가
       const initialMessage: Message = {
         sender: "opponent",
         text: initialStory,
       };
-
-      setCurrentMessages([initialMessage]); // 첫 번째 스테이지 메시지로 추가
       setAllMessages((prev) => ({
         ...prev,
-        [0]: [initialMessage], // 첫 번째 단계의 메시지로 저장
+        [currentStage]: [initialMessage],
       }));
+      setCurrentMessages([initialMessage]);
     }
-  }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
+
+//     fetchBackgroundImage();
+//     fetchMusic(genre);
+
+//     if (cookies.id) {
+//       checkAuth(parseInt(cookies.id));
+//     }
+
+//     if (inputCount > 5) {
+//       setInputDisabled(true);
 
   //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
   useEffect(() => {
@@ -409,8 +417,9 @@ const GamePage: React.FC = () => {
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+
     }
-  }, [currentMessages]); // currentMessages가 변경될 때마다 실행
+  }, [currentStage, cookies.id]);
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
