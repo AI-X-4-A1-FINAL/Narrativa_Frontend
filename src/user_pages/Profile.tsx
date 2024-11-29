@@ -48,11 +48,15 @@ const Profile: React.FC = () => {
   );
 
   const fetchUserData = async (userId: number) => {
+    console.log('fetchUserData userId: ', userId);
     try {
-      // 백엔드 API 호출
-      const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`
-      );
+      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users`, {
+        method: 'GET', // 기본적으로 GET 요청
+        headers: {
+          'Content-Type': 'application/json', // 요청 헤더 설정
+        },
+        credentials: 'include', // 쿠키를 요청에 포함시키기
+      });
       if (!response.ok) throw new Error("Failed to fetch profile data.");
       let data = await response.json();
       console.log("Fetched User Data: ", data);
@@ -134,6 +138,7 @@ const Profile: React.FC = () => {
         {
           method: "POST",
           body: formData, // 수정된 데이터 전송
+          credentials: 'include',
         }
       );
 
@@ -158,9 +163,11 @@ const Profile: React.FC = () => {
 
       // s3에 이미지 저장
       const fetchPresignedUrl = await fetch(
-        `${
-          process.env.REACT_APP_SPRING_URI
-        }/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`
+        `${process.env.REACT_APP_SPRING_URI}/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`,
+        {
+          method: "GET",
+          credentials: 'include', // 쿠키를 요청에 포함시키기
+        }
       );
 
       if (!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
@@ -177,13 +184,14 @@ const Profile: React.FC = () => {
 
       // 닉네임, 프로필 url 저장
       const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`,
+        `${process.env.REACT_APP_SPRING_URI}/api/users`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(profileData), // 수정된 데이터 전송
+          credentials: 'include', // 쿠키를 요청에 포함시키기
         }
       );
 
@@ -228,7 +236,7 @@ const Profile: React.FC = () => {
     try {
       console.log("cookies.id: ", cookies.id);
       const response = await axiosBaseURL.put(
-        `/api/users/${userId}/deactivate`
+        `/api/users/deactivate`
       );
       console.log("Account Deactivated:", response.data);
 
