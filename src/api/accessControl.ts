@@ -8,10 +8,10 @@ const AuthGuard = async (userId: number) => {
 
   try {
     // 기존 쿠키 코드
-    // const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`);
+    // const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users`);
 
     const response = await fetch(
-      `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`,
+      `${process.env.REACT_APP_SPRING_URI}/api/users`,
       {
         method: "GET",
         headers: {
