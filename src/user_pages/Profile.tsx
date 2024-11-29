@@ -200,8 +200,28 @@ const Profile: React.FC = () => {
     }
   };
 
+  // URL에서 최상위 도메인과 두 번째 레벨 도메인을 추출하는 함수
+  const getCookieDomainFromUrl = (): string => {
+    const parsedUrl = new URL(`${process.env.REACT_APP_SPRING_URI}`);  // URL 객체를 사용하여 URL을 파싱
+    const domainParts = parsedUrl.hostname.split('.');  // 호스트명에서 도메인 부분만 분리
+    return domainParts.slice(domainParts.length - 2).join('.');  // 두 번째 레벨 도메인과 최상위 도메인만 반환
+  };
+
+  // 쿠키 삭제 함수
+  const removeUserCookie = () => {
+    if (userId !== null) {
+      // URL에서 도메인 추출
+      const cookieDomain = getCookieDomainFromUrl();
+      console.log('cookieDomain: ', cookieDomain);
+
+      // 쿠키 삭제
+      removeCookie("id", { domain: cookieDomain, path: "/" });
+      console.log("쿠키가 삭제되었습니다.");
+    }
+  };
+
+  // 회원 탈퇴 요청 함수
   const deactivateAccount = async () => {
-    // 회원 탈퇴 요청 함수
     setIsLoading(true);
     setError(null);
 
@@ -212,8 +232,7 @@ const Profile: React.FC = () => {
       );
       console.log("Account Deactivated:", response.data);
 
-      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
-      console.log("쿠키가 삭제되었습니다.");
+      removeUserCookie();
 
       // 탈퇴 성공 후 alert 창 띄우기
       alert("회원 탈퇴가 완료되었습니다.");
@@ -228,12 +247,10 @@ const Profile: React.FC = () => {
     }
   };
 
-  // 쿠키 삭제 함수
+  // 로그 아웃 함수
   const handleRemoveCookie = () => {
     if (userId !== null) {
-      // userId를 문자열로 변환하여 removeCookie에 전달
-      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
-      console.log("쿠키가 삭제되었습니다.");
+      removeUserCookie();
 
       // 탈퇴 성공 후 alert 창 띄우기
       alert("로그 아웃이 완료되었습니다.");

@@ -7,8 +7,8 @@ import AuthGuard from "../api/accessControl";
 
 const GameEnding: React.FC = () => {
   const navigate = useNavigate();
-  
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);  // 쿠키
+
+  const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
 
   const handleDownload = async () => {
     // 캡처할 영역과 다운로드 버튼 선택
@@ -45,13 +45,13 @@ const GameEnding: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('cookies.id', cookies.id);
+    // console.log('cookies.id', cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
-      navigate('/');
+      navigate("/");
     }
 
     if (!checkAuth(cookies.id)) {
-      navigate('/');  // 유저 상태코드 유효하지 않으면 접근
+      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
     }
   }, []);
 

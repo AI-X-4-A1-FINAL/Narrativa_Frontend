@@ -1,26 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import Lottie from "lottie-react";
 import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
-import { useCookies } from 'react-cookie';
 
 const Main: React.FC = () => {
   const [showLoadingLottie, setShowLoadingLottie] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
 
   const handleComplete = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
     setShowLoadingLottie(true);
   };
-
-  useEffect(() => {
-    // 쿠키에서 'id' 값 가져오기
-    const id = cookies.id;
-    if (id) {
-      console.log('id: ', id); // 쿠키에 id가 있다면 상태에 저장
-    }
-  }, [cookies]);
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">
