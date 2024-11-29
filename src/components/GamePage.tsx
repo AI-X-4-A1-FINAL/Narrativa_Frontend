@@ -84,21 +84,26 @@ const GamePage: React.FC = () => {
   const fetchBackgroundImageML = async (script: string) => {
     try {
       // 이미지 생성 API URL
-      const apiUrl = "/api/images/generate-image"; // 실제 백엔드 API URL로 설정
+      const apiUrl = '/api/images/generate-image';  // 실제 백엔드 API URL로 설정
+  
+       // 요청 본문에 JSON 형태로 데이터를 전달
+      const requestBody = {
+        prompt: script,  // 이미지 생성에 사용할 프롬프트
+        size: '1024x1024',  // 이미지 크기 (기본값)
+        n: 1,  // 생성할 이미지 개수 (기본값)
+      };
 
-      // POST 요청 본문 데이터 정의
-      const requestBody = { script }; // 필요한 데이터를 여기에 추가
+    console.log(requestBody);
 
-      // POST 요청을 보내 JSON 형태로 데이터 전송
-      const response = await axios.post(apiUrl, requestBody);
+    // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
+    const response = await axios.post(apiUrl, requestBody)
+    
 
       // 응답이 성공적일 경우 처리
-      console.log("Image generated successfully:", response.data);
+    console.log("Image generated successfully:", response.data); //성공적으로 반환 받음
 
-      // 응답 데이터 디코딩 및 파싱
-      const decodedString = atob(response.data); // Base64 디코딩
-      const parsedData = JSON.parse(decodedString); // JSON 파싱
-      const imageURL = parsedData.imageUrl;
+   
+    const imageURL = response.data;
 
       console.log("Image URL:", imageURL);
 
@@ -107,13 +112,11 @@ const GamePage: React.FC = () => {
     } catch (error: any) {
       console.error("Error in fetchBackgroundImageML:", error);
 
-      // 에러 응답 처리 (선택적)
-      if (error.response) {
-        console.error("Response Status:", error.response.status);
-        console.error("Response Data:", error.response.data);
-      }
+     
     }
+
   };
+ 
 
   // 음악 API 호출
   const fetchMusic = async (stageGenre: string) => {
@@ -162,6 +165,7 @@ const GamePage: React.FC = () => {
       ...prev,
       [currentStage]: [...(prev[currentStage] || []), userMessage],
     }));
+
     setUserInput(""); // 입력 초기화
     setInputCount((prev) => prev + 1); // 입력 횟수 증가
 
@@ -180,6 +184,9 @@ const GamePage: React.FC = () => {
 
       // 스테이지를 넘어가는 로직 추가
       await fetchOpponentMessage(userInput); // 상대 메시지 받아오기
+      // setTimeout(() => {
+      //   goToNextStage(); // 5초 후 다음 스테이지로 이동
+      // }, 5000); // 5초 후
     } else {
       await fetchOpponentMessage(userInput); // 여전히 입력이 가능하면 상대 메시지 받아오기
     }
@@ -196,11 +203,14 @@ const GamePage: React.FC = () => {
         previousUserInput: previousUserInput || "", // 이전 입력값 (없으면 빈 문자열)
       };
       // console.log("Request Body:", requestBody); // 데이터 확인용
+      
+
 
       const response = await axios.post("/generate-story/chat", requestBody);
 
       // 서버 응답을 responses 배열에 추가
-      setResponses((prevResponses) => [...prevResponses, response.data]);
+    setResponses((prevResponses) => [...prevResponses, response.data]);
+
 
       if (response.data && response.data.story) {
         const newMessage: Message = {
@@ -214,6 +224,7 @@ const GamePage: React.FC = () => {
           [currentStage]: [...(prev[currentStage] || []), newMessage], // 전체 메시지 업데이트
         }));
       }
+
     } catch (error: any) {
       console.error("Error fetching opponent message:", error);
       const errorMessage: Message = {
@@ -311,12 +322,26 @@ const GamePage: React.FC = () => {
 
   // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
   useEffect(() => {
-    if (responses.length == 5) {
-      const script = JSON.stringify(responses[4], null, 2); // 5번째 응답을 alert로 출력
+    
+      if (responses.length == 5) {
+        // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
+          const combinedStory = responses.slice(0, 5)
+          .map(response => response.story) // 각 story 추출
+          .join(' ') // 공백을 기준으로 합침
+          .replace(/\n{2,}/g, ' ') // \n\n 이상인 부분을 공백으로 대체
+          .replace(/\d+\.\s?/g, '') // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
+          .replace(/(\d+)(?=\.)/g, '') // 선택지 번호 뒤의 숫자도 제거
 
-      fetchBackgroundImageML(script);
-      setInputCount(0); // 입력 횟수 초기화
-    }
+        // 최종적으로 하나의 story 객체 생성
+        const script = JSON.stringify({ story: combinedStory }, null, 2);
+        console.log(script);
+
+        // background 이미지 처리 함수 호출
+        fetchBackgroundImageML(script);
+        setInputCount(0); // 입력 횟수 초기화
+      }
+      
+
   }, [inputCount, responses]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
 
   useEffect(() => {
@@ -337,7 +362,7 @@ const GamePage: React.FC = () => {
   }, [initialStory, currentStage]); // currentStage도 의존성에 추가하여 스테이지가 변경될 때마다 확인
 
   useEffect(() => {
-    // 유저 정보 없는 경우 리다이렉트
+    // 유저 정보 x '/' redirect
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     }
