@@ -31,6 +31,5 @@ const AuthGuard = async (userId: number) => {
     return false;
   }
 };
-}
-  
+
 export default AuthGuard;

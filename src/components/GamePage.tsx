@@ -75,39 +75,36 @@ const GamePage: React.FC = () => {
   // ML에서 이미지 받아오기
   const fetchBackgroundImageML = async (script: string) => {
     try {
-
-//       const apiUrl = "/api/images/generate-image";
-//       const requestBody = { script };
-//       const response = await axios.post(apiUrl, requestBody);
-//       const decodedString = atob(response.data);
-//       const parsedData = JSON.parse(decodedString);
-//       const imageURL = parsedData.imageUrl;
-//       setBgImage(imageURL);
-//     } catch (error: any) {
-//       console.error("Error in fetchBackgroundImageML:", error);
-//       setBgImage("/images/pikachu.jpg");
+      //       const apiUrl = "/api/images/generate-image";
+      //       const requestBody = { script };
+      //       const response = await axios.post(apiUrl, requestBody);
+      //       const decodedString = atob(response.data);
+      //       const parsedData = JSON.parse(decodedString);
+      //       const imageURL = parsedData.imageUrl;
+      //       setBgImage(imageURL);
+      //     } catch (error: any) {
+      //       console.error("Error in fetchBackgroundImageML:", error);
+      //       setBgImage("/images/pikachu.jpg");
 
       // 이미지 생성 API URL
-      const apiUrl = '/api/images/generate-image';  // 실제 백엔드 API URL로 설정
-  
-       // 요청 본문에 JSON 형태로 데이터를 전달
+      const apiUrl = "/api/images/generate-image"; // 실제 백엔드 API URL로 설정
+
+      // 요청 본문에 JSON 형태로 데이터를 전달
       const requestBody = {
-        prompt: script,  // 이미지 생성에 사용할 프롬프트
-        size: '1024x1024',  // 이미지 크기 (기본값)
-        n: 1,  // 생성할 이미지 개수 (기본값)
+        prompt: script, // 이미지 생성에 사용할 프롬프트
+        size: "1024x1024", // 이미지 크기 (기본값)
+        n: 1, // 생성할 이미지 개수 (기본값)
       };
 
-    console.log(requestBody);
+      console.log(requestBody);
 
-    // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
-    const response = await axios.post(apiUrl, requestBody)
-    
+      // POST 요청을 보낼 때 JSON 형태로 requestBody를 본문에 담아 전송
+      const response = await axios.post(apiUrl, requestBody);
 
       // 응답이 성공적일 경우 처리
-    console.log("Image generated successfully:", response.data); //성공적으로 반환 받음
+      console.log("Image generated successfully:", response.data); //성공적으로 반환 받음
 
-   
-    const imageURL = response.data;
+      const imageURL = response.data;
 
       console.log("Image URL:", imageURL);
 
@@ -115,11 +112,8 @@ const GamePage: React.FC = () => {
       setBgImage(imageURL);
     } catch (error: any) {
       console.error("Error in fetchBackgroundImageML:", error);
-
     }
-
   };
- 
 
   // 음악 API 호출
   const fetchMusic = async (stageGenre: string) => {
@@ -168,7 +162,6 @@ const GamePage: React.FC = () => {
     setUserInput(""); // 입력 초기화
     setInputCount((prev) => prev + 1); // 입력 횟수 증가
 
-
     if (inputCount + 1 >= 5) {
       setInputDisabled(true);
       const nextMessage: Message = {
@@ -186,7 +179,6 @@ const GamePage: React.FC = () => {
       // setTimeout(() => {
       //   goToNextStage(); // 5초 후 다음 스테이지로 이동
       // }, 5000); // 5초 후
-
     } else {
       await fetchOpponentMessage(userInput);
     }
@@ -218,7 +210,6 @@ const GamePage: React.FC = () => {
       // 응답 처리
       setResponses((prevResponses) => [...prevResponses, response.data]);
 
-
       if (response.data && response.data.story) {
         const newMessage: Message = {
           sender: "opponent",
@@ -230,7 +221,6 @@ const GamePage: React.FC = () => {
           [currentStage]: [...(prev[currentStage] || []), newMessage],
         }));
       }
-
     } catch (error: any) {
       console.error("Error in fetchOpponentMessage:", error); // 디버깅용 로그
       const errorMessage: Message = {
@@ -310,15 +300,17 @@ const GamePage: React.FC = () => {
       setCurrentMessages([initialMessage]);
     }
 
-//     fetchBackgroundImage();
-//     fetchMusic(genre);
+    fetchBackgroundImage(); // 배경 이미지 가져오기
+    fetchMusic(genre); // 음악 가져오기
 
-//     if (cookies.id) {
-//       checkAuth(parseInt(cookies.id));
-//     }
+    if (cookies.id) {
+      checkAuth(parseInt(cookies.id)); // 인증 확인
+    }
 
-//     if (inputCount > 5) {
-//       setInputDisabled(true);
+    if (inputCount > 5) {
+      setInputDisabled(true); // 입력 비활성화
+    }
+  }, [initialStory, currentStage, genre, cookies.id, inputCount]); // 필요한 의존성 배열
 
   //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
   useEffect(() => {
@@ -330,26 +322,24 @@ const GamePage: React.FC = () => {
 
   // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
   useEffect(() => {
-    
-      if (responses.length == 5) {
-        // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
-          const combinedStory = responses.slice(0, 5)
-          .map(response => response.story) // 각 story 추출
-          .join(' ') // 공백을 기준으로 합침
-          .replace(/\n{2,}/g, ' ') // \n\n 이상인 부분을 공백으로 대체
-          .replace(/\d+\.\s?/g, '') // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
-          .replace(/(\d+)(?=\.)/g, '') // 선택지 번호 뒤의 숫자도 제거
+    if (responses.length == 5) {
+      // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
+      const combinedStory = responses
+        .slice(0, 5)
+        .map((response) => response.story) // 각 story 추출
+        .join(" ") // 공백을 기준으로 합침
+        .replace(/\n{2,}/g, " ") // \n\n 이상인 부분을 공백으로 대체
+        .replace(/\d+\.\s?/g, "") // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
+        .replace(/(\d+)(?=\.)/g, ""); // 선택지 번호 뒤의 숫자도 제거
 
-        // 최종적으로 하나의 story 객체 생성
-        const script = JSON.stringify({ story: combinedStory }, null, 2);
-        console.log(script);
+      // 최종적으로 하나의 story 객체 생성
+      const script = JSON.stringify({ story: combinedStory }, null, 2);
+      console.log(script);
 
-        // background 이미지 처리 함수 호출
-        fetchBackgroundImageML(script);
-        setInputCount(0); // 입력 횟수 초기화
-      }
-      
-
+      // background 이미지 처리 함수 호출
+      fetchBackgroundImageML(script);
+      setInputCount(0); // 입력 횟수 초기화
+    }
   }, [inputCount, responses]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
 
   useEffect(() => {
@@ -412,14 +402,6 @@ const GamePage: React.FC = () => {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentMessages]); // currentMessages가 변경될 때마다 실행
-
-  // 채팅 메시지가 추가될 때마다 자동으로 스크롤을 맨 아래로 이동
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-
-    }
-  }, [currentStage, cookies.id]);
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">
