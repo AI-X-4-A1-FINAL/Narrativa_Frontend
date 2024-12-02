@@ -5,16 +5,23 @@ export interface Message {
 }
 
 export interface MessageManagementProps {
-  initialStory?: string;
+  genre: string;
   currentStage: number;
-  genre?: string;
+  initialStory?: string;
+  userInput: string;
+  previousUserInput: string;
+  conversationHistory: string[];
+  tags: string[];
+  image: string;
 }
 
 export interface LocationState {
   genre: string;
+  currentStage: number;
+  initialStory?: string;
+  userInput: string;
+  previousUserInput: string;
+  conversationHistory: string[];
   tags: string[];
   image: string;
-  userInput: string;
-  initialStory: string;
-  previousUserInput: string;
 }

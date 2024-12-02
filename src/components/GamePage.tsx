@@ -10,9 +10,11 @@ import { LocationState } from "../utils/messageTypes";
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, initialStory } = location.state as LocationState;
+  const { genre, tags, image, initialStory, userInput, previousUserInput } =
+    location.state as LocationState;
 
-  const [userInput, setUserInput] = useState<string>("");
+  const [userInputState, setUserInputState] = useState<string>(userInput || "");
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentStage, setCurrentStage] = useState<number>(0);
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
@@ -26,7 +28,6 @@ const GamePage: React.FC = () => {
   const imageFetched = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
   const prevStageRef = useRef<number>(currentStage);
-
   const {
     allMessages,
     currentMessages,
@@ -39,9 +40,14 @@ const GamePage: React.FC = () => {
     setInputDisabled,
     messagesEndRef,
   } = useMessageManagement({
-    initialStory,
-    currentStage,
     genre,
+    currentStage,
+    initialStory,
+    userInput: userInputState,
+    previousUserInput,
+    conversationHistory,
+    tags,
+    image,
   });
 
   const stages = [
@@ -149,9 +155,9 @@ const GamePage: React.FC = () => {
   };
 
   const sendMessage = async () => {
-    const newCount = await handleSendMessage(userInput, currentStage);
+    const newCount = await handleSendMessage(userInputState, currentStage);
     if (newCount !== undefined) {
-      setUserInput("");
+      setUserInputState("");
     }
   };
 
@@ -338,7 +344,7 @@ const GamePage: React.FC = () => {
               <input
                 type="text"
                 value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
+                onChange={(e) => setUserInputState(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
