@@ -53,7 +53,7 @@ const AppContent: React.FC = () => {
         <div className="flex flex-col min-h-screen items-center justify-between bg-white shadow-2xl">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main
-            className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white
+            className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
               ${isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""}`}
           >
             <Routes>

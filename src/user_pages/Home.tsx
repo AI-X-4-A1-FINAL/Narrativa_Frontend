@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
+import ScrollIndicator from "../components/ScrollIndicator";
 
 interface Genre {
   name: string;
@@ -152,6 +153,7 @@ const Home: React.FC = () => {
           </div>
         ))}
       </div>
+      <ScrollIndicator />
     </div>
   );
 };
