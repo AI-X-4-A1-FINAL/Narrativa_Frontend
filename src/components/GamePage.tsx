@@ -6,6 +6,7 @@ import AuthGuard from "../api/accessControl";
 import axios from "../api/axiosInstance";
 import { useMessageManagement } from "../utils/useMessageManagement";
 import { LocationState } from "../utils/messageTypes";
+import { ArrowBigLeftDash } from "lucide-react";
 
 const GamePage: React.FC = () => {
   const location = useLocation();
@@ -251,45 +252,35 @@ const GamePage: React.FC = () => {
         />
       </div>
 
-      {/* 음악 플레이어 */}
-      <div className="absolute top-0 left-4">
-        {musicLoading ? (
-          <p className="text-white">Loading music...</p>
-        ) : musicUrl ? (
-          <div className="flex flex-col items-center">
-            <audio ref={audioRef} src={musicUrl} />
-            <button
-              onClick={togglePlayPause}
-              className="bg-gray-900 text-white font-bold py-2 px-4 mt-4 rounded-full hover:bg-custom-purple"
-            >
-              {isPlaying ? "⏸" : "▶"}
-            </button>
-          </div>
-        ) : (
-          <p className="text-white">No music available</p>
-        )}
-      </div>
-
-      {/* 뒤로가기 버튼 */}
-      <div className="absolute top-0 right-4">
-        <div className="flex flex-col items-center">
-          <button
-            onClick={() => {
-              if (window.confirm("정말 나가시겠습니까?")) {
-                navigate("/game-intro", {
-                  state: {
-                    genre,
-                    tags,
-                    image,
-                  },
-                });
-              }
-            }}
-            className="bg-gray-900 text-white font-bold py-2 px-4 mt-4 rounded-full hover:bg-custom-purple"
-          >
-            ↻
-          </button>
+      <div className="absolute top-4 flex justify-between items-center w-full px-4">
+        <div className="text-white">
+          {musicLoading ? (
+            <p>Loading music...</p>
+          ) : musicUrl ? (
+            <div className="flex items-center">
+              <audio ref={audioRef} src={musicUrl} />
+              <button
+                onClick={togglePlayPause}
+                className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple flex items-center justify-center"
+              >
+                {isPlaying ? "⏸" : "▶"}
+              </button>
+            </div>
+          ) : (
+            <p>No music available</p>
+          )}
         </div>
+
+        <button
+          onClick={() => {
+            if (window.confirm("정말 나가시겠습니까?")) {
+              navigate("/game-intro", { state: { genre, tags, image } });
+            }
+          }}
+          className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple flex items-center justify-center"
+        >
+          <ArrowBigLeftDash />
+        </button>
       </div>
 
       {/* 채팅창 */}
