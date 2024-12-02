@@ -102,7 +102,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2">
-      <div className="flex flex-col items-center dark:bg-gray-900 dark:text-white">
+      <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
         {genres.map((genre) => (
           <div
             key={genre.name}

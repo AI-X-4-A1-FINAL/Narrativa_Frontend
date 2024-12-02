@@ -409,7 +409,7 @@ const Profile: React.FC = () => {
       <div className="space-y-4">
         <label
           className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-600 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
         >
           <span className="mr-48">다크모드</span>
           <div
@@ -428,7 +428,7 @@ const Profile: React.FC = () => {
 
         <label
           className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-600 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="mr-48">배경음악</span>
           <div
@@ -447,7 +447,7 @@ const Profile: React.FC = () => {
 
         <label
           className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-600 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="mr-48">공지사항</span>
           <div
