@@ -9,3 +9,12 @@ export interface MessageManagementProps {
   currentStage: number;
   genre?: string;
 }
+
+export interface LocationState {
+  genre: string;
+  tags: string[];
+  image: string;
+  userInput: string;
+  initialStory: string;
+  previousUserInput: string;
+}

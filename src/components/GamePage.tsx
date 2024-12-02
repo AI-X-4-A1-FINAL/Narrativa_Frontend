@@ -5,16 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 import axios from "../api/axiosInstance";
 import { useMessageManagement } from "../utils/useMessageManagement";
-import { Message } from "../utils/messageTypes";
-
-interface LocationState {
-  genre: string;
-  tags: string[];
-  image: string;
-  userInput: string;
-  initialStory: string;
-  previousUserInput: string;
-}
+import { LocationState } from "../utils/messageTypes";
 
 const GamePage: React.FC = () => {
   const location = useLocation();
@@ -28,7 +19,6 @@ const GamePage: React.FC = () => {
   const [musicLoading, setMusicLoading] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [cookies, setCookie, removeCookie] = useCookies(["id"]);
   const [bgImage, setBgImage] = useState<string>(
     image || "/images/game-start.jpeg"
@@ -47,6 +37,7 @@ const GamePage: React.FC = () => {
     handleSendMessage,
     setInputCount,
     setInputDisabled,
+    messagesEndRef,
   } = useMessageManagement({
     initialStory,
     currentStage,
@@ -238,13 +229,6 @@ const GamePage: React.FC = () => {
       setIsPlaying(true);
     }
   }, [musicUrl]);
-
-  // 메시지 스크롤 useEffect
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [currentMessages]);
 
   return (
     <div className="relative w-full h-screen bg-gray-800 text-white">

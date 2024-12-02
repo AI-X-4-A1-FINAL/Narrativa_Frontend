@@ -1,5 +1,5 @@
 // src/utils/useMessageManagement.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Message, MessageManagementProps } from "./messageTypes";
 import axios from "../api/axiosInstance";
 
@@ -17,6 +17,9 @@ export const useMessageManagement = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [responses, setResponses] = useState<any[]>([]);
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // 메시지를 추가하는 함수
   const addMessage = (message: Message, stage: number) => {
     setCurrentMessages((prev) => [...prev, message]);
     setAllMessages((prev) => ({
@@ -25,6 +28,7 @@ export const useMessageManagement = ({
     }));
   };
 
+  // 상대방 메시지 가져오기 함수
   const fetchOpponentMessage = async (userInput: string, stage: number) => {
     setLoading(true);
     try {
@@ -61,6 +65,7 @@ export const useMessageManagement = ({
     }
   };
 
+  // 메시지 보내는 함수
   const handleSendMessage = async (userInput: string, stage: number) => {
     if (userInput.trim() === "" || loading || inputDisabled) {
       const newMessage: Message = {
@@ -92,6 +97,7 @@ export const useMessageManagement = ({
     return newInputCount;
   };
 
+  // 초기 스토리 설정
   useEffect(() => {
     if (initialStory && currentStage === 0) {
       const initialMessage: Message = {
@@ -106,10 +112,18 @@ export const useMessageManagement = ({
     }
   }, [initialStory, currentStage]);
 
+  // 스테이지에 따른 메시지 설정
   useEffect(() => {
     const savedMessages = allMessages[currentStage] || [];
     setCurrentMessages(savedMessages);
   }, [currentStage, allMessages]);
+
+  // 메시지 변경 시 스크롤
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentMessages]);
 
   return {
     allMessages,
@@ -122,5 +136,6 @@ export const useMessageManagement = ({
     fetchOpponentMessage,
     setInputCount,
     setInputDisabled,
+    messagesEndRef,
   };
 };
