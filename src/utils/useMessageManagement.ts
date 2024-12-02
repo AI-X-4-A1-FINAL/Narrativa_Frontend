@@ -4,9 +4,14 @@ import { Message, MessageManagementProps } from "./messageTypes";
 import axios from "../api/axiosInstance";
 
 export const useMessageManagement = ({
-  initialStory,
-  currentStage,
   genre,
+  currentStage,
+  initialStory,
+  userInput: initialUserInput,
+  previousUserInput: initialPreviousUserInput,
+  conversationHistory,
+  tags,
+  image,
 }: MessageManagementProps) => {
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
     {}
@@ -16,7 +21,6 @@ export const useMessageManagement = ({
   const [inputDisabled, setInputDisabled] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [responses, setResponses] = useState<any[]>([]);
-
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // 메시지를 추가하는 함수
@@ -38,10 +42,16 @@ export const useMessageManagement = ({
 
       const requestBody = {
         genre: genre || "",
+        tags,
+        image,
         currentStage: stage > 0 ? stage : 1,
+        initialStory: initialStory || "",
         userInput: userInput || "",
-        conversationHistory: conversationHistory,
+        previousUserInput: initialPreviousUserInput || "",
+        conversationHistory,
       };
+
+      console.log("Sending request to /generate-story/chat:", requestBody);
 
       const response = await axios.post("/generate-story/chat", requestBody);
       setResponses((prevResponses) => [...prevResponses, response.data]);
