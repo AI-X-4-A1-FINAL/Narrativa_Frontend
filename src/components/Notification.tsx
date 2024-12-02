@@ -24,7 +24,7 @@ const Notification: React.FC = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto bg-white dark:bg-custom-background p-6 border rounded-lg shadow-lg dark:shadow-gray-950">
+    <div className="max-w-lg mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg dark:shadow-gray-950">
       <h1 className="text-2xl font-bold mb-4">{notice.title}</h1>
       <p className="text-gray-700 dark:text-white">{notice.detail}</p>
     </div>

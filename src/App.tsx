@@ -13,6 +13,7 @@ import Bookmarks from "./user_pages/Bookmarks";
 import DeleteAccount from "./user_pages/DeleteAccount";
 import Header from "./components/Header";
 import GameIntro from "./components/GameIntro";
+import GameWorldView from "./components/GameWorldView";
 import GamePage from "./components/GamePage";
 import GameEnding from "./components/GameEnding";
 import WrongPage from "./action/WrongPage";
@@ -29,7 +30,13 @@ const AppContent: React.FC = () => {
   const isMainPage = location.pathname === "/";
 
   // Header를 숨길 경로 리스트
-  const noHeaderRoutes = ["/login", "/delete-account", "/", "/game-page"];
+  const noHeaderRoutes = [
+    "/login",
+    "/delete-account",
+    "/",
+    "/game-page",
+    "/game-world-view",
+  ];
 
   // Skip pt-32 for specific routes (including /bookmarks)
   const noPaddingRoutes = ["/bookmarks"];
@@ -43,10 +50,10 @@ const AppContent: React.FC = () => {
       {isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between bg-white dark:bg-D2D2D2 shadow-2xl">
+        <div className="flex flex-col min-h-screen items-center justify-between bg-white shadow-2xl">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main
-            className={`flex-grow w-full max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white
+            className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white
               ${isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""}`}
           >
             <Routes>
@@ -56,6 +63,7 @@ const AppContent: React.FC = () => {
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/game-intro" element={<GameIntro />} />
+              <Route path="/game-world-view" element={<GameWorldView />} />
               <Route path="/game-page" element={<GamePage />} />
               <Route path="/game-ending" element={<GameEnding />} />
               <Route path="/*" element={<WrongPage />} />

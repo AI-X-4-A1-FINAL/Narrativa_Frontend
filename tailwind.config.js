@@ -13,7 +13,8 @@ module.exports = {
       fontFamily: {
         "custom-font": ["Calistoga-Regular", "sans-serif"],
       },
+      scrollbar: ["rounded"],
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 };

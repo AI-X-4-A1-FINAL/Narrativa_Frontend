@@ -104,7 +104,7 @@ const Header: React.FC = () => {
       {isNotificationsOn && location.pathname === "/home" && (
         <div
           className="mt-2 bg-gray-300 dark:bg-gray-800 text-center p-2 rounded-lg cursor-pointer 
-          hover:bg-gray-200 dark:hover:bg-gray-600 shadow-lg dark:shadow-gray-950"
+          hover:bg-gray-200 dark:hover:bg-gray-600  shadow-lg dark:shadow-gray-950"
           onClick={handleNotificationClick}
         >
           <p className="text-gray-700 dark:text-gray-300 text-sm">
