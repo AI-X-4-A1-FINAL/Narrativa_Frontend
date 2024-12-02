@@ -81,39 +81,47 @@ const GameIntro: React.FC = () => {
 
   return (
     <div className="">
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg mb-6">
+      <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg dark:shadow-gray-950 mb-6">
         <img
           src={image}
           alt={genre}
-          className="w-full h-[400px] object-cover rounded-2xl"
+          className="w-full h-[400px] object-cover rounded-2xl "
         />
       </div>
       <div className="text-center text-black mb-4 dark:text-white">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
-        <div className="mb-4">
+        <div className="my-2">
           {Array.isArray(tags) &&
             tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
+                className="inline-block text-sm font-semibold my-2 mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
               >
                 #{tag}
               </span>
             ))}
         </div>
-        <p>
-          여기는 <span className="font-semibold">{genre}</span> 게임의 소개
-          페이지입니다.
+        <p
+          className="text-center text-base leading-relaxed my-2 p-4 rounded-2xl shadow-lg dark:shadow-gray-950
+        bg-gray-50 dark:bg-gray-800 dark:text-white"
+        >
+          다양한{" "}
+          <span className="text-custom-violet font-semibold">{genre}</span> 세계
+          속 당신의 <span className="text-red-500 font-extrabold">선택</span>이
+          이야기를 만듭니다.
           <br />
-          게임의 목적과 배경 설명이 이곳에 추가될 예정입니다.
+          5개의 흥미진진한 스테이지가 당신을 기다립니다!
           <br />
-          준비가 되셨다면 시작 버튼을 눌러 주세요!
+          <span className="my-1 text-lg">
+            준비가 되셨다면, 여정을 시작해보세요!
+          </span>
         </p>
       </div>
       <div className="flex flex-col items-center">
         <button
           onClick={handleStart}
-          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
+          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-lg dark:shadow-gray-950
+          hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
         >
           Start Game
         </button>
