@@ -18,16 +18,17 @@ const NotificationList: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-gray-100 p-6 rounded-lg shadow-md">
+    <div className="max-w-lg mx-auto bg-white dark:bg-custom-background p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">공지사항</h1>
       <ul className="space-y-4">
         {notices.map((notice) => (
           <li
             key={notice.id}
             onClick={() => handleNoticeClick(notice.id)}
-            className="p-4 bg-white rounded-lg shadow hover:bg-gray-200 transition cursor-pointer"
+            className="p-4 bg-white dark:dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-950 
+            hover:bg-gray-200 dark:hover:bg-gray-600 transition cursor-pointer"
           >
-            <h2 className="text-lg font-medium text-gray-800">
+            <h2 className="text-lg font-medium text-gray-800 dark:text-white">
               {notice.title}
             </h2>
           </li>

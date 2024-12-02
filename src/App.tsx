@@ -43,10 +43,10 @@ const AppContent: React.FC = () => {
       {isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between bg-white shadow-2xl">
+        <div className="flex flex-col min-h-screen items-center justify-between bg-white dark:bg-D2D2D2 shadow-2xl">
           {!noHeaderRoutes.includes(location.pathname) && <Header />}
           <main
-            className={`flex-grow w-full max-w-lg mx-auto bg-white dark:bg-gray-900 dark:text-white
+            className={`flex-grow w-full max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white
               ${isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""}`}
           >
             <Routes>

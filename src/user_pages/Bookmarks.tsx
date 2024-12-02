@@ -57,7 +57,7 @@ const Bookmarks: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center w-full mx-auto pt-4 bg-white text-gray-800 p-2 min-h-screen dark:bg-gray-900">
+    <div className="flex flex-col items-center w-full mx-auto pt-4 bg-white text-gray-800 p-2 min-h-screen dark:bg-custom-background">
       <div className="w-full mx-auto mt-20">
         <div
           className="w-full p-4 mb-9 flex justify-around items-center"
