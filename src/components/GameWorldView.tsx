@@ -3,7 +3,7 @@ import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "../api/axiosInstance";
 import AuthGuard from "../api/accessControl";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowBigLeftDash } from "lucide-react";
 
 interface LocationState {
   genre: string;
@@ -148,28 +148,28 @@ const GameWorldView: React.FC = () => {
         />
       </div>
 
-      <div className="absolute top-4 left-4 z-10">
-        {musicLoading ? (
-          <p>Loading music...</p>
-        ) : musicUrl ? (
-          <div className="flex flex-col items-center">
-            <audio ref={audioRef} src={musicUrl} />
-            <button
-              onClick={togglePlayPause}
-              className="bg-gray-900 text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple transition-colors"
-            >
-              {isPlaying ? "⏸" : "▶"}
-            </button>
-          </div>
-        ) : null}
-      </div>
+      <div className="absolute top-4 flex justify-between w-full px-4 z-10">
+        <div>
+          {musicLoading ? (
+            <p>Loading music...</p>
+          ) : musicUrl ? (
+            <div className="flex items-center">
+              <audio ref={audioRef} src={musicUrl} />
+              <button
+                onClick={togglePlayPause}
+                className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple transition-colors flex items-center justify-center"
+              >
+                {isPlaying ? "⏸" : "▶"}
+              </button>
+            </div>
+          ) : null}
+        </div>
 
-      <div className="absolute top-4 right-4 z-10">
         <button
           onClick={() => navigate(-1)}
-          className="bg-gray-900 text-white font-bold py-2 px-4 rounded-full hover:bg-custom-purple transition-colors"
+          className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple transition-colors flex items-center justify-center"
         >
-          ←
+          <ArrowBigLeftDash />
         </button>
       </div>
 
