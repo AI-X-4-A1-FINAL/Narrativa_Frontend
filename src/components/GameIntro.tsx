@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../api/axiosInstance";
 import AuthGuard from "../api/accessControl";
 
 interface LocationState {
@@ -23,39 +22,20 @@ const GameIntro: React.FC = () => {
     }
 
     try {
-      // 초기화
-      navigate("/game-page", {
+      // 먼저 세계관 페이지로 이동
+      navigate("/game-world-view", {
         state: {
           genre,
           tags,
           image,
-          initialStory: "", // 초기화
+          initialStory: "",
+          isLoading: true, // 로딩 상태 추가
         },
       });
 
-      // 새 스토리 요청
-      const response = await axios.post("/generate-story/start", {
-        genre,
-        tags,
-      });
-
-      // 새로운 값으로 업데이트
-      navigate("/game-page", {
-        state: {
-          genre,
-          tags,
-          image,
-          initialStory: response.data.story, // 새로 받아온 스토리 저장
-        },
-      });
+      // API 호출은 GameWorldView 컴포넌트에서 처리
     } catch (error: any) {
-      console.error("Error starting the game:", error);
-      if (error.response) {
-        // 서버에서 응답한 오류 내용 출력
-        console.error("Server Error:", error.response.data);
-      } else {
-        console.error("Error Message:", error.message);
-      }
+      console.error("Error:", error);
       alert("Failed to start the game. Please try again.");
     }
   };
