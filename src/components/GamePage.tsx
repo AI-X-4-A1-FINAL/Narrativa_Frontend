@@ -46,6 +46,7 @@ const GamePage: React.FC = () => {
   const [responses, setResponses] = useState<any[]>([]);
   const [inputDisabled, setInputDisabled] = useState(false);
   const prevStageRef = useRef<number>(currentStage);
+  const [isLoading, setIsLoading] = useState(false);
 
   const stages = [
     { content: "Welcome to Stage!" },
@@ -300,8 +301,8 @@ const GamePage: React.FC = () => {
       setCurrentMessages([initialMessage]);
     }
 
-    fetchBackgroundImage(); // 배경 이미지 가져오기
-    fetchMusic(genre); // 음악 가져오기
+    //fetchBackgroundImage(); // 배경 이미지 가져오기
+    //fetchMusic(genre); // 음악 가져오기
 
     if (cookies.id) {
       checkAuth(parseInt(cookies.id)); // 인증 확인
@@ -322,7 +323,7 @@ const GamePage: React.FC = () => {
 
   // 채팅 5번 입력 후 배경 이미지를 새로 가져오기 위한 useEffect
   useEffect(() => {
-    if (responses.length == 5) {
+    if (responses.length === 5 && inputCount === 5 && !isLoading) {
       // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
       const combinedStory = responses
         .slice(0, 5)
@@ -331,16 +332,25 @@ const GamePage: React.FC = () => {
         .replace(/\n{2,}/g, " ") // \n\n 이상인 부분을 공백으로 대체
         .replace(/\d+\.\s?/g, "") // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
         .replace(/(\d+)(?=\.)/g, ""); // 선택지 번호 뒤의 숫자도 제거
-
-      // 최종적으로 하나의 story 객체 생성
+  
       const script = JSON.stringify({ story: combinedStory }, null, 2);
       console.log(script);
-
-      // background 이미지 처리 함수 호출
-      fetchBackgroundImageML(script);
-      setInputCount(0); // 입력 횟수 초기화
+  
+      // 로딩 상태 업데이트
+      setIsLoading(true); // 요청 시작
+  
+      // 배경 이미지 처리 함수 호출
+      fetchBackgroundImageML(script)
+        .then(() => {
+          // 요청이 완료된 후 inputCount 초기화
+          setInputCount(0);
+        })
+        .finally(() => {
+          setIsLoading(false); // 요청이 완료되었으므로 로딩 상태 해제
+        });
     }
-  }, [inputCount, responses]); // inputCount가 변경될 때마다 실행 (5번 입력 후 새로운 이미지 요청
+  }, [inputCount, responses, isLoading]); // inputCount나 responses가 변경될 때마다 실행
+  
 
   useEffect(() => {
     // initialStory가 있을 때만 처리
