@@ -48,15 +48,18 @@ const Profile: React.FC = () => {
   );
 
   const fetchUserData = async (userId: number) => {
-    console.log('fetchUserData userId: ', userId);
+    console.log("fetchUserData userId: ", userId);
     try {
-      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users`, {
-        method: 'GET', // 기본적으로 GET 요청
-        headers: {
-          'Content-Type': 'application/json', // 요청 헤더 설정
-        },
-        credentials: 'include', // 쿠키를 요청에 포함시키기
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/api/users`,
+        {
+          method: "GET", // 기본적으로 GET 요청
+          headers: {
+            "Content-Type": "application/json", // 요청 헤더 설정
+          },
+          credentials: "include", // 쿠키를 요청에 포함시키기
+        }
+      );
       if (!response.ok) throw new Error("Failed to fetch profile data.");
       let data = await response.json();
       console.log("Fetched User Data: ", data);
@@ -138,7 +141,7 @@ const Profile: React.FC = () => {
         {
           method: "POST",
           body: formData, // 수정된 데이터 전송
-          credentials: 'include',
+          credentials: "include",
         }
       );
 
@@ -163,10 +166,12 @@ const Profile: React.FC = () => {
 
       // s3에 이미지 저장
       const fetchPresignedUrl = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`,
+        `${
+          process.env.REACT_APP_SPRING_URI
+        }/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`,
         {
           method: "GET",
-          credentials: 'include', // 쿠키를 요청에 포함시키기
+          credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
 
@@ -191,7 +196,7 @@ const Profile: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(profileData), // 수정된 데이터 전송
-          credentials: 'include', // 쿠키를 요청에 포함시키기
+          credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
 
@@ -210,9 +215,9 @@ const Profile: React.FC = () => {
 
   // URL에서 최상위 도메인과 두 번째 레벨 도메인을 추출하는 함수
   const getCookieDomainFromUrl = (): string => {
-    const parsedUrl = new URL(`${process.env.REACT_APP_SPRING_URI}`);  // URL 객체를 사용하여 URL을 파싱
-    const domainParts = parsedUrl.hostname.split('.');  // 호스트명에서 도메인 부분만 분리
-    return domainParts.slice(domainParts.length - 2).join('.');  // 두 번째 레벨 도메인과 최상위 도메인만 반환
+    const parsedUrl = new URL(`${process.env.REACT_APP_SPRING_URI}`); // URL 객체를 사용하여 URL을 파싱
+    const domainParts = parsedUrl.hostname.split("."); // 호스트명에서 도메인 부분만 분리
+    return domainParts.slice(domainParts.length - 2).join("."); // 두 번째 레벨 도메인과 최상위 도메인만 반환
   };
 
   // 쿠키 삭제 함수
@@ -220,7 +225,7 @@ const Profile: React.FC = () => {
     if (userId !== null) {
       // URL에서 도메인 추출
       const cookieDomain = getCookieDomainFromUrl();
-      console.log('cookieDomain: ', cookieDomain);
+      console.log("cookieDomain: ", cookieDomain);
 
       // 쿠키 삭제
       removeCookie("id", { domain: cookieDomain, path: "/" });
@@ -235,9 +240,7 @@ const Profile: React.FC = () => {
 
     try {
       console.log("cookies.id: ", cookies.id);
-      const response = await axiosBaseURL.put(
-        `/api/users/deactivate`
-      );
+      const response = await axiosBaseURL.put(`/api/users/deactivate`);
       console.log("Account Deactivated:", response.data);
 
       removeUserCookie();
@@ -362,7 +365,7 @@ const Profile: React.FC = () => {
       </div>
 
       <div className="flex flex-col items-center relative dark:text-white">
-        <h1 className="text-2xl mb-4 font-bold" title="Nickname">
+        <h1 className="text-2xl my-4 font-bold" title="Nickname">
           {isEditingNickname ? (
             <input
               type="text"
@@ -381,7 +384,7 @@ const Profile: React.FC = () => {
           {isEditMode && !isEditingNickname && (
             <button
               onClick={() => setIsEditingNickname(true)}
-              className="absolute -right-6 top-1 text-lg ml-2"
+              className="absolute -right-8 top-5 text-lg ml-2"
             >
               <img
                 src="/images/edit_pen.png"
@@ -396,15 +399,18 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className={`px-10 py-2 text-white  rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white 
-          `}
+          className={`px-10 py-2 text-white  rounded my-2 bg-custom-violet shadow-lg dark:shadow-gray-950
+            hover:bg-blue-900 dark:text-white `}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
       </div>
 
       <div className="space-y-4">
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-600 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">다크모드</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -420,7 +426,10 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-600 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">배경음악</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -436,7 +445,10 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-600 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">공지사항</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -460,12 +472,12 @@ const Profile: React.FC = () => {
           disabled={isLoading}
           className="hover:underline"
         >
-          {isLoading ? "탈퇴 중..." : "회원탈퇴 |"}
+          {isLoading ? "탈퇴 중..." : "회원탈퇴"}
         </button>
         {error && <div style={{ color: "red" }}>{error}</div>}
-
+        <span>|</span>
         {/* 로그 아웃 버튼 */}
-        <button onClick={handleRemoveCookie}>| 로그아웃</button>
+        <button onClick={handleRemoveCookie}>로그아웃</button>
       </div>
     </div>
   );

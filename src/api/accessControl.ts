@@ -1,15 +1,16 @@
 const AuthGuard = async (userId: number) => {
-  // console.log('userId: ', userId);
-  // console.log('server url: ', process.env.REACT_APP_SPRING_URI);
+  // 테스트용 인증 우회
+  if (process.env.REACT_APP_BYPASS_AUTH === "true") {
+    console.log("테스트 환경에서 인증을 우회합니다.");
+    return true;
+  }
+
   if (userId === undefined) {
     console.log("유저 아이디 타입이 undefined 입니다.");
     return false;
   }
 
   try {
-    // 기존 쿠키 코드
-    // const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/users`);
-
     const response = await fetch(
       `${process.env.REACT_APP_SPRING_URI}/api/users`,
       {
@@ -17,10 +18,9 @@ const AuthGuard = async (userId: number) => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // 쿠키를 포함하여 요청 전송
+        credentials: "include",
       }
     );
-    // console.log('response url: ', response);
 
     if (!response.ok) {
       return false;

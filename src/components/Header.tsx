@@ -44,7 +44,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="flex flex-col items-center w-full max-w-lg mx-auto p-4 text-black fixed top-0 bg-white z-10 dark:bg-gray-900 dark:text-white">
+    <header
+      className="flex flex-col items-center w-full max-w-lg mx-auto p-4
+    bg-white dark:bg-gray-900 text-black fixed top-0  z-10 dark:text-white "
+    >
       <div className="flex justify-between items-center w-full">
         <Link to="/home">
           <img
@@ -100,7 +103,7 @@ const Header: React.FC = () => {
       {/* 공지사항: Home 페이지에서만 렌더링 */}
       {isNotificationsOn && location.pathname === "/home" && (
         <div
-          className="mt-1 bg-gray-100 dark:bg-gray-800 text-center p-2 rounded-lg cursor-pointer"
+          className="mt-2 bg-gray-300 dark:bg-gray-800 text-center p-2 rounded-lg cursor-pointer shadow-lg dark:shadow-gray-950"
           onClick={handleNotificationClick}
         >
           <p className="text-gray-700 dark:text-gray-300 text-sm">
