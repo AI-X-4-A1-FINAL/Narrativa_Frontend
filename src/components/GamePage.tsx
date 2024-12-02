@@ -26,6 +26,7 @@ const GamePage: React.FC = () => {
   const imageFetched = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
   const prevStageRef = useRef<number>(currentStage);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     allMessages,
@@ -164,6 +165,31 @@ const GamePage: React.FC = () => {
 
   // 이미지 가져오기 useEffect
   useEffect(() => {
+    if (initialStory && currentStage === 0) {
+      const initialMessage: Message = {
+        sender: "opponent",
+        text: initialStory,
+      };
+      setAllMessages((prev) => ({
+        ...prev,
+        [currentStage]: [initialMessage],
+      }));
+      setCurrentMessages([initialMessage]);
+    }
+
+
+    if (cookies.id) {
+      checkAuth(parseInt(cookies.id)); // 인증 확인
+    }
+
+    if (inputCount > 5) {
+      setInputDisabled(true); // 입력 비활성화
+    }
+  }, [initialStory, currentStage, genre, cookies.id, inputCount]); // 필요한 의존성 배열
+
+  //game-intro에서 게임 시작할때 나오는 이미지 random으로 S3에서 가져오기
+
+  useEffect(() => {
     if (!imageFetched.current) {
       fetchBackgroundImage();
       imageFetched.current = true;
@@ -173,18 +199,32 @@ const GamePage: React.FC = () => {
   // 이미지 생성 useEffect
   useEffect(() => {
     if (responses.length === 5 && inputCount === 5 && !isLoading) {
+      // 각 story의 내용을 결합하고 불필요한 \n\n을 제거
       const combinedStory = responses
         .slice(0, 5)
-        .map((response) => response.story)
-        .join(" ")
-        .replace(/\n{2,}/g, " ")
-        .replace(/\d+\.\s?/g, "")
-        .replace(/(\d+)(?=\.)/g, "");
-
+        .map((response) => response.story) // 각 story 추출
+        .join(" ") // 공백을 기준으로 합침
+        .replace(/\n{2,}/g, " ") // \n\n 이상인 부분을 공백으로 대체
+        .replace(/\d+\.\s?/g, "") // 숫자와 선택지 번호 제거 (예: "1. ", "2. ")
+        .replace(/(\d+)(?=\.)/g, ""); // 선택지 번호 뒤의 숫자도 제거
+  
       const script = JSON.stringify({ story: combinedStory }, null, 2);
       console.log(script);
-
-      setIsLoading(true);
+  
+      // 로딩 상태 업데이트
+      setIsLoading(true); // 요청 시작
+  
+      // 배경 이미지 처리 함수 호출
+      fetchBackgroundImageML(script)
+        .then(() => {
+          // 요청이 완료된 후 inputCount 초기화
+          setInputCount(0);
+        })
+        .finally(() => {
+          setIsLoading(false); // 요청이 완료되었으므로 로딩 상태 해제
+        });
+    }
+  }, [inputCount, responses, isLoading]); // inputCount나 responses가 변경될 때마다 실행
 
       fetchBackgroundImageML(script)
         .then(() => {
