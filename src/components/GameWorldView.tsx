@@ -4,15 +4,9 @@ import { Loader2, ArrowBigLeftDash, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useAudio } from "../Contexts/AudioContext";
 import { useWorldView } from "../hooks/useWorldView";
+import { LocationState } from "../utils/messageTypes";
 
-interface LocationState {
-  genre: string;
-  tags: string[];
-  image: string;
-  initialStory: string;
-  isLoading?: boolean;
-  userId: number;
-}
+
 
 const GameWorldView: React.FC = () => {
   const location = useLocation();
@@ -57,15 +51,23 @@ const GameWorldView: React.FC = () => {
       navigate("/");
       return;
     }
-
+  
+    if (!worldView || !genre || !tags || !image) {
+      console.error("Required game data is missing");
+      return;
+    }
+  
     try {
       navigate("/game-page", {
         state: {
           genre,
           tags,
-          image: bgImage,
+          image,
           initialStory: worldView,
-          userId
+          userId,
+          // Ensure any arrays that GamePage might be mapping over are initialized
+          messages: [],  // Add this if GamePage expects an initial messages array
+          // Add any other required initial state properties that GamePage might need
         },
       });
     } catch (error) {

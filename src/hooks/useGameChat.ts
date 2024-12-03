@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMessageManagement } from '../utils/useMessageManagement';
+import { useMessageManagement } from './useMessageManagement';
 
 interface UseGameChatProps {
   genre: string;

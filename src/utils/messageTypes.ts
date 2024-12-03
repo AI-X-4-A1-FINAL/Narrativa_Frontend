@@ -19,8 +19,9 @@ export interface LocationState {
   genre: string;
   tags: string[];
   image: string;
-  initialStory?: string;
+  initialStory: string;
   userInput?: string;
   previousUserInput?: string;
+  userId: number;  // 추가됨
   isLoading?: boolean;
 }

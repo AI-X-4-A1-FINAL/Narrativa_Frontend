@@ -1,12 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-
-interface LocationState {
-  genre: string;
-  tags: string[];
-  image: string;
-}
+import { LocationState } from "../utils/messageTypes";
 
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +29,7 @@ const GameIntro: React.FC = () => {
           image,
           initialStory: "",
           isLoading: true,
-          userId
+          userId: userId  // useAuth()에서 가져온 userId
         },
       });
     } catch (error: any) {

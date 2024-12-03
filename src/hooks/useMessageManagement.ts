@@ -1,6 +1,6 @@
 // src/utils/useMessageManagement.ts
 import { useState, useEffect, useRef } from "react";
-import { Message, MessageManagementProps } from "./messageTypes";
+import { Message, MessageManagementProps } from "../utils/messageTypes";
 import axios from "../api/axiosInstance";
 
 export const useMessageManagement = ({
