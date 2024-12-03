@@ -17,11 +17,10 @@ export interface MessageManagementProps {
 
 export interface LocationState {
   genre: string;
-  currentStage: number;
-  initialStory?: string;
-  userInput: string;
-  previousUserInput: string;
-  conversationHistory: string[];
   tags: string[];
   image: string;
+  initialStory?: string;
+  userInput?: string;
+  previousUserInput?: string;
+  isLoading?: boolean;
 }

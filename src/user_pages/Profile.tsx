@@ -48,7 +48,6 @@ const Profile: React.FC = () => {
   );
 
   const fetchUserData = async (userId: number) => {
-    console.log("fetchUserData userId: ", userId);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/users`,
@@ -62,8 +61,6 @@ const Profile: React.FC = () => {
       );
       if (!response.ok) throw new Error("Failed to fetch profile data.");
       let data = await response.json();
-      console.log("Fetched User Data: ", data);
-      console.log("Fetched User Data type: ", typeof data);
 
       const tmp_nickname = data.nickname;
       const tmp_profileUrl = data.profile_url;
@@ -73,18 +70,12 @@ const Profile: React.FC = () => {
         data = JSON.parse(data);
       }
 
-      console.log("data.username: ", tmp_nickname);
-      // console.log("data.profile_url: ", tmp_profileUrl);
-
       // 상태에 사용자 데이터 저장
       setNickname(tmp_nickname);
       setProfileUrl(tmp_profileUrl);
 
-      console.log("nickname: ", nickname);
-      // console.log("profile_url: ", profileUrl);
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.message);
         setError("Failed to load user data.");
       }
     }
@@ -100,7 +91,6 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
-    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     } else if (Number(cookies.id) !== -1) {
@@ -115,12 +105,8 @@ const Profile: React.FC = () => {
     }
   }, []);
 
-  console.log("userId: ", userId);
-  // console.log('userData: ', userData);
-
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
-    console.log("img", img);
 
     const profileImgData = {
       image: profileUrl,
@@ -152,7 +138,6 @@ const Profile: React.FC = () => {
       const data = JSON.parse(text);
 
       const imageUrlValue = data.imageUrl;
-      console.log("imageUrlValue: ", imageUrlValue);
 
       const extractFilePath = (url: string): string => {
         const parsedUrl = new URL(url); // URL 객체로 파싱
@@ -162,7 +147,6 @@ const Profile: React.FC = () => {
       };
 
       const extractS3FilePath = extractFilePath(imageUrlValue);
-      console.log("extract path: ", extractS3FilePath);
 
       // s3에 이미지 저장
       const fetchPresignedUrl = await fetch(
@@ -178,7 +162,6 @@ const Profile: React.FC = () => {
       if (!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
 
       const presignedUrlText = await fetchPresignedUrl.text();
-      console.log("presignedUrlText", presignedUrlText);
 
       setProfileUrl(presignedUrlText);
 
@@ -200,14 +183,11 @@ const Profile: React.FC = () => {
         }
       );
 
-      console.log("nickname: " + profileData.nickname);
-      // console.log('profile_url: ' + profileData.profile_url);
       if (!response.ok) throw new Error("닉네임, 프로필 url 저장 실패");
       alert("프로필이 성공적으로 저장되었습니다.");
       setIsEditMode(false); // 수정 모드 종료
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.message);
         alert("프로필 저장 중 오류가 발생했습니다.");
       }
     }
@@ -225,11 +205,9 @@ const Profile: React.FC = () => {
     if (userId !== null) {
       // URL에서 도메인 추출
       const cookieDomain = getCookieDomainFromUrl();
-      console.log("cookieDomain: ", cookieDomain);
 
       // 쿠키 삭제
       removeCookie("id", { domain: cookieDomain, path: "/" });
-      console.log("쿠키가 삭제되었습니다.");
     }
   };
 
@@ -239,9 +217,7 @@ const Profile: React.FC = () => {
     setError(null);
 
     try {
-      console.log("cookies.id: ", cookies.id);
       const response = await axiosBaseURL.put(`/api/users/deactivate`);
-      console.log("Account Deactivated:", response.data);
 
       removeUserCookie();
 
@@ -251,7 +227,6 @@ const Profile: React.FC = () => {
       // 메인 화면으로 리디렉션
       navigate("/");
     } catch (error) {
-      console.error("Error deactivating account:", error);
       setError("회원 탈퇴에 실패했습니다.");
     } finally {
       setIsLoading(false);
