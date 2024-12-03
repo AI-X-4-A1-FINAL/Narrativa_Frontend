@@ -48,7 +48,7 @@ const GameWorldView: React.FC = () => {
   }, []);
 
   const handleNavigateBack = () => {
-    stop();  // 음악 정지
+    stop();
     navigate(-1);
   };
 
