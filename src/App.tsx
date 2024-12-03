@@ -25,16 +25,20 @@ import Notification from "./components/Notification";
 import { AudioProvider } from "./Contexts/AudioContext";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
+import ParticleBackground from "./components/ParticleBackground"
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
 
   return (
     <>
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+        <ParticleBackground />
+      </div>
       {headerState.isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between bg-white shadow-2xl">
+        <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl">
           {headerState.showHeader && <Header />}
           <main
             className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
