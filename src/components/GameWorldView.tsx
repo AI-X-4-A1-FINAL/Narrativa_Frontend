@@ -61,8 +61,11 @@ const GameWorldView: React.FC = () => {
     const fetchWorldView = async () => {
       if (!initialStory) {
         try {
-          const response = await axios.get(`/api/world-view/${genre}`);
-          setWorldView(response.data.content);
+          const response = await axios.post("/generate-story/start", {
+            genre,
+            tags,
+          });
+          setWorldView(response.data.story);
         } catch (error) {
           console.error("Error fetching world view:", error);
         } finally {
