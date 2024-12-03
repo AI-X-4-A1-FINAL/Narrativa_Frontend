@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useRef } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 
 interface AudioContextType {
   musicUrl: string | null;
   isPlaying: boolean;
   isLoading: boolean;
   error: string | null;
-  initializeMusic: (genre: string) => Promise<void>;
+  initializeMusic: (genre: string, autoPlay?: boolean) => Promise<void>;
   togglePlayPause: () => void;
 }
 
@@ -16,11 +16,36 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(new Audio());
+  const initializingRef = useRef<boolean>(false);
 
-  const initializeMusic = async (genre: string) => {
+  useEffect(() => {
+    const audio = audioRef.current;
+    
+    const handleEnded = () => setIsPlaying(false);
+    const handleError = () => {
+      setError("음악 재생 중 오류가 발생했습니다.");
+      setIsPlaying(false);
+    };
+
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.pause();
+      audio.src = '';
+    };
+  }, []);
+
+  const initializeMusic = async (genre: string, autoPlay: boolean = false) => {
+    if (initializingRef.current) return;
+    initializingRef.current = true;
+
     setIsLoading(true);
     setError(null);
+    
     try {
       const response = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${genre}`
@@ -29,15 +54,26 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setMusicUrl(data.url);
       
-      // 음악 URL이 설정되면 자동 재생 시도
-      if (audioRef.current) {
+      // 이전 오디오 중지
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      
+      // 새 URL 설정
+      setMusicUrl(data.url);
+      audioRef.current.src = data.url;
+      
+      // autoPlay가 true이고 사용자 상호작용이 있었을 때만 자동 재생 시도
+      if (autoPlay) {
         try {
-          await audioRef.current.play();
-          setIsPlaying(true);
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            setIsPlaying(true);
+          }
         } catch (error) {
-          console.error("Auto-play was prevented:", error);
+          // 자동 재생 실패는 에러로 처리하지 않음
+          console.log("Auto-play not allowed, waiting for user interaction");
           setIsPlaying(false);
         }
       }
@@ -47,20 +83,27 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setMusicUrl(null);
     } finally {
       setIsLoading(false);
+      initializingRef.current = false;
     }
   };
 
-  const togglePlayPause = () => {
-    if (audioRef.current) {
+  const togglePlayPause = async () => {
+    if (!musicUrl) return;
+
+    try {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
-        audioRef.current.play().catch(error => {
-          console.error("Play failed:", error);
-          setIsPlaying(false);
-        });
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          await playPromise;
+          setIsPlaying(true);
+        }
       }
-      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error("Play/Pause failed:", error);
+      setIsPlaying(false);
     }
   };
 
@@ -75,15 +118,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         togglePlayPause 
       }}
     >
-      {musicUrl && <audio 
-        ref={audioRef} 
-        src={musicUrl}
-        onEnded={() => setIsPlaying(false)}
-        onError={() => {
-          setError("음악 재생 중 오류가 발생했습니다.");
-          setIsPlaying(false);
-        }}
-      />}
       {children}
     </AudioContext.Provider>
   );

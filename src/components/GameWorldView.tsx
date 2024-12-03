@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../api/axiosInstance";
 import { Loader2, ArrowBigLeftDash, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { useAudio } from "../Contexts/AudioContext";
+import { useWorldView } from "../hooks/useWorldView";
 
 interface LocationState {
   genre: string;
@@ -14,59 +14,38 @@ interface LocationState {
   userId: number;
 }
 
-const useWorldView = (genre: string, tags: string[], initialStory: string, isLoading: boolean) => {
-  const [worldView, setWorldView] = useState<string>(initialStory || "");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchWorldView = async () => {
-      if (!initialStory || isLoading) {
-        try {
-          const response = await axios.post("/generate-story/start", {
-            genre,
-            tags,
-            userId: Number,
-          });
-          setWorldView(response.data.story);
-          setError(null);
-        } catch (error) {
-          console.error("Error fetching world view:", error);
-          setError("세계관을 불러오는데 실패했습니다. 다시 시도해주세요.");
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setWorldView(initialStory);
-        setLoading(false);
-      }
-    };
-
-    if (genre) {
-      fetchWorldView();
-    }
-  }, [genre, initialStory, isLoading, tags]);
-
-  return { worldView, loading, error };
-};
-
 const GameWorldView: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { genre, tags, image, initialStory, isLoading } = (location.state as LocationState) || {};
   const [bgImage, setBgImage] = useState<string>(image);
+  const [musicInitialized, setMusicInitialized] = useState(false);
+  const loadingCompleteRef = useRef(false);
   
   const { userId, isAuthenticated } = useAuth();
-  
   const { musicUrl, isPlaying, togglePlayPause, initializeMusic } = useAudio();
-  
   const { worldView, loading, error } = useWorldView(genre, tags, initialStory, isLoading || false);
 
   useEffect(() => {
-    if (genre && isAuthenticated) {
-      initializeMusic(genre);
+    if (!loading && !error && genre && isAuthenticated && !loadingCompleteRef.current) {
+      loadingCompleteRef.current = true;
+      const timer = setTimeout(() => {
+        if (!musicInitialized) {
+          initializeMusic(genre, true);
+          setMusicInitialized(true);
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
-  }, [genre, isAuthenticated, initializeMusic]);
+  }, [loading, error, genre, isAuthenticated, initializeMusic, musicInitialized]);
+
+  useEffect(() => {
+    return () => {
+      loadingCompleteRef.current = false;
+      setMusicInitialized(false);
+    };
+  }, []);
 
   const handleStartGame = async () => {
     if (!isAuthenticated) {
