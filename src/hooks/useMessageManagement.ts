@@ -1,4 +1,3 @@
-// src/utils/useMessageManagement.ts
 import { useState, useEffect, useRef } from "react";
 import { Message, MessageManagementProps } from "../utils/messageTypes";
 import axios from "../api/axiosInstance";
@@ -7,18 +6,14 @@ export const useMessageManagement = ({
   genre,
   currentStage,
   initialStory,
-  userInput: initialUserInput,
-  previousUserInput: initialPreviousUserInput,
   conversationHistory,
-  tags,
-  image,
 }: MessageManagementProps) => {
   const [allMessages, setAllMessages] = useState<{ [key: number]: Message[] }>(
     {}
   );
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
-  const [inputCount, setInputCount] = useState<number>(0);
-  const [inputDisabled, setInputDisabled] = useState(false);
+  const [choices, setChoices] = useState<string[]>([]); // AI가 생성한 선택지 상태 추가
+  const [storyId, setStoryId] = useState<string | null>(null); // Story ID 상태 추가
   const [loading, setLoading] = useState<boolean>(false);
   const [responses, setResponses] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -32,23 +27,14 @@ export const useMessageManagement = ({
     }));
   };
 
-  // 상대방 메시지 가져오기 함수
-  const fetchOpponentMessage = async (userInput: string, stage: number) => {
+  // AI 선택지와 메시지 요청 처리 함수
+  const fetchOpponentMessage = async (userChoice: string) => {
     setLoading(true);
     try {
-      const conversationHistory = (allMessages[stage - 1] || []).map(
-        (msg: Message) => `${msg.sender}: ${msg.text}`
-      );
-
       const requestBody = {
-        genre: genre || "",
-        tags,
-        image,
-        currentStage: stage > 0 ? stage : 1,
-        initialStory: initialStory || "",
-        userInput: userInput || "",
-        previousUserInput: initialPreviousUserInput || "",
-        conversationHistory,
+        genre,
+        user_choice: userChoice || "",
+        story_id: storyId || "",
       };
 
       console.log("Sending request to /generate-story/chat:", requestBody);
@@ -56,12 +42,13 @@ export const useMessageManagement = ({
       const response = await axios.post("/generate-story/chat", requestBody);
       setResponses((prevResponses) => [...prevResponses, response.data]);
 
-      if (response.data && response.data.story) {
+      if (response.data) {
         const newMessage: Message = {
           sender: "opponent",
           text: response.data.story,
         };
-        addMessage(newMessage, stage);
+        addMessage(newMessage, currentStage);
+        setChoices(response.data.choices || []); // 새로운 선택지 설정
       }
     } catch (error) {
       console.error("Error in fetchOpponentMessage:", error);
@@ -69,66 +56,58 @@ export const useMessageManagement = ({
         sender: "opponent",
         text: "오류가 발생했습니다. 다시 시도해주세요.",
       };
-      addMessage(errorMessage, stage);
+      addMessage(errorMessage, currentStage);
     } finally {
       setLoading(false);
     }
   };
 
-  // 메시지 보내는 함수
-  const handleSendMessage = async (userInput: string, stage: number) => {
-    if (userInput.trim() === "" || loading || inputDisabled) {
-      const newMessage: Message = {
-        sender: "opponent",
-        text: "답을 입력해주세요",
-      };
-      addMessage(newMessage, stage);
-      return;
-    }
-
-    const userMessage: Message = { sender: "user", text: userInput };
-    addMessage(userMessage, stage);
-
-    const newInputCount = inputCount + 1;
-    setInputCount(newInputCount);
-
-    if (newInputCount >= 5) {
-      setInputDisabled(true);
-      const nextMessage: Message = {
-        sender: "opponent",
-        text: "다음 스테이지로 넘어가세요.",
-      };
-      addMessage(nextMessage, stage);
-      await fetchOpponentMessage(userInput, stage);
-    } else {
-      await fetchOpponentMessage(userInput, stage);
-    }
-
-    return newInputCount;
-  };
-
   // 초기 스토리 설정
   useEffect(() => {
-    if (initialStory && currentStage === 0) {
-      const initialMessage: Message = {
-        sender: "opponent",
-        text: initialStory,
-      };
-      setAllMessages((prev) => ({
-        ...prev,
-        [currentStage]: [initialMessage],
-      }));
-      setCurrentMessages([initialMessage]);
-    }
-  }, [initialStory, currentStage]);
+    const initializeGame = async () => {
+      if (initialStory && !storyId) {
+        setLoading(true);
+        try {
+          const response = await axios.post("/generate-story/start", { genre });
+          setStoryId(response.data.story_id);
+          setChoices(response.data.choices || []);
 
-  // 스테이지에 따른 메시지 설정
+          const initialMessage: Message = {
+            sender: "opponent",
+            text: response.data.story,
+          };
+          setAllMessages((prev) => ({
+            ...prev,
+            [currentStage]: [initialMessage],
+          }));
+          setCurrentMessages([initialMessage]);
+        } catch (error) {
+          console.error("Error initializing game:", error);
+          const errorMessage: Message = {
+            sender: "opponent",
+            text: "게임 초기화에 실패했습니다. 다시 시도해주세요.",
+          };
+          setAllMessages((prev) => ({
+            ...prev,
+            [currentStage]: [errorMessage],
+          }));
+          setCurrentMessages([errorMessage]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeGame();
+  }, [genre, initialStory, storyId, currentStage]);
+
+  // 스테이지 변경 시 메시지 동기화
   useEffect(() => {
     const savedMessages = allMessages[currentStage] || [];
     setCurrentMessages(savedMessages);
   }, [currentStage, allMessages]);
 
-  // 메시지 변경 시 스크롤
+  // 메시지 변경 시 스크롤 동작
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -138,14 +117,12 @@ export const useMessageManagement = ({
   return {
     allMessages,
     currentMessages,
-    inputCount,
-    inputDisabled,
+    choices, // 선택지 반환
     loading,
     responses,
-    handleSendMessage,
     fetchOpponentMessage,
-    setInputCount,
-    setInputDisabled,
     messagesEndRef,
+    storyId,
+    setStoryId,
   };
 };

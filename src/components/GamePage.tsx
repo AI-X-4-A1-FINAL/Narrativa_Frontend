@@ -17,27 +17,22 @@ interface Choice {
 
 interface GameState {
   mainMessage: string;
-  choices: Choice[];
+  choices: string[];
+  storyId?: string;
   gameId?: number;
-}
-
-interface StoryResponse {
-  story: string;
-  gameId: number;
-  choices: Choice[];
 }
 
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, initialStory, userInput: initialUserInput, previousUserInput, userId } =
-    location.state as LocationState;
+  const { genre, tags, image, userId } = location.state as LocationState;
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
-    choices: [], // 빈 배열로 초기화
-    gameId: undefined,
+    choices: [],
+    storyId: undefined,
+    gameId: undefined
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -63,17 +58,18 @@ const GamePage: React.FC = () => {
     const startGame = async () => {
       setIsLoading(true);
       setError(null);
-  
+
       try {
-        const response = await axios.post<StoryResponse>("/generate-story/start", {
+        const response = await axios.post("/generate-story/start", {
           genre,
           tags,
           userId,
         });
-  
+
         setGameState({
           mainMessage: response.data.story,
-          choices: response.data.choices || [], // 초기 세계관의 선택지 설정
+          choices: response.data.choices || [],
+          storyId: response.data.story_id,
           gameId: response.data.gameId,
         });
       } catch (err) {
@@ -83,16 +79,16 @@ const GamePage: React.FC = () => {
         setIsLoading(false);
       }
     };
-  
+
     if (isAuthenticated) {
       startGame();
     }
   }, [genre, tags, userId, isAuthenticated]);
 
   // 선택지 선택 처리
-  const handleChoice = async (choiceId: number) => {
-    if (!gameState.gameId) {
-      setError("게임 ID가 없습니다.");
+  const handleChoice = async (choiceText: string) => {
+    if (!gameState.storyId || !gameState.gameId) {
+      setError("스토리 ID 또는 게임 ID가 없습니다.");
       return;
     }
   
@@ -100,32 +96,25 @@ const GamePage: React.FC = () => {
     setError(null);
   
     try {
-      const selectedChoice = gameState.choices.find((choice) => choice.id === choiceId);
-  
       const payload = {
-        gameId: gameState.gameId, // 유효한 gameId 전달
-        genre,                   // 게임 장르
-        currentStage,            // 현재 스테이지
-        initialStory: gameState.mainMessage, // 초기 스토리 텍스트
-        userSelect: selectedChoice?.text || "", // 선택한 텍스트
-        previousUserInput: previousUserInput || "",
-        conversationHistory: [] // 이전 대화 기록 (지금은 빈 배열)
+        genre,
+        userSelect: choiceText,  // 선택한 텍스트
+        gameId: gameState.gameId
       };
-  
-      console.log("Sending payload:", payload);
   
       const response = await axios.post("/generate-story/chat", payload);
   
       setGameState({
         mainMessage: response.data.story,
-        choices: response.data.choices || [],
+        choices: response.data.choices || [], // 여기서 Choice[] 타입의 배열을 받아야 함
+        storyId: gameState.storyId,
         gameId: gameState.gameId,
       });
   
       if (currentStage < 4) {
-        goToNextStage(); // 스테이지 증가
+        goToNextStage();
       } else {
-        navigate("/game-ending"); // 스테이지 완료 시 엔딩 화면으로 이동
+        navigate("/game-ending");
       }
     } catch (error) {
       console.error("Error processing choice:", error);
@@ -134,7 +123,6 @@ const GamePage: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
 
   // 인증 체크
   if (!isAuthenticated) {
@@ -196,18 +184,18 @@ const GamePage: React.FC = () => {
             </div>
           ) : (
             <div className="w-full space-y-5">
-            {gameState.choices.map((choice) => (
-              <button
-                key={choice.id}
-                onClick={() => handleChoice(choice.id)}
-                className="w-full bg-custom-purple bg-opacity-85 text-white py-4 px-6 
-                         rounded-lg hover:bg-custom-violet shadow-2xl
-                         transition-colors duration-200 text-left"
-              >
-                {choice.id}. {choice.text}
-              </button>
-              ))}
-            </div>
+            {gameState.choices.map((choice, index) => (
+            <button
+              key={index}
+              onClick={() => handleChoice(choice)} 
+              className="w-full bg-custom-purple bg-opacity-85 text-white py-4 px-6 
+                        rounded-lg hover:bg-custom-violet shadow-2xl
+                        transition-colors duration-200 text-left"
+            >
+              {choice} 
+            </button>
+          ))}
+          </div>
           )}
         </div>
 
