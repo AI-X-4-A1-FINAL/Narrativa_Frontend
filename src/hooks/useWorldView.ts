@@ -21,7 +21,8 @@ export const useWorldView = (
   const [error, setError] = useState<string | null>(null);
   const cookies = new Cookies(); // 쿠키 객체 생성
   const userId: number = Number(cookies.get('id')); 
-  console.log(userId);
+
+
   const fetchWorldView = async () => {
     if (!initialStory || isLoading) {
       setLoading(true);
