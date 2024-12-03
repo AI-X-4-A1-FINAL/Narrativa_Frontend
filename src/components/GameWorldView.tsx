@@ -23,7 +23,7 @@ const GameWorldView: React.FC = () => {
   const loadingCompleteRef = useRef(false);
   
   const { userId, isAuthenticated } = useAuth();
-  const { musicUrl, isPlaying, togglePlayPause, initializeMusic } = useAudio();
+  const { musicUrl, isPlaying, togglePlayPause, initializeMusic, stop } = useAudio();
   const { worldView, loading, error } = useWorldView(genre, tags, initialStory, isLoading || false);
 
   useEffect(() => {
@@ -46,6 +46,11 @@ const GameWorldView: React.FC = () => {
       setMusicInitialized(false);
     };
   }, []);
+
+  const handleNavigateBack = () => {
+    stop();  // 음악 정지
+    navigate(-1);
+  };
 
   const handleStartGame = async () => {
     if (!isAuthenticated) {
@@ -103,7 +108,7 @@ const GameWorldView: React.FC = () => {
         </div>
 
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleNavigateBack}
           className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple 
                    transition-colors flex items-center justify-center"
         >
