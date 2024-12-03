@@ -99,7 +99,7 @@ const GameWorldView: React.FC = () => {
           {musicUrl && (
             <button
               onClick={togglePlayPause}
-              className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple 
+              className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet 
                        transition-colors flex items-center justify-center"
             >
               {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
@@ -109,7 +109,7 @@ const GameWorldView: React.FC = () => {
 
         <button
           onClick={handleNavigateBack}
-          className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple 
+          className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet 
                    transition-colors flex items-center justify-center"
         >
           <ArrowBigLeftDash />
@@ -124,8 +124,8 @@ const GameWorldView: React.FC = () => {
           </h1>
           
           {/* World View Content */}
-          <div className="flex-1 w-full overflow-y-auto bg-black bg-opacity-50 rounded-lg p-6 
-                       backdrop-blur-sm scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-800">
+          <div className="flex-1 w-full overflow-y-auto bg-custom-purple bg-opacity-50 rounded-lg p-6 
+                       backdrop-blur-sm scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-gray-800">
             {loading ? (
               <div className="h-full flex flex-col items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin mb-2" />
@@ -152,7 +152,7 @@ const GameWorldView: React.FC = () => {
           <button
             onClick={handleStartGame}
             disabled={loading || !!error}
-            className="bg-custom-violet hover:bg-custom-purple text-white font-bold py-3 px-8 
+            className="bg-custom-purple hover:bg-custom-violet text-white font-bold py-3 px-8 
                      rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors
                      transform hover:scale-105 active:scale-95 duration-200"
           >
