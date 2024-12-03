@@ -7,6 +7,7 @@ interface AudioContextType {
   error: string | null;
   initializeMusic: (genre: string, autoPlay?: boolean) => Promise<void>;
   togglePlayPause: () => void;
+  stop: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -55,15 +56,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
       const data = await response.json();
       
-      // 이전 오디오 중지
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       
-      // 새 URL 설정
       setMusicUrl(data.url);
       audioRef.current.src = data.url;
       
-      // autoPlay가 true이고 사용자 상호작용이 있었을 때만 자동 재생 시도
       if (autoPlay) {
         try {
           const playPromise = audioRef.current.play();
@@ -72,13 +70,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setIsPlaying(true);
           }
         } catch (error) {
-          // 자동 재생 실패는 에러로 처리하지 않음
-          console.log("Auto-play not allowed, waiting for user interaction");
           setIsPlaying(false);
         }
       }
     } catch (error) {
-      console.error("Error fetching music:", error);
       setError("음악을 불러오는데 실패했습니다.");
       setMusicUrl(null);
     } finally {
@@ -102,8 +97,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       }
     } catch (error) {
-      console.error("Play/Pause failed:", error);
       setIsPlaying(false);
+    }
+  };
+
+  const stop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setMusicUrl(null);
     }
   };
 
@@ -115,7 +118,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isLoading,
         error,
         initializeMusic,
-        togglePlayPause 
+        togglePlayPause,
+        stop
       }}
     >
       {children}

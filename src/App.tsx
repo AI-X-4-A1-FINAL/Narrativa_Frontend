@@ -24,32 +24,21 @@ import NotificationList from "./user_pages/NotificationList";
 import Notification from "./components/Notification";
 import { AudioProvider } from "./Contexts/AudioContext";
 import GameLayout from "./layouts/GameLayout";
+import useHeaderVisibility from "./hooks/useHeaderVisibility";
 
 const AppContent: React.FC = () => {
-  const location = useLocation();
-  const isMainPage = location.pathname === "/";
-  const noHeaderRoutes = [
-    "/login", 
-    "/delete-account", 
-    "/", 
-    "/game-page", 
-    "/game-world-view"
-  ];
-  const noPaddingRoutes = ["/bookmarks"];
-  
-  const isHeaderVisible = !noHeaderRoutes.includes(location.pathname);
-  const isPaddingRequired = !noPaddingRoutes.includes(location.pathname);
+  const headerState = useHeaderVisibility();
 
   return (
     <>
-      {isMainPage ? (
+      {headerState.isMainPage ? (
         <Main />
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between bg-white shadow-2xl">
-          {!noHeaderRoutes.includes(location.pathname) && <Header />}
+          {headerState.showHeader && <Header />}
           <main
             className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
-              ${isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""}`}
+              ${headerState.isHeaderVisible && headerState.isPaddingRequired ? "pt-32 px-4" : ""}`}
           >
             <Routes>
               {/* 일반 라우트 */}
@@ -58,7 +47,6 @@ const AppContent: React.FC = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
-              <Route path="/*" element={<WrongPage />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/notification-list" element={<NotificationList />} />
               <Route path="/notification/:id" element={<Notification />} />
@@ -84,6 +72,9 @@ const AppContent: React.FC = () => {
                   <GameEnding />
                 </GameLayout>
               } />
+
+              {/* 404 라우트 - 항상 마지막에 위치 */}
+              <Route path="/*" element={<WrongPage />} />
             </Routes>
           </main>
         </div>
