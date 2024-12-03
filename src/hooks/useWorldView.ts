@@ -19,7 +19,7 @@ export const useWorldView = (
   const [worldView, setWorldView] = useState<string>(initialStory || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const cookies = new Cookies(); // 쿠키 객체 생성
+  const cookies = new Cookies();
   const userId: number = Number(cookies.get('id')); 
 
 
@@ -27,7 +27,7 @@ export const useWorldView = (
     if (!initialStory || isLoading) {
       setLoading(true);
       try {
-        const response = await axios.post('/generate-story/start', {
+        const response = await axios.post(`${process.env.REACT_APP_SPRING_URI}/generate-story/start`, {
           genre,
           tags,
           userId,
