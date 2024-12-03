@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from '../api/axiosInstance';
+import { Cookies } from 'react-cookie';
+import { getValue } from '@testing-library/user-event/dist/utils';
 
 interface WorldViewReturn {
   worldView: string;
@@ -17,7 +19,9 @@ export const useWorldView = (
   const [worldView, setWorldView] = useState<string>(initialStory || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const cookies = new Cookies(); // 쿠키 객체 생성
+  const userId: number = Number(cookies.get('id')); 
+  console.log(userId);
   const fetchWorldView = async () => {
     if (!initialStory || isLoading) {
       setLoading(true);
@@ -25,6 +29,7 @@ export const useWorldView = (
         const response = await axios.post('/generate-story/start', {
           genre,
           tags,
+          userId,
         });
         setWorldView(response.data.story);
         setError(null);
