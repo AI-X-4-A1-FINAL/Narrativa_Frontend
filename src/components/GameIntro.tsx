@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
-import { useCookies } from "react-cookie";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import AuthGuard from "../api/accessControl";
+import { useAuth } from "../hooks/useAuth";
 
 interface LocationState {
   genre: string;
@@ -13,7 +12,7 @@ const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = (location.state as LocationState) || {};
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const { userId, isAuthenticated, logout } = useAuth();
 
   const handleStart = async () => {
     if (!genre) {
@@ -21,43 +20,28 @@ const GameIntro: React.FC = () => {
       return;
     }
 
+    if (!isAuthenticated) {
+      alert("인증이 필요합니다. 다시 로그인해주세요.");
+      logout();
+      return;
+    }
+
     try {
-      // 먼저 세계관 페이지로 이동
       navigate("/game-world-view", {
         state: {
           genre,
           tags,
           image,
           initialStory: "",
-          isLoading: true, // 로딩 상태 추가
+          isLoading: true,
+          userId
         },
       });
-
-      // API 호출은 GameWorldView 컴포넌트에서 처리
     } catch (error: any) {
       console.error("Error:", error);
       alert("Failed to start the game. Please try again.");
     }
   };
-
-  // 유저 유효성 검증
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
-    if (!isAuthenticated) {
-      navigate("/");
-    }
-  };
-
-  useEffect(() => {
-    // console.log("cookies.id", cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    }
-
-    if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
-    }
-  }, []);
 
   return (
     <div className="">
@@ -69,7 +53,9 @@ const GameIntro: React.FC = () => {
         />
       </div>
       <div className="text-center text-black mb-4 dark:text-white">
-        <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          {genre} Game
+        </h1>
         <div className="my-2">
           {Array.isArray(tags) &&
             tags.map((tag, index) => (
@@ -81,10 +67,8 @@ const GameIntro: React.FC = () => {
               </span>
             ))}
         </div>
-        <p
-          className="text-center text-base leading-relaxed my-2 p-4 rounded-2xl shadow-lg dark:shadow-gray-950
-        bg-gray-50 dark:bg-gray-800 dark:text-white"
-        >
+        <p className="text-center text-base leading-relaxed my-2 p-4 rounded-2xl shadow-lg dark:shadow-gray-950
+        bg-gray-50 dark:bg-gray-800 dark:text-white">
           다양한{" "}
           <span className="text-custom-violet font-semibold">{genre}</span> 세계
           속 당신의 <span className="text-red-500 font-extrabold">선택</span>이
@@ -97,7 +81,7 @@ const GameIntro: React.FC = () => {
           </span>
         </p>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-4">
         <button
           onClick={handleStart}
           className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-lg dark:shadow-gray-950

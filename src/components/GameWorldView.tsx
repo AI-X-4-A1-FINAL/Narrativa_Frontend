@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "../api/axiosInstance";
-import AuthGuard from "../api/accessControl";
-import { Loader2, ArrowBigLeftDash } from "lucide-react";
+import { Loader2, ArrowBigLeftDash, Volume2, VolumeX } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { useAudio } from "../Contexts/AudioContext";
 
 interface LocationState {
   genre: string;
@@ -11,63 +11,28 @@ interface LocationState {
   image: string;
   initialStory: string;
   isLoading?: boolean;
+  userId: number;
 }
 
-const GameWorldView: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { genre, tags, image, initialStory } =
-    (location.state as LocationState) || {};
-  const [cookies] = useCookies(["id"]);
+const useWorldView = (genre: string, tags: string[], initialStory: string, isLoading: boolean) => {
   const [worldView, setWorldView] = useState<string>(initialStory || "");
   const [loading, setLoading] = useState(true);
-  const [musicUrl, setMusicUrl] = useState<string | null>(null);
-  const [musicLoading, setMusicLoading] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [fetchingStory, setFetchingStory] = useState<boolean>(true);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [bgImage, setBgImage] = useState<string>(image);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (!cookies.id || !(await AuthGuard(cookies.id))) {
-        navigate("/");
-      }
-    };
-    checkAuth();
-  }, [cookies.id, navigate]);
-
-  useEffect(() => {
-    const fetchStory = async () => {
-      if (location.state?.isLoading) {
-        try {
-          const response = await axios.post("/generate-story/start", {
-            genre,
-            tags,
-          });
-          setWorldView(response.data.story);
-        } catch (error) {
-          console.error("Error fetching story:", error);
-        } finally {
-          setFetchingStory(false);
-        }
-      }
-    };
-
-    fetchStory();
-  }, [location.state?.isLoading, genre, tags]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchWorldView = async () => {
-      if (!initialStory) {
+      if (!initialStory || isLoading) {
         try {
           const response = await axios.post("/generate-story/start", {
             genre,
             tags,
+            userId: Number,
           });
           setWorldView(response.data.story);
+          setError(null);
         } catch (error) {
           console.error("Error fetching world view:", error);
+          setError("세계관을 불러오는데 실패했습니다. 다시 시도해주세요.");
         } finally {
           setLoading(false);
         }
@@ -80,53 +45,35 @@ const GameWorldView: React.FC = () => {
     if (genre) {
       fetchWorldView();
     }
-  }, [genre, initialStory]);
+  }, [genre, initialStory, isLoading, tags]);
+
+  return { worldView, loading, error };
+};
+
+const GameWorldView: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { genre, tags, image, initialStory, isLoading } = (location.state as LocationState) || {};
+  const [bgImage, setBgImage] = useState<string>(image);
+  
+  const { userId, isAuthenticated } = useAuth();
+  
+  const { musicUrl, isPlaying, togglePlayPause, initializeMusic } = useAudio();
+  
+  const { worldView, loading, error } = useWorldView(genre, tags, initialStory, isLoading || false);
 
   useEffect(() => {
-    const fetchMusic = async () => {
-      setMusicLoading(true);
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${genre}`
-        );
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        setMusicUrl(data.url);
-      } catch (error) {
-        console.error("Error fetching music:", error);
-        setMusicUrl(null);
-      } finally {
-        setMusicLoading(false);
-      }
-    };
-
-    if (genre) {
-      fetchMusic();
+    if (genre && isAuthenticated) {
+      initializeMusic(genre);
     }
-  }, [genre]);
-
-  useEffect(() => {
-    if (audioRef.current && musicUrl) {
-      audioRef.current.play().catch((error) => {
-        console.error("Auto-play was prevented:", error);
-      });
-      setIsPlaying(true);
-    }
-  }, [musicUrl]);
-
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  }, [genre, isAuthenticated, initializeMusic]);
 
   const handleStartGame = async () => {
+    if (!isAuthenticated) {
+      navigate("/");
+      return;
+    }
+
     try {
       navigate("/game-page", {
         state: {
@@ -134,6 +81,7 @@ const GameWorldView: React.FC = () => {
           tags,
           image: bgImage,
           initialStory: worldView,
+          userId
         },
       });
     } catch (error) {
@@ -141,66 +89,90 @@ const GameWorldView: React.FC = () => {
     }
   };
 
+  if (!genre || !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900">
+        <p className="text-white text-xl">Invalid access. Redirecting...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-screen text-white">
+      {/* Background Image */}
       <div className="absolute inset-0">
         <img
           src={bgImage}
           alt="World View Background"
-          className="w-full h-full object-cover brightness-50"
+          className="w-full h-full object-cover brightness-50 transition-opacity duration-500"
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 opacity-50" />
       </div>
 
+      {/* Top Navigation Bar */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-10">
-        <div>
-          {musicLoading ? (
-            <p>Loading music...</p>
-          ) : musicUrl ? (
-            <div className="flex items-center">
-              <audio ref={audioRef} src={musicUrl} />
-              <button
-                onClick={togglePlayPause}
-                className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple transition-colors flex items-center justify-center"
-              >
-                {isPlaying ? "⏸" : "▶"}
-              </button>
-            </div>
-          ) : null}
+        <div className="flex items-center space-x-4">
+          {musicUrl && (
+            <button
+              onClick={togglePlayPause}
+              className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple 
+                       transition-colors flex items-center justify-center"
+            >
+              {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            </button>
+          )}
         </div>
 
         <button
           onClick={() => navigate(-1)}
-          className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple transition-colors flex items-center justify-center"
+          className="bg-gray-900 text-white w-10 h-10 rounded-full hover:bg-custom-purple 
+                   transition-colors flex items-center justify-center"
         >
           <ArrowBigLeftDash />
         </button>
       </div>
 
+      {/* Main Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
         <div className="flex flex-col items-center w-full h-full max-w-4xl max-h-[90vh] gap-4">
-          <h1 className="text-3xl font-bold text-center py-4">세계관</h1>
-          <div
-            className="flex-1 w-full overflow-y-auto bg-black bg-opacity-50 rounded-lg p-6 backdrop-blur-sm
-           scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-800"
-          >
-            {loading || fetchingStory ? (
+          <h1 className="text-4xl font-bold text-center py-4 text-white drop-shadow-lg">
+            {genre} 세계관
+          </h1>
+          
+          {/* World View Content */}
+          <div className="flex-1 w-full overflow-y-auto bg-black bg-opacity-50 rounded-lg p-6 
+                       backdrop-blur-sm scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-800">
+            {loading ? (
               <div className="h-full flex flex-col items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin mb-2" />
                 <p className="text-lg">세계관을 불러오는 중...</p>
               </div>
+            ) : error ? (
+              <div className="h-full flex flex-col items-center justify-center text-red-400">
+                <p>{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 text-white underline"
+                >
+                  다시 시도
+                </button>
+              </div>
             ) : (
-              <div className="text-base leading-normal whitespace-pre-line">
+              <div className="text-lg leading-relaxed whitespace-pre-line">
                 {worldView}
               </div>
             )}
           </div>
+
+          {/* Action Button */}
           <button
             onClick={handleStartGame}
-            disabled={loading || fetchingStory}
-            className="bg-custom-violet hover:bg-custom-purple text-white font-bold py-3 px-8 rounded-lg
-             disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={loading || !!error}
+            className="bg-custom-violet hover:bg-custom-purple text-white font-bold py-3 px-8 
+                     rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors
+                     transform hover:scale-105 active:scale-95 duration-200"
           >
-            {loading || fetchingStory ? "로딩중..." : "게임 시작하기"}
+            {loading ? "로딩중..." : error ? "다시 시도" : "게임 시작하기"}
           </button>
         </div>
       </div>

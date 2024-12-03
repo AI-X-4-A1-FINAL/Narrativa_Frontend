@@ -22,26 +22,21 @@ import { DarkModeProvider } from "./Contexts/DarkModeContext";
 import { NotificationProvider } from "./Contexts/NotificationContext";
 import NotificationList from "./user_pages/NotificationList";
 import Notification from "./components/Notification";
+import { AudioProvider } from "./Contexts/AudioContext";
+import GameLayout from "./layouts/GameLayout";
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-
-  // Main 페이지(`/`) 여부 확인
   const isMainPage = location.pathname === "/";
-
-  // Header를 숨길 경로 리스트
   const noHeaderRoutes = [
-    "/login",
-    "/delete-account",
-    "/",
-    "/game-page",
-    "/game-world-view",
+    "/login", 
+    "/delete-account", 
+    "/", 
+    "/game-page", 
+    "/game-world-view"
   ];
-
-  // Skip pt-32 for specific routes (including /bookmarks)
   const noPaddingRoutes = ["/bookmarks"];
-
-  // Determine whether padding is required
+  
   const isHeaderVisible = !noHeaderRoutes.includes(location.pathname);
   const isPaddingRequired = !noPaddingRoutes.includes(location.pathname);
 
@@ -57,19 +52,38 @@ const AppContent: React.FC = () => {
               ${isHeaderVisible && isPaddingRequired ? "pt-32 px-4" : ""}`}
           >
             <Routes>
+              {/* 일반 라우트 */}
               <Route path="/login" element={<Login />} />
               <Route path="/home" element={<Home />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/delete-account" element={<DeleteAccount />} />
-              <Route path="/game-intro" element={<GameIntro />} />
-              <Route path="/game-world-view" element={<GameWorldView />} />
-              <Route path="/game-page" element={<GamePage />} />
-              <Route path="/game-ending" element={<GameEnding />} />
               <Route path="/*" element={<WrongPage />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/notification-list" element={<NotificationList />} />
               <Route path="/notification/:id" element={<Notification />} />
+
+              {/* 게임 라우트 */}
+              <Route path="/game-intro" element={
+                <GameLayout>
+                  <GameIntro />
+                </GameLayout>
+              } />
+              <Route path="/game-world-view" element={
+                <GameLayout>
+                  <GameWorldView />
+                </GameLayout>
+              } />
+              <Route path="/game-page" element={
+                <GameLayout>
+                  <GamePage />
+                </GameLayout>
+              } />
+              <Route path="/game-ending" element={
+                <GameLayout>
+                  <GameEnding />
+                </GameLayout>
+              } />
             </Routes>
           </main>
         </div>
@@ -81,9 +95,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => (
   <DarkModeProvider>
     <NotificationProvider>
-      {" "}
-      {/* 다크 모드 상태를 전역적으로 제공 */}
-      <AppContent />
+      <AudioProvider>
+        <AppContent />
+      </AudioProvider>
     </NotificationProvider>
   </DarkModeProvider>
 );
