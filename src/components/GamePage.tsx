@@ -103,7 +103,24 @@ const GamePage: React.FC = () => {
         gameId: gameState.gameId
       };
 
-      generateImage(choiceText, genre)
+      if(currentStage < 4){
+
+        generateImage(choiceText, genre);
+
+
+      } else {
+        const generatedImage = await generateImage(choiceText, genre);
+
+        navigate("/game-ending", { state: { 
+                                    image: generatedImage?.data,
+                                    prompt: generatedImage?.text,
+                                    genre : generatedImage?.gen,
+
+                                  },
+                                 });
+
+      }
+
 
       
   
@@ -124,9 +141,8 @@ const GamePage: React.FC = () => {
   
       if (currentStage < 4) {
         goToNextStage();
-      } else {
-        navigate("/game-ending");
-      }
+      } 
+
     } catch (error) {
       console.error("Error processing choice:", error);
       setError("선택 처리 중 오류가 발생했습니다.");
