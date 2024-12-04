@@ -2,13 +2,17 @@ import React, { useEffect } from "react";
 import html2canvas from "html2canvas";
 import { FaDownload } from "react-icons/fa";
 import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 
 const GameEnding: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
+
+  const { image, prompt, genre } = location.state || {};
+
 
   const handleDownload = async () => {
     // 캡처할 영역과 다운로드 버튼 선택
@@ -69,22 +73,27 @@ const GameEnding: React.FC = () => {
       {/* 콘텐츠 */}
       <div className="text-center p-6">
         <div className="w-full h-[400px] bg-gray-200 flex items-center justify-center rounded-lg overflow-hidden">
-          <span className="text-gray-400">Game Image Placeholder</span>
+        {image ? (
+        <img src={image} alt="Generated Ending" />
+      ) : (
+        <p>No image provided.</p>
+      )}
+          {/* <span className="text-gray-400">Game Image Placeholder</span> */}
         </div>
 
         {/* 태그 */}
         <div className="text-center text-gray-700 mt-4">
           <p className="text-lg font-semibold"># 생존</p>
           <p className="text-lg font-semibold"># 아포칼립스</p>
+          <p className="text-lg font-semibold"># {genre}</p>
         </div>
 
         {/* 설명 */}
         <p className="text-gray-700 mt-4">
-          여기는 해당 게임 설명 창입니다.
+          {prompt}
           <br />
-          이런식으로 텍스트가 추가될 예정이에오
           <br />
-          생존.. 잘 하시길 굿럭
+          생존.. 성공하셨군요
         </p>
       </div>
     </div>

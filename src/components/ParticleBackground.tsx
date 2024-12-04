@@ -20,7 +20,7 @@ const ParticleBackground = () => {
   }, []);
 
   const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log(container);
+    // console.log(container);s
   };
 
   const options: ISourceOptions = useMemo(
@@ -70,7 +70,7 @@ const ParticleBackground = () => {
             default: OutMode.out,
           },
           random: true,
-          speed: 1,
+          speed: 0.2,
           straight: false,
         },
         number: {
@@ -78,7 +78,7 @@ const ParticleBackground = () => {
             enable: true,
             value_area: 600,
           },
-          value: 200,
+          value: 400,
         },
         opacity: {
           value: 1,
@@ -87,7 +87,7 @@ const ParticleBackground = () => {
           type: "circle",
         },
         size: {
-          value: { min: 2, max: 4 },
+          value: { min: 1, max: 2 },
         },
       },
       detectRetina: true,

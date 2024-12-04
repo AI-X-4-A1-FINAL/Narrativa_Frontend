@@ -45,7 +45,7 @@ const GamePage: React.FC = () => {
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
 
   // 배경 이미지
-  const { bgImage } = useBackgroundImage(image);
+  const { bgImage, generateImage } = useBackgroundImage(image);
 
   // 게임 스테이지
   const { currentStage, goToNextStage } = useGameStage({
@@ -82,6 +82,7 @@ const GamePage: React.FC = () => {
 
     if (isAuthenticated) {
       startGame();
+      
     }
   }, [genre, tags, userId, isAuthenticated]);
 
@@ -101,8 +102,34 @@ const GamePage: React.FC = () => {
         userSelect: choiceText,  // 선택한 텍스트
         gameId: gameState.gameId
       };
+
+      if(currentStage < 4){
+
+        generateImage(choiceText, genre);
+
+
+      } else {
+        const generatedImage = await generateImage(choiceText, genre);
+        const endResponse = await axios.post("/generate-story/end", payload);
+
+
+        navigate("/game-ending", { state: { 
+                                    image: generatedImage?.data,
+                                    prompt: endResponse.data.story,
+                                    genre : genre,
+
+                                  },
+                                 });
+                                 return;
+      }
+
+
+      
   
       const response = await axios.post("/generate-story/chat", payload);
+      //alert(choiceText)
+      
+
   
       setGameState({
         mainMessage: response.data.story,
@@ -110,12 +137,14 @@ const GamePage: React.FC = () => {
         storyId: gameState.storyId,
         gameId: gameState.gameId,
       });
+
+      //generateImage(response.data.story, genre)
+      //alert(response.data.story)
   
       if (currentStage < 4) {
         goToNextStage();
-      } else {
-        navigate("/game-ending");
-      }
+      } 
+
     } catch (error) {
       console.error("Error processing choice:", error);
       setError("선택 처리 중 오류가 발생했습니다.");
