@@ -52,7 +52,7 @@ export const useBackgroundImage = (initialImage: string) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_SPRING_URI}/api/images/generate-image`, {
         prompt: script,
-        size: "1024x1024",
+        size: "256x256",
         n: 1,
         genre : genre
       });

@@ -82,6 +82,7 @@ const GamePage: React.FC = () => {
 
     if (isAuthenticated) {
       startGame();
+      
     }
   }, [genre, tags, userId, isAuthenticated]);
 
@@ -101,8 +102,15 @@ const GamePage: React.FC = () => {
         userSelect: choiceText,  // 선택한 텍스트
         gameId: gameState.gameId
       };
+
+      generateImage(choiceText, genre)
+
+      
   
       const response = await axios.post("/generate-story/chat", payload);
+      //alert(choiceText)
+      
+
   
       setGameState({
         mainMessage: response.data.story,
@@ -111,7 +119,7 @@ const GamePage: React.FC = () => {
         gameId: gameState.gameId,
       });
 
-      generateImage(response.data.story, genre)
+      //generateImage(response.data.story, genre)
       //alert(response.data.story)
   
       if (currentStage < 4) {
