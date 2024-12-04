@@ -24,7 +24,7 @@ const Profile: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
   const { isNotificationsOn, toggleNotifications } = useNotification();
-  console.log("Profile - isNotificationsOn:", isNotificationsOn);
+  // console.log("Profile - isNotificationsOn:", isNotificationsOn);
 
   const [cookies, setCookie, removeCookie] = useCookies(["id"]);
   const [userId, setUserId] = useState(-1);
@@ -284,7 +284,7 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("profileUrl updated: ", profileUrl);
+    // console.log("profileUrl updated: ", profileUrl);
   }, [profileUrl]);
 
   return (
