@@ -49,14 +49,18 @@ const Profile: React.FC = () => {
 
   const fetchUserData = async (userId: number) => {
     try {
-      // 백엔드 API 호출
       const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`
+        `${process.env.REACT_APP_SPRING_URI}/api/users`,
+        {
+          method: "GET", // 기본적으로 GET 요청
+          headers: {
+            "Content-Type": "application/json", // 요청 헤더 설정
+          },
+          credentials: "include", // 쿠키를 요청에 포함시키기
+        }
       );
       if (!response.ok) throw new Error("Failed to fetch profile data.");
       let data = await response.json();
-      console.log("Fetched User Data: ", data);
-      console.log("Fetched User Data type: ", typeof data);
 
       const tmp_nickname = data.nickname;
       const tmp_profileUrl = data.profile_url;
@@ -66,18 +70,12 @@ const Profile: React.FC = () => {
         data = JSON.parse(data);
       }
 
-      console.log("data.username: ", tmp_nickname);
-      // console.log("data.profile_url: ", tmp_profileUrl);
-
       // 상태에 사용자 데이터 저장
       setNickname(tmp_nickname);
       setProfileUrl(tmp_profileUrl);
 
-      console.log("nickname: ", nickname);
-      // console.log("profile_url: ", profileUrl);
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.message);
         setError("Failed to load user data.");
       }
     }
@@ -93,7 +91,6 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
-    console.log("cookies.id", cookies.id);
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
     } else if (Number(cookies.id) !== -1) {
@@ -108,15 +105,11 @@ const Profile: React.FC = () => {
     }
   }, []);
 
-  console.log("userId: ", userId);
-  // console.log('userData: ', userData);
-
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
-    console.log('img', img);
 
     const profileImgData = {
-      image: profileUrl
+      image: profileUrl,
     };
 
     try {
@@ -134,37 +127,41 @@ const Profile: React.FC = () => {
         {
           method: "POST",
           body: formData, // 수정된 데이터 전송
+          credentials: "include",
         }
       );
 
-      if(!saveImgToS3.ok) throw new Error("s3 이미지 업로드 실패");
+      if (!saveImgToS3.ok) throw new Error("s3 이미지 업로드 실패");
 
       // s3 저장 후 img url 얻음(해당 url 클릭시 이미지 조회 불가 -> 다음 단계에서 얻는 url 이용시 이미지 조회)
       const text = await saveImgToS3.text();
       const data = JSON.parse(text);
 
       const imageUrlValue = data.imageUrl;
-      console.log('imageUrlValue: ', imageUrlValue);
 
       const extractFilePath = (url: string): string => {
         const parsedUrl = new URL(url); // URL 객체로 파싱
         const path = parsedUrl.pathname; // 경로 부분 추출 ("/test/wfle.jpg")
-        
+
         return path.substring(1); // "/"를 제외한 경로 부분만 반환
       };
 
       const extractS3FilePath = extractFilePath(imageUrlValue);
-      console.log('extract path: ', extractS3FilePath);
 
       // s3에 이미지 저장
       const fetchPresignedUrl = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`
+        `${
+          process.env.REACT_APP_SPRING_URI
+        }/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`,
+        {
+          method: "GET",
+          credentials: "include", // 쿠키를 요청에 포함시키기
+        }
       );
-      
-      if(!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
+
+      if (!fetchPresignedUrl.ok) throw new Error("s3 PresignedUrl 요청 실패");
 
       const presignedUrlText = await fetchPresignedUrl.text();
-      console.log('presignedUrlText', presignedUrlText);
 
       setProfileUrl(presignedUrlText);
 
@@ -175,44 +172,54 @@ const Profile: React.FC = () => {
 
       // 닉네임, 프로필 url 저장
       const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/users/${userId}`,
+        `${process.env.REACT_APP_SPRING_URI}/api/users`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(profileData), // 수정된 데이터 전송
+          credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
 
-      console.log("nickname: " + profileData.nickname);
-      // console.log('profile_url: ' + profileData.profile_url);
       if (!response.ok) throw new Error("닉네임, 프로필 url 저장 실패");
       alert("프로필이 성공적으로 저장되었습니다.");
       setIsEditMode(false); // 수정 모드 종료
-
     } catch (error) {
       if (error instanceof Error) {
-        console.error(error.message);
         alert("프로필 저장 중 오류가 발생했습니다.");
       }
     }
   };
 
+  // URL에서 최상위 도메인과 두 번째 레벨 도메인을 추출하는 함수
+  const getCookieDomainFromUrl = (): string => {
+    const parsedUrl = new URL(`${process.env.REACT_APP_SPRING_URI}`); // URL 객체를 사용하여 URL을 파싱
+    const domainParts = parsedUrl.hostname.split("."); // 호스트명에서 도메인 부분만 분리
+    return domainParts.slice(domainParts.length - 2).join("."); // 두 번째 레벨 도메인과 최상위 도메인만 반환
+  };
+
+  // 쿠키 삭제 함수
+  const removeUserCookie = () => {
+    if (userId !== null) {
+      // URL에서 도메인 추출
+      const cookieDomain = getCookieDomainFromUrl();
+
+      // 쿠키 삭제
+      removeCookie("id", { domain: cookieDomain, path: "/" });
+    }
+  };
+
+  // 회원 탈퇴 요청 함수
   const deactivateAccount = async () => {
-    // 회원 탈퇴 요청 함수
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("cookies.id: ", cookies.id);
-      const response = await axiosBaseURL.put(
-        `/api/users/${userId}/deactivate`
-      );
-      console.log("Account Deactivated:", response.data);
+      const response = await axiosBaseURL.put(`/api/users/deactivate`);
 
-      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
-      console.log("쿠키가 삭제되었습니다.");
+      removeUserCookie();
 
       // 탈퇴 성공 후 alert 창 띄우기
       alert("회원 탈퇴가 완료되었습니다.");
@@ -220,19 +227,16 @@ const Profile: React.FC = () => {
       // 메인 화면으로 리디렉션
       navigate("/");
     } catch (error) {
-      console.error("Error deactivating account:", error);
       setError("회원 탈퇴에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 쿠키 삭제 함수
+  // 로그 아웃 함수
   const handleRemoveCookie = () => {
     if (userId !== null) {
-      // userId를 문자열로 변환하여 removeCookie에 전달
-      removeCookie("id"); // userId를 사용하지 않고 id라는 key로 쿠키를 삭제
-      console.log("쿠키가 삭제되었습니다.");
+      removeUserCookie();
 
       // 탈퇴 성공 후 alert 창 띄우기
       alert("로그 아웃이 완료되었습니다.");
@@ -280,9 +284,8 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('profileUrl updated: ', profileUrl);
-  }, [profileUrl])
-
+    console.log("profileUrl updated: ", profileUrl);
+  }, [profileUrl]);
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto pt-4 text-black">
@@ -309,7 +312,6 @@ const Profile: React.FC = () => {
               colors={["#92A1C6", "#146A7C", "#F0AB3D", "#C271B4", "#C20D90"]}
             />
           )}
-
         </div>
         {/* isEditMode가 true일 때만 파일 업로드 기능 표시 */}
         {isEditMode && (
@@ -338,14 +340,14 @@ const Profile: React.FC = () => {
       </div>
 
       <div className="flex flex-col items-center relative dark:text-white">
-        <h1 className="text-2xl mb-4 font-bold" title="Nickname">
+        <h1 className="text-2xl my-4 font-bold" title="Nickname">
           {isEditingNickname ? (
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               onBlur={() => setIsEditingNickname(false)}
-              className="text-2xl font-bold text-center w-auto px-1 border border-gray-300 rounded-md dark:text-black"
+              className="text-2xl font-bold text-center w-auto px-1  rounded-md dark:text-black"
               style={{
                 width: `${nickname.length + 3}ch`,
               }}
@@ -357,7 +359,7 @@ const Profile: React.FC = () => {
           {isEditMode && !isEditingNickname && (
             <button
               onClick={() => setIsEditingNickname(true)}
-              className="absolute -right-6 top-1 text-lg ml-2"
+              className="absolute -right-8 top-5 text-lg ml-2"
             >
               <img
                 src="/images/edit_pen.png"
@@ -372,16 +374,18 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className={`px-10 py-2 text-white border border-gray-300 rounded mt-4 mb-4 bg-custom-violet hover:bg-blue-900 dark:text-white ${
-            isEditMode ? "dark:text-black" : "dark:text-black"
-          }`}
+          className={`px-10 py-2 text-white  rounded my-2 bg-custom-violet shadow-lg dark:shadow-gray-950
+            hover:bg-blue-900 dark:text-white `}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
       </div>
 
       <div className="space-y-4">
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">다크모드</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -397,7 +401,10 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">배경음악</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -413,7 +420,10 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label className="flex items-center cursor-pointer px-10 py-4 text-black border border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10">
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        >
           <span className="mr-48">공지사항</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
@@ -437,12 +447,12 @@ const Profile: React.FC = () => {
           disabled={isLoading}
           className="hover:underline"
         >
-          {isLoading ? "탈퇴 중..." : "회원탈퇴 |"}
+          {isLoading ? "탈퇴 중..." : "회원탈퇴"}
         </button>
         {error && <div style={{ color: "red" }}>{error}</div>}
-
+        <span>|</span>
         {/* 로그 아웃 버튼 */}
-        <button onClick={handleRemoveCookie}>| 로그아웃</button>
+        <button onClick={handleRemoveCookie}>로그아웃</button>
       </div>
     </div>
   );

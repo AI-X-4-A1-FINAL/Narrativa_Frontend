@@ -8,11 +8,13 @@ module.exports = {
         "custom-yellow": "#FFE617",
         "custom-purple": "#2a3abf",
         "custom-violet": "#7378f6",
+        "custom-background": "#171515",
       },
       fontFamily: {
         "custom-font": ["Calistoga-Regular", "sans-serif"],
       },
+      scrollbar: ["rounded"],
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 };

@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
+import ScrollIndicator from "../components/ScrollIndicator";
 
 interface Genre {
   name: string;
   tags: string[];
   image: string;
+  available: boolean;
 }
 
 interface UserInfo {
   nickname: string;
   status: string;
-  profile_url: string;
+  profile_url: boolean;
 }
 
 const Home: React.FC = () => {
@@ -36,7 +38,6 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (cookies.id === undefined || cookies.id === null) {
       navigate("/");
-      // 'id' 쿠키 값 가져오기
     } else if (cookies.id) {
       setCookieValue(cookies.id);
     } else {
@@ -44,7 +45,7 @@ const Home: React.FC = () => {
     }
 
     if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+      navigate("/");
     }
 
     if (cookies.id) {
@@ -52,9 +53,7 @@ const Home: React.FC = () => {
     } else {
       setCookieValue(null);
     }
-  }, [cookies, navigate]); // cookies가 변경될 때마다 실행
-
-  console.log("cookieValue: ", cookieValue);
+  }, [cookies, navigate]);
 
   // 장르 데이터 배열
   const genres: Genre[] = [
@@ -62,27 +61,36 @@ const Home: React.FC = () => {
       name: "Survival",
       tags: ["서바이벌", "살아남기"],
       image: "/images/survival.jpeg",
+      available: true,
     },
     {
       name: "Romance",
       tags: ["사랑", "드라마"],
       image: "/images/romance.png",
+      available: false,
     },
     {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
       image: "/images/simulation.png",
+      available: false,
     },
     {
       name: "Mystery",
       tags: ["스릴러", "범죄"],
       image: "/images/detective.jpg",
+      available: false,
     },
   ];
 
   // 장르 클릭 핸들러
-  const handleClick = (genre: string, tags: string[], image: string) => {
-    console.log("Selected genre:", genre);
+  const handleClick = (
+    genre: string,
+    tags: string[],
+    image: string,
+    available: boolean
+  ) => {
+    if (!available) return;
 
     navigate("/game-intro", {
       state: {
@@ -94,23 +102,33 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full text-black min-h-screen overflow-y-auto bg-gray-50 mt-2">
-      <div className="flex flex-col items-center dark:bg-gray-900 dark:text-white">
+    <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2">
+      <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
         {genres.map((genre) => (
           <div
             key={genre.name}
             className="w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
           >
             <div
-              className="relative cursor-pointer"
-              onClick={() => handleClick(genre.name, genre.tags, genre.image)}
+              className={`relative ${
+                genre.available ? "cursor-pointer" : "cursor-not-allowed"
+              }`}
+              onClick={() =>
+                handleClick(
+                  genre.name,
+                  genre.tags,
+                  genre.image,
+                  genre.available
+                )
+              }
             >
               <img
                 src={genre.image}
                 alt={`${genre.name} Genre Cover`}
-                className="w-full h-[400px] object-cover rounded-2xl"
+                className={`w-full h-[400px] object-cover rounded-2xl ${
+                  !genre.available && "opacity-50"
+                }`}
               />
-              {/* Overlay for larger screens: visible on hover */}
               <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
                 <div>
                   <h3 className="text-2xl font-bold">{genre.name}</h3>
@@ -124,12 +142,18 @@ const Home: React.FC = () => {
                       </span>
                     ))}
                   </div>
+                  {!genre.available && (
+                    <div className="mt-2 text-2xl font-bold text-orange-400">
+                      Coming Soon
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         ))}
       </div>
+      <ScrollIndicator />
     </div>
   );
 };

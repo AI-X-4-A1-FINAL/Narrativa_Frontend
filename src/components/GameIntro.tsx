@@ -1,20 +1,13 @@
-import React, { useEffect } from "react";
-import { useCookies } from "react-cookie";
+import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "../api/axiosInstance";
-import AuthGuard from "../api/accessControl";
-
-interface LocationState {
-  genre: string;
-  tags: string[];
-  image: string;
-}
+import { useAuth } from "../hooks/useAuth";
+import { LocationState } from "../utils/messageTypes";
 
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = (location.state as LocationState) || {};
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const { userId, isAuthenticated, logout } = useAuth();
 
   const handleStart = async () => {
     if (!genre) {
@@ -22,92 +15,62 @@ const GameIntro: React.FC = () => {
       return;
     }
 
+    if (!isAuthenticated) {
+      alert("인증이 필요합니다. 다시 로그인해주세요.");
+      logout();
+      return;
+    }
+
     try {
-      // 초기화
-      navigate("/game-page", {
+      navigate("/game-world-view", {
         state: {
           genre,
           tags,
           image,
-          initialStory: "", // 초기화
+          initialStory: "",
+          isLoading: true,
+          userId,
         },
       });
-
-      // 새 스토리 요청
-      const response = await axios.post("/generate-story/start", {
-        genre,
-        tags,
-      });
-
-      // 새로운 값으로 업데이트
-      navigate("/game-page", {
-        state: {
-          genre,
-          tags,
-          image,
-          initialStory: response.data.story, // 새로 받아온 스토리 저장
-        },
-      });
-    } catch (error) {
-      console.error("Error starting the game:", error);
+    } catch (error: any) {
+      console.error("Error:", error);
       alert("Failed to start the game. Please try again.");
     }
   };
 
-  // 유저 유효성 검증
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
-    if (!isAuthenticated) {
-      navigate("/");
-    }
-  };
-
-  useEffect(() => {
-    console.log("cookies.id", cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    }
-
-    if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근
-    }
-  }, []);
-
   return (
-    <div className="">
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg mb-6">
+    <div>
+      <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg dark:shadow-gray-950 mb-6">
         <img
           src={image}
           alt={genre}
-          className="w-full h-[400px] object-cover rounded-2xl"
+          className="w-full h-[400px] object-cover rounded-2xl "
         />
       </div>
       <div className="text-center text-black mb-4 dark:text-white">
         <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
-        <div className="mb-4">
+        <div className="my-2">
           {Array.isArray(tags) &&
             tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-block text-sm font-semibold mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
+                className="inline-block text-sm font-semibold my-2 mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
               >
                 #{tag}
               </span>
             ))}
         </div>
-        <p>
-          여기는 <span className="font-semibold">{genre}</span> 게임의 소개
-          페이지입니다.
-          <br />
-          게임의 목적과 배경 설명이 이곳에 추가될 예정입니다.
-          <br />
-          준비가 되셨다면 시작 버튼을 눌러 주세요!
+        <p className="text-center text-base leading-relaxed my-2 p-4 rounded-2xl shadow-lg dark:shadow-gray-950 bg-gray-50 dark:bg-gray-800 dark:text-white">
+          다양한{" "}
+          <span className="text-custom-violet font-semibold">{genre}</span> 세계
+          속 당신의 <span className="text-red-500 font-extrabold">선택</span>이
+          이야기를 만듭니다.
         </p>
       </div>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-4">
         <button
           onClick={handleStart}
-          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
+          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-lg dark:shadow-gray-950 hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
         >
           Start Game
         </button>
