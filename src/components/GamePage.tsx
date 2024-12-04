@@ -45,7 +45,7 @@ const GamePage: React.FC = () => {
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
 
   // 배경 이미지
-  const { bgImage } = useBackgroundImage(image);
+  const { bgImage, generateImage } = useBackgroundImage(image);
 
   // 게임 스테이지
   const { currentStage, goToNextStage } = useGameStage({
@@ -110,6 +110,9 @@ const GamePage: React.FC = () => {
         storyId: gameState.storyId,
         gameId: gameState.gameId,
       });
+
+      generateImage(response.data.story, genre)
+      //alert(response.data.story)
   
       if (currentStage < 4) {
         goToNextStage();
