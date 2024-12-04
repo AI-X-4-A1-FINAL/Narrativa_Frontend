@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Message, MessageManagementProps } from "../utils/messageTypes";
 import axios from "../api/axiosInstance";
+import { useBackgroundImage } from "./useBackgroundImage";
 
 export const useMessageManagement = ({
   genre,
@@ -17,6 +18,11 @@ export const useMessageManagement = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [responses, setResponses] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+
+  const { generateImage, bgImage } = useBackgroundImage("/images/main.png");
+
+  
 
   // 메시지를 추가하는 함수
   const addMessage = (message: Message, stage: number) => {
@@ -65,12 +71,18 @@ export const useMessageManagement = ({
   // 초기 스토리 설정
   useEffect(() => {
     const initializeGame = async () => {
+      
       if (initialStory && !storyId) {
         setLoading(true);
         try {
           const response = await axios.post("/generate-story/start", { genre });
-          setStoryId(response.data.story_id);
-          setChoices(response.data.choices || []);
+
+          const storyId = response.data.story_id;
+          const initialChoices = response.data.choices || [];
+        
+          setStoryId(storyId);
+          setChoices(initialChoices);
+          
 
           const initialMessage: Message = {
             sender: "opponent",
@@ -81,6 +93,11 @@ export const useMessageManagement = ({
             [currentStage]: [initialMessage],
           }));
           setCurrentMessages([initialMessage]);
+
+          //alert(response.data.story);
+
+          await generateImage(response.data.story, genre); // 스토리와 장르를 사용
+          
         } catch (error) {
           console.error("Error initializing game:", error);
           const errorMessage: Message = {
@@ -97,6 +114,8 @@ export const useMessageManagement = ({
         }
       }
     };
+
+    
 
     initializeGame();
   }, [genre, initialStory, storyId, currentStage]);

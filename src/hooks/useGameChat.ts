@@ -19,6 +19,7 @@ export const useGameChat = ({
   const [userInput, setUserInput] = useState<string>("");
   const [conversationHistory, setConversationHistory] = useState<string[]>([]);
 
+
   // 이제 필요한 props를 전달하여 useMessageManagement을 호출합니다.
   const {
     allMessages,
@@ -41,6 +42,7 @@ export const useGameChat = ({
 
   // 선택한 메시지를 전송하는 함수
   const sendMessage = async (choice: string) => {
+    //alert(`You selected: ${choice}`); // 선택한 내용을 alert로 표시
     await fetchOpponentMessage(choice); // AI와 상호작용
   };
 
