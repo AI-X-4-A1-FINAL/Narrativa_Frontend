@@ -110,15 +110,17 @@ const GamePage: React.FC = () => {
 
       } else {
         const generatedImage = await generateImage(choiceText, genre);
+        const endResponse = await axios.post("/generate-story/end", payload);
+
 
         navigate("/game-ending", { state: { 
                                     image: generatedImage?.data,
-                                    prompt: generatedImage?.text,
-                                    genre : generatedImage?.gen,
+                                    prompt: endResponse.data.story,
+                                    genre : genre,
 
                                   },
                                  });
-
+                                 return;
       }
 
 
