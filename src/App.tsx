@@ -20,7 +20,7 @@ import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
 import { DarkModeProvider } from "./Contexts/DarkModeContext";
 import { NotificationProvider } from "./Contexts/NotificationContext";
-import NotificationList from "./user_pages/NotificationList";
+import NotificationList from "./components/NotificationList";
 import Notification from "./components/Notification";
 import { AudioProvider } from "./Contexts/AudioContext";
 import GameLayout from "./layouts/GameLayout";
