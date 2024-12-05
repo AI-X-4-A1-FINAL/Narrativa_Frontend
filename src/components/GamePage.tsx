@@ -160,77 +160,81 @@ const GamePage: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full h-screen bg-gray-800 text-white overflow-hidden">
+    <div className="relative w-full h-screen text-white overflow-hidden">
       {/* 배경 이미지 */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 transition-transform duration-700">
         <img
           src={bgImage}
           alt={`Stage ${currentStage + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover brightness-[0.4] transition-all duration-500"
         />
         <div className="absolute inset-0 bg-black bg-opacity-50" />
       </div>
 
-      {/* 상단 컨트롤 */}
+      {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-30">
         <button
           onClick={togglePlayPause}
-          className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet transition-colors flex items-center justify-center shadow-2xl"
+          className="bg-custom-background text-white w-10 h-10 rounded-full 
+                   hover:bg-custom-violet transition-colors 
+                   flex items-center justify-center shadow-2xl"
         >
           {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
+
         <GameStageIndicator currentStage={currentStage} maxStages={5} />
+
         <button
           onClick={() => {
             if (window.confirm("정말 나가시겠습니까?")) {
               navigate("/game-intro", { state: { genre, tags, image } });
             }
           }}
-          className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet transition-colors flex items-center justify-center shadow-2xl"
+          className="bg-custom-background text-white w-10 h-10 rounded-full 
+                   hover:bg-custom-violet transition-colors 
+                   flex items-center justify-center shadow-2xl"
         >
-          <ArrowBigLeftDash />
+          <ArrowBigLeftDash size={20} />
         </button>
       </div>
 
-      {/* 게임 콘텐츠 컨테이너 */}
+      {/* 메인 콘텐츠 */}
       <div className="absolute inset-0 flex flex-col items-center justify-between pt-20 pb-8 px-4">
-        {/* 중앙 선택지 영역 */}
+        {/* 선택지 영역 */}
         <div className="flex-1 w-full max-w-2xl flex items-center justify-center min-h-[50vh]">
           {isLoading ? (
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto" />
               <p className="mt-4">Loading...</p>
             </div>
           ) : error ? (
             <div className="text-red-500 text-center">
               <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 underline"
-              >
+              <button onClick={() => window.location.reload()} className="mt-4 underline">
                 다시 시도
               </button>
             </div>
           ) : (
-            <div className="w-full space-y-5">
-            {gameState.choices.map((choice, index) => (
-            <button
-              key={index}
-              onClick={() => handleChoice(choice)} 
-              className="w-full bg-custom-purple bg-opacity-85 text-white py-4 px-6 
-                        rounded-lg hover:bg-custom-violet shadow-2xl
-                        transition-colors duration-200 text-left"
-            >
-              {choice} 
-            </button>
-          ))}
-          </div>
+            <div className="w-full space-y-8">
+              {gameState.choices.map((choice, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleChoice(choice)}
+                  className="w-full bg-custom-background bg-opacity-60 text-white 
+                           py-4 px-6 rounded-lg hover:bg-custom-violet shadow-2xl
+                           transition-colors duration-200 text-left border-gray-900 border-2"
+                >
+                  {choice}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
         {/* 하단 메시지 영역 */}
-        <div className="w-full max-w-2xl">
-          <div className="bg-custom-purple bg-opacity-90 rounded-lg p-6 mb-6 shadow-2xl">
+        <div className="w-full max-w-2xl mb-20">
+          <div className="bg-custom-background bg-opacity-60 border-gray-900 border-2
+          rounded-lg p-6 shadow-2xl">
             <div className="text-base leading-relaxed">
               {gameState.mainMessage || "Loading..."}
             </div>

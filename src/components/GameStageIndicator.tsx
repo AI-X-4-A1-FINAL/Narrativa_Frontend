@@ -23,8 +23,8 @@ const GameStageIndicator: React.FC<GameStageIndicatorProps> = ({ currentStage, m
           key={stage}
           className={`w-4 h-4 rounded-full mx-2 ${
             stage <= currentStage
-              ? `bg-custom-purple bg-opacity-${isBlinking ? '100' : '50'}`
-              : 'bg-gray-500 bg-opacity-50'
+              ? `bg-custom-violet bg-opacity-${isBlinking ? '100' : '50'} border`
+              : 'bg-gray-500 bg-opacity-50 border'
           }`}
         />
       ))}
