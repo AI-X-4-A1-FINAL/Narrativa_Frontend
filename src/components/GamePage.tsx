@@ -35,7 +35,7 @@ const GamePage: React.FC = () => {
     gameId: undefined
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // 인증
@@ -53,38 +53,59 @@ const GamePage: React.FC = () => {
     onStageChange: () => initializeMusic(genre),
   });
 
-  // 초기 게임 시작
-  useEffect(() => {
-    const startGame = async () => {
-      setIsLoading(true);
-      setError(null);
+  // Helper function to update the story text one word at a time
+const updateStoryTextByWord = (story: string, words: string[], index: number) => {
+  if (index < words.length) {
+    setGameState((prevState) => ({
+      ...prevState,
+      mainMessage: prevState.mainMessage + " " + words[index], // Add one word at a time
+    }));
+    setTimeout(() => updateStoryTextByWord(story, words, index + 1), 200); // Delay between each word (400ms for slower speed)
+  } else {
+    // After the story is fully shown, we can show the choices
+    setIsLoading(false); // Set loading to false to show the choices
+  }
+};
 
-      try {
-        const response = await axios.post("/generate-story/start", {
-          genre,
-          tags,
-          userId,
-        });
+// Inside the useEffect
+useEffect(() => {
+  const startGame = async () => {
+    setIsLoading(true);
+    setError(null);
 
-        setGameState({
-          mainMessage: response.data.story,
-          choices: response.data.choices || [],
-          storyId: response.data.story_id,
-          gameId: response.data.gameId,
-        });
-      } catch (err) {
-        console.error("Error starting game:", err);
-        setError("게임을 시작하는 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    try {
+      const response = await axios.post("/generate-story/start", {
+        genre,
+        tags,
+        userId,
+      });
 
-    if (isAuthenticated) {
-      startGame();
-      
+      // Update initial choices
+      setGameState((prevState) => ({
+        ...prevState,
+        choices: response.data.choices || [],
+        mainMessage: "",
+      }));
+
+      // Initialize story text
+      let storyProgress = response.data.story;
+      const words = storyProgress.split(" "); // Split story into words
+
+      // Call helper function to update the text word by word
+      updateStoryTextByWord(storyProgress, words, 0); // Start the animation
+
+    } catch (err) {
+      console.error("Error starting game:", err);
+      setError("게임을 시작하는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [genre, tags, userId, isAuthenticated]);
+  };
+
+  if (isAuthenticated) {
+    startGame();
+  }
+}, [genre, tags, userId, isAuthenticated]);
 
   // 선택지 선택 처리
   const handleChoice = async (choiceText: string) => {
