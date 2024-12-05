@@ -77,7 +77,7 @@ const Header: React.FC = () => {
      <div className="flex justify-between items-center w-full">
        <Link to="/home">
          <img
-           src="/images/Group 18317.png"
+           src="/images/Group 18317.webp"
            alt="Bookmarks"
            className="h-14 dark:invert"
          />
@@ -91,7 +91,7 @@ const Header: React.FC = () => {
            aria-expanded={isMenuOpen}
          >
            <img
-             src="/images/nav.png"
+             src="/images/nav.webp"
              alt="Profile"
              className="w-8 mt-4 dark:invert"
            />

@@ -322,7 +322,7 @@ const Profile: React.FC = () => {
               onClick={() => document.getElementById("fileInput")?.click()}
             >
               <img
-                src="/images/edit_camera.png"
+                src="/images/edit_camera.webp"
                 alt="Edit Nickname"
                 className="w-8 h-8 grid place-items-center"
               />
@@ -362,7 +362,7 @@ const Profile: React.FC = () => {
               className="absolute -right-8 top-5 text-lg ml-2"
             >
               <img
-                src="/images/edit_pen.png"
+                src="/images/edit_pen.webp"
                 alt="Edit Nickname"
                 className="w-6 h-6 dark:invert"
               />

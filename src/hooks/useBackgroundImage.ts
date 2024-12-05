@@ -55,7 +55,7 @@ export const useBackgroundImage = (initialImage: string) => {
       setBgImage(data.imageUrl); // 서버에서 받은 이미지 URL로 배경 설정
     } catch (error) {
       console.error("Error fetching background image:", error);
-      setBgImage("/images/pikachu.jpg"); // 에러 시 기본 이미지로 설정
+      setBgImage("/images/pikachu.webp"); // 에러 시 기본 이미지로 설정
     }
   };
 

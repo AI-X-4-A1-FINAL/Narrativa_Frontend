@@ -60,25 +60,25 @@ const Home: React.FC = () => {
     {
       name: "Survival",
       tags: ["서바이벌", "살아남기"],
-      image: "/images/survival.jpeg",
+      image: "/images/survival.webp",
       available: true,
     },
     {
       name: "Romance",
       tags: ["사랑", "드라마"],
-      image: "/images/romance.png",
+      image: "/images/romance.webp",
       available: false,
     },
     {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
-      image: "/images/simulation.png",
+      image: "/images/simulation.webp",
       available: false,
     },
     {
       name: "Mystery",
       tags: ["스릴러", "범죄"],
-      image: "/images/detective.jpg",
+      image: "/images/detective.webp",
       available: false,
     },
   ];

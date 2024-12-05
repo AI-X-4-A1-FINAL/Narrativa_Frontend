@@ -18,14 +18,14 @@ const Login: React.FC = () => {
   }, []);
 
   const photos = [
-    { src: '/images/kakaotalk.png', alt: 'Kakao Login', onClick: getKakaoLoginLink },
-    { src: '/images/google.png', alt: 'Google Login', onClick: getGoogleLoginLink },
-    { src: '/images/git.png', alt: 'GitHub Login', onClick: getGithubLoginLink },
+    { src: '/images/kakaotalk.webp', alt: 'Kakao Login', onClick: getKakaoLoginLink },
+    { src: '/images/google.webp', alt: 'Google Login', onClick: getGoogleLoginLink },
+    { src: '/images/git.webp', alt: 'GitHub Login', onClick: getGithubLoginLink },
   ];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <img src="/images/Group 18317.png" alt="Login" className="h-20 mb-12" />
+      <img src="/images/Group 18317.webp" alt="Login" className="h-20 mb-12" />
       
       {photos.map((photo, index) => (
         <button

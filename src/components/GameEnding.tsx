@@ -83,9 +83,9 @@ const GameEnding: React.FC = () => {
         {/* 다운로드 버튼 */}
         <button
           onClick={handleDownload}
-          className="download-button absolute top-4 right-4 bg-gray-800/90 p-3 rounded-full 
+          className="download-button absolute top-6 right-4 bg-gray-800/90 p-3 rounded-full 
           shadow-lg hover:bg-gray-700 hover:shadow-xl transition-all duration-300 
-          transform hover:scale-105 active:scale-95"
+          transform hover:scale-105 active:scale-95 animate-bounce"
           title="Download Page"
         >
           <FaDownload size={20} className="text-gray-200 transition-colors" />

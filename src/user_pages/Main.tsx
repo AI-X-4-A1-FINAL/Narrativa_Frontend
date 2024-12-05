@@ -30,7 +30,7 @@ const Main: React.FC = () => {
         {showLoadingLottie && (
           <div className="flex flex-col items-center mt-40">
             <img
-              src="/images/NARRATIVA.png"
+              src="/images/NARRATIVA.webp"
               alt="Header Image"
               className="w-auto h-[80px]"
             />

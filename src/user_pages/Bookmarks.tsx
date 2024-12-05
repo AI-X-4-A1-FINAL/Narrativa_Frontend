@@ -11,28 +11,19 @@ const Bookmarks: React.FC = () => {
 
   const genreImages: { [key: string]: string[] } = {
     생존: [
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
+      "images/game-start.webp",
+      "images/game-start.webp",
+      "images/game-start.webp",
+      "images/game-start.webp",
     ],
     추리: [
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
+
     ],
     연애: [
-      "images/romance1.png",
-      "images/romance2.png",
-      "images/romance3.png",
-      "images/romance4.png",
+
     ],
     성장: [
-      "images/growth1.png",
-      "images/growth2.png",
-      "images/growth3.png",
-      "images/growth4.png",
+
     ],
   };
 
