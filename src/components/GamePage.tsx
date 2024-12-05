@@ -53,6 +53,18 @@ const GamePage: React.FC = () => {
     onStageChange: () => initializeMusic(genre),
   });
 
+    // Helper function to update the story text one word at a time
+const updateStoryTextByWord = (story: string, words: string[], index: number) => {
+  if (index < words.length) {
+    setGameState((prevState) => ({
+      ...prevState,
+      mainMessage: prevState.mainMessage + " " + words[index], // Add one word at a time
+    }));
+    setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100); // Delay between each word (400ms for slower speed)
+  }
+};
+
+
   // 초기 게임 시작
   useEffect(() => {
     const startGame = async () => {
@@ -67,11 +79,20 @@ const GamePage: React.FC = () => {
         });
 
         setGameState({
-          mainMessage: response.data.story,
+          mainMessage: "",
           choices: response.data.choices || [],
           storyId: response.data.story_id,
           gameId: response.data.gameId,
         });
+
+      // Initialize story text
+      let storyProgress = response.data.story;
+      const words = storyProgress.split(" "); // Split story into words
+
+      // Call helper function to update the text word by word
+      updateStoryTextByWord(storyProgress, words, 0); // Start the animation
+
+
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");
@@ -132,11 +153,17 @@ const GamePage: React.FC = () => {
 
   
       setGameState({
-        mainMessage: response.data.story,
+        mainMessage: "",
         choices: response.data.choices || [], // 여기서 Choice[] 타입의 배열을 받아야 함
         storyId: gameState.storyId,
         gameId: gameState.gameId,
       });
+
+      let storyProgress = response.data.story;
+      const words = storyProgress.split(" "); // Split story into words
+
+      // Call helper function to update the text word by word
+      updateStoryTextByWord(storyProgress, words, 0); // Start the animation
 
       //generateImage(response.data.story, genre)
       //alert(response.data.story)
