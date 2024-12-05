@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Main from "./user_pages/Main";
 import Login from "./user_pages/Login";
 import Home from "./user_pages/Home";
@@ -25,16 +20,14 @@ import Notification from "./components/Notification";
 import { AudioProvider } from "./Contexts/AudioContext";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
-import ParticleBackground from "./components/ParticleBackground"
+import ParticleBackground from "./components/ParticleBackground";
+import ParticleProvider from "./Contexts/ParticleContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
 
   return (
     <>
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
-        <ParticleBackground />
-      </div>
       {headerState.isMainPage ? (
         <Main />
       ) : (
@@ -91,6 +84,9 @@ const App: React.FC = () => (
   <DarkModeProvider>
     <NotificationProvider>
       <AudioProvider>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+          <ParticleBackground />
+        </div>
         <AppContent />
       </AudioProvider>
     </NotificationProvider>
@@ -98,11 +94,13 @@ const App: React.FC = () => (
 );
 
 const AppWithRouter: React.FC = () => (
-  <Router>
-    <Routes>
-      <Route path="/*" element={<App />} />
-    </Routes>
-  </Router>
+  <ParticleProvider>
+    <Router>
+      <Routes>
+        <Route path="/*" element={<App />} />
+      </Routes>
+    </Router>
+  </ParticleProvider>
 );
 
 export default AppWithRouter;
