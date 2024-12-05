@@ -39,38 +39,54 @@ const GameIntro: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-lg dark:shadow-gray-950 mb-6">
-        <img
-          src={image}
-          alt={genre}
-          className="w-full h-[400px] object-cover rounded-2xl "
-        />
+    <div className="flex flex-col items-center justify-center gap-8 p-6">
+      {/* Image Container */}
+      <div className="w-full max-w-lg relative group">
+        <div>
+          <img
+            src={image}
+            alt={genre}
+            className="w-full h-[400px] object-cover rounded-2xl shadow-xl 
+            transform group-hover:scale-[1.01] transition duration-300"
+          />
+        </div>
       </div>
-      <div className="text-center text-black mb-4 dark:text-white">
-        <h1 className="text-3xl font-bold mb-2">{genre} Game</h1>
-        <div className="my-2">
+
+      {/* Content Container */}
+      <div className="text-center text-black dark:text-white w-full max-w-lg">
+        {/* Title */}
+        <h1 className="text-4xl font-bold mb-6 text-black dark:text-white">
+          {genre} Game
+        </h1>
+
+        {/* Tags */}
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
           {Array.isArray(tags) &&
             tags.map((tag, index) => (
               <span
                 key={index}
-                className="inline-block text-sm font-semibold my-2 mr-2 px-3 py-1 rounded-full bg-gray-200 dark:text-black"
+                className="text-sm font-semibold px-4 py-1.5 rounded-full
+                bg-gray-700 dark:bg-gray-300 text-white dark:text-black shadow-md"
               >
                 #{tag}
               </span>
             ))}
         </div>
-        <p className="text-center text-base leading-relaxed my-2 p-4 rounded-2xl shadow-lg dark:shadow-gray-950 bg-gray-50 dark:bg-gray-800 dark:text-white">
-          다양한{" "}
-          <span className="text-custom-violet font-semibold">{genre}</span> 세계
-          속 당신의 <span className="text-red-500 font-extrabold">선택</span>이
-          이야기를 만듭니다.
+
+        {/* Description */}
+        <p className="text-base leading-relaxed mb-6 p-4 rounded-2xl 
+        bg-white/80 dark:bg-gray-800/80 shadow-xl dark:shadow-gray-950">
+          매혹적인{" "}
+          <span className="text-custom-violet font-semibold">{genre}</span> 세계에서<br/>
+          당신만의 <span className="text-red-500 font-extrabold">선택</span>으로
+          유일한 이야기를 써내려가세요.
         </p>
-      </div>
-      <div className="flex flex-col items-center gap-4">
+
+        {/* Start Button */}
         <button
           onClick={handleStart}
-          className="bg-custom-violet text-white font-bold py-2 px-6 rounded-lg shadow-lg dark:shadow-gray-950 hover:bg-blue-700 transition duration-200 dark:bg-custom-purple"
+          className="relative px-8 py-1 rounded-xl font-extrabold animate-pulse 
+          text-gray-700 dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300"
         >
           Start Game
         </button>

@@ -12,7 +12,7 @@ module.exports = {
         "custom-hover": "#0e0e0e"
       },
       fontFamily: {
-        "custom-font": ["Calistoga-Regular", "sans-serif"],
+        'sans': ['CookieRun-Regular', 'sans-serif'],
       },
       scrollbar: ["rounded"],
     },
