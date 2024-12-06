@@ -142,7 +142,16 @@ const GamePage: React.FC = () => {
         generateImage(choiceText, genre);
       } else {
         const generatedImage = await generateImage(choiceText, genre);
-        const endResponse = await axios.post("/generate-story/end", endPayload);
+        const endResponse = await axios.post("/generate-story/end", 
+          endPayload,
+          {
+            headers: {
+              "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+              "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+            },
+            withCredentials: true,  // 쿠키를 요청에 포함시키기
+          }
+        );
 
         navigate("/game-ending", {
           state: {
@@ -154,7 +163,16 @@ const GamePage: React.FC = () => {
         return;
       }
 
-      const response = await axios.post("/generate-story/chat", payload);
+      const response = await axios.post("/generate-story/chat", 
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+            "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+          },
+          withCredentials: true,  // 쿠키를 요청에 포함시키기
+        }
+      );
       //alert(choiceText)
       // console.log("Response from /chat:", response.data); // 서버 응답 로그
 
