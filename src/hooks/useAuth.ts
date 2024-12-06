@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import AuthGuard from '../api/accessControl';
+import { parseCookieKeyValue } from '../api/cookie';
 
 interface AuthReturn {
   userId: number | null;
@@ -11,25 +12,48 @@ interface AuthReturn {
 
 export const useAuth = (): AuthReturn => {
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(['id']);
+  const [cookie, setCookie, removeCookie] = useCookies(['token']);
+  const [userId, setUserId] = useState<number>(-1);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!cookies.id || !(await AuthGuard(cookies.id))) {
-        navigate('/');
+    const cookieToken = cookie.token;
+    // console.log('cookie: ', cookie);
+
+    cookieToken == null && navigate("/");
+
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+    // console.log('_cookieContent: ', _cookieContent);
+    
+    if (_cookieContent == null) {
+      navigate("/");
+    } else {
+      const _cookieContentAccesToken = _cookieContent.access_token;
+      const _cookieContentId = _cookieContent.id;
+
+      if (_cookieContentAccesToken == null || _cookieContentId == null) {
+        navigate("/");
+      } else {
+        const checkAuth = async () => {
+          if (!_cookieContentId || !(await AuthGuard(_cookieContentId, _cookieContentAccesToken))) {
+            navigate('/');
+          } else {
+            console.log('_cookieContentId: ', _cookieContentId);
+            setUserId(_cookieContentId);
+          }
+        };
+        checkAuth();
       }
-    };
-    checkAuth();
-  }, [cookies.id, navigate]);
+    }
+  }, [cookie.token, navigate]);
 
   const logout = () => {
-    removeCookie('id');
+    removeCookie('token');
     navigate('/');
   };
 
   return {
-    userId: cookies.id || null,
-    isAuthenticated: !!cookies.id,
+    userId: userId || null,
+    isAuthenticated: !!userId,
     logout
   };
 }
