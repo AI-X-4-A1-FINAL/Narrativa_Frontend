@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
-import { getValue } from "@testing-library/user-event/dist/utils";
 
 interface WorldViewReturn {
   worldView: string;
@@ -17,44 +16,43 @@ export const useWorldView = (
   isLoading: boolean
 ): WorldViewReturn => {
   const [worldView, setWorldView] = useState<string>(initialStory || "");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialStory); // initialStory가 있으면 로딩 생략
   const [error, setError] = useState<string | null>(null);
+  const requestSent = useRef(false); // 요청이 이미 실행되었는지 추적
   const cookies = new Cookies();
   const userId: number = Number(cookies.get("id"));
 
   const fetchWorldView = async () => {
-    if (!initialStory || isLoading) {
-      setLoading(true);
-      try {
-        console.log("Sending request:", { genre, tags, userId });
-        const response = await axios.post(
-          `${process.env.REACT_APP_SPRING_URI}/generate-story/start`,
-          {
-            genre,
-            tags,
-            userId,
-          }
-        );
-        console.log("Response received:", response.data);
-        setWorldView(response.data.story);
-        setError(null);
-      } catch (error) {
-        console.error("Error fetching world view:", error);
-        setError("세계관을 불러오는데 실패했습니다. 다시 시도해주세요.");
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setWorldView(initialStory);
+    if (requestSent.current || initialStory) return; // 요청 중복 방지
+    requestSent.current = true;
+
+    setLoading(true);
+    try {
+      console.log("Sending request:", { genre, tags, userId });
+      const response = await axios.post(
+        `${process.env.REACT_APP_SPRING_URI}/generate-story/start`,
+        {
+          genre,
+          tags,
+          userId,
+        }
+      );
+      console.log("Response received:", response.data);
+      setWorldView(response.data.story);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching world view:", error);
+      setError("세계관을 불러오는데 실패했습니다. 다시 시도해주세요.");
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (genre) {
+    if (genre && !initialStory) {
       fetchWorldView();
     }
-  }, [genre, initialStory, isLoading]);
+  }, [genre, initialStory]);
 
   return {
     worldView,

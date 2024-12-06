@@ -24,7 +24,8 @@ interface GameState {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, userId } = location.state as LocationState;
+  const { genre, tags, image, userId, initialStory } =
+    location.state as LocationState;
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
@@ -87,10 +88,9 @@ const GamePage: React.FC = () => {
 
         // Initialize story text
         let storyProgress = response.data.story;
-        const words = storyProgress.split(" "); // Split story into words
+        const words = storyProgress.split(" ");
 
-        // Call helper function to update the text word by word
-        updateStoryTextByWord(storyProgress, words, 0); // Start the animation
+        updateStoryTextByWord(storyProgress, words, 0);
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");
@@ -99,10 +99,8 @@ const GamePage: React.FC = () => {
       }
     };
 
-    if (isAuthenticated) {
-      startGame();
-    }
-  }, [genre, tags, userId, isAuthenticated]);
+    startGame();
+  }, [genre, tags, userId, isAuthenticated, initialStory]);
 
   // 선택지 선택 처리
   const handleChoice = async (choiceText: string) => {
@@ -120,7 +118,6 @@ const GamePage: React.FC = () => {
         userSelect: choiceText, // 선택한 텍스트
         gameId: gameState.gameId,
       };
-      console.log("Sending payload to /chat endpoint:", payload); // 여기에 로그 추가
 
       if (currentStage < 4) {
         generateImage(choiceText, genre);
@@ -140,7 +137,7 @@ const GamePage: React.FC = () => {
 
       const response = await axios.post("/generate-story/chat", payload);
       //alert(choiceText)
-      console.log("Response from /chat:", response.data); // 서버 응답 로그
+      // console.log("Response from /chat:", response.data); // 서버 응답 로그
 
       setGameState({
         mainMessage: "",
