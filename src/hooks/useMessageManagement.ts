@@ -14,15 +14,12 @@ export const useMessageManagement = ({
   );
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [choices, setChoices] = useState<string[]>([]); // AI가 생성한 선택지 상태 추가
-  const [storyId, setStoryId] = useState<string | null>(null); // Story ID 상태 추가
+  const [gameId, setGameId] = useState<string | null>(null); // game ID 상태 추가
   const [loading, setLoading] = useState<boolean>(false);
   const [responses, setResponses] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-
   const { generateImage, bgImage } = useBackgroundImage("/images/main.png");
-
-  
 
   // 메시지를 추가하는 함수
   const addMessage = (message: Message, stage: number) => {
@@ -40,7 +37,7 @@ export const useMessageManagement = ({
       const requestBody = {
         genre,
         user_choice: userChoice || "",
-        story_id: storyId || "",
+        game_id: gameId || "",
       };
 
       console.log("Sending request to /generate-story/chat:", requestBody);
@@ -71,18 +68,16 @@ export const useMessageManagement = ({
   // 초기 스토리 설정
   useEffect(() => {
     const initializeGame = async () => {
-      
-      if (initialStory && !storyId) {
+      if (initialStory && !gameId) {
         setLoading(true);
         try {
           const response = await axios.post("/generate-story/start", { genre });
 
-          const storyId = response.data.story_id;
+          const gameId = response.data.game_id;
           const initialChoices = response.data.choices || [];
-        
-          setStoryId(storyId);
+
+          setGameId(gameId);
           setChoices(initialChoices);
-          
 
           const initialMessage: Message = {
             sender: "opponent",
@@ -97,7 +92,6 @@ export const useMessageManagement = ({
           //alert(response.data.story);
 
           await generateImage(response.data.story, genre); // 스토리와 장르를 사용
-          
         } catch (error) {
           console.error("Error initializing game:", error);
           const errorMessage: Message = {
@@ -115,10 +109,8 @@ export const useMessageManagement = ({
       }
     };
 
-    
-
     initializeGame();
-  }, [genre, initialStory, storyId, currentStage]);
+  }, [genre, initialStory, gameId, currentStage]);
 
   // 스테이지 변경 시 메시지 동기화
   useEffect(() => {
@@ -141,7 +133,7 @@ export const useMessageManagement = ({
     responses,
     fetchOpponentMessage,
     messagesEndRef,
-    storyId,
-    setStoryId,
+    gameId,
+    setGameId,
   };
 };

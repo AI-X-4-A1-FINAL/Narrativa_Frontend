@@ -6,7 +6,7 @@ import { LocationState } from "../utils/messageTypes";
 import { ArrowBigLeftDash, Volume2, VolumeX } from "lucide-react";
 import { useBackgroundImage } from "../hooks/useBackgroundImage";
 import { useGameStage } from "../hooks/useGameStage";
-import GameStageIndicator from './GameStageIndicator';
+import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
 
 // 타입 정의
@@ -18,7 +18,6 @@ interface Choice {
 interface GameState {
   mainMessage: string;
   choices: string[];
-  storyId?: string;
   gameId?: number;
 }
 
@@ -31,8 +30,7 @@ const GamePage: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
-    storyId: undefined,
-    gameId: undefined
+    gameId: undefined,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -53,17 +51,20 @@ const GamePage: React.FC = () => {
     onStageChange: () => initializeMusic(genre),
   });
 
-    // Helper function to update the story text one word at a time
-const updateStoryTextByWord = (story: string, words: string[], index: number) => {
-  if (index < words.length) {
-    setGameState((prevState) => ({
-      ...prevState,
-      mainMessage: prevState.mainMessage + " " + words[index], // Add one word at a time
-    }));
-    setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100); // Delay between each word (400ms for slower speed)
-  }
-};
-
+  // Helper function to update the story text one word at a time
+  const updateStoryTextByWord = (
+    story: string,
+    words: string[],
+    index: number
+  ) => {
+    if (index < words.length) {
+      setGameState((prevState) => ({
+        ...prevState,
+        mainMessage: prevState.mainMessage + " " + words[index], // Add one word at a time
+      }));
+      setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100); // Delay between each word (400ms for slower speed)
+    }
+  };
 
   // 초기 게임 시작
   useEffect(() => {
@@ -81,18 +82,15 @@ const updateStoryTextByWord = (story: string, words: string[], index: number) =>
         setGameState({
           mainMessage: "",
           choices: response.data.choices || [],
-          storyId: response.data.story_id,
           gameId: response.data.gameId,
         });
 
-      // Initialize story text
-      let storyProgress = response.data.story;
-      const words = storyProgress.split(" "); // Split story into words
+        // Initialize story text
+        let storyProgress = response.data.story;
+        const words = storyProgress.split(" "); // Split story into words
 
-      // Call helper function to update the text word by word
-      updateStoryTextByWord(storyProgress, words, 0); // Start the animation
-
-
+        // Call helper function to update the text word by word
+        updateStoryTextByWord(storyProgress, words, 0); // Start the animation
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");
@@ -103,59 +101,50 @@ const updateStoryTextByWord = (story: string, words: string[], index: number) =>
 
     if (isAuthenticated) {
       startGame();
-      
     }
   }, [genre, tags, userId, isAuthenticated]);
 
   // 선택지 선택 처리
   const handleChoice = async (choiceText: string) => {
-    if (!gameState.storyId || !gameState.gameId) {
-      setError("스토리 ID 또는 게임 ID가 없습니다.");
+    if (!gameState.gameId) {
+      setError("게임 ID가 없습니다.");
       return;
     }
-  
+
     setIsLoading(true);
     setError(null);
-  
+
     try {
       const payload = {
         genre,
-        userSelect: choiceText,  // 선택한 텍스트
-        gameId: gameState.gameId
+        userSelect: choiceText, // 선택한 텍스트
+        gameId: gameState.gameId,
       };
+      console.log("Sending payload to /chat endpoint:", payload); // 여기에 로그 추가
 
-      if(currentStage < 4){
-
+      if (currentStage < 4) {
         generateImage(choiceText, genre);
-
-
       } else {
         const generatedImage = await generateImage(choiceText, genre);
         const endResponse = await axios.post("/generate-story/end", payload);
 
-
-        navigate("/game-ending", { state: { 
-                                    image: generatedImage?.data,
-                                    prompt: endResponse.data.story,
-                                    genre : genre,
-
-                                  },
-                                 });
-                                 return;
+        navigate("/game-ending", {
+          state: {
+            image: generatedImage?.data,
+            prompt: endResponse.data.story,
+            genre: genre,
+          },
+        });
+        return;
       }
 
-
-      
-  
       const response = await axios.post("/generate-story/chat", payload);
       //alert(choiceText)
-      
+      console.log("Response from /chat:", response.data); // 서버 응답 로그
 
-  
       setGameState({
         mainMessage: "",
         choices: response.data.choices || [], // 여기서 Choice[] 타입의 배열을 받아야 함
-        storyId: gameState.storyId,
         gameId: gameState.gameId,
       });
 
@@ -167,11 +156,10 @@ const updateStoryTextByWord = (story: string, words: string[], index: number) =>
 
       //generateImage(response.data.story, genre)
       //alert(response.data.story)
-  
+
       if (currentStage < 4) {
         goToNextStage();
-      } 
-
+      }
     } catch (error) {
       console.error("Error processing choice:", error);
       setError("선택 처리 중 오류가 발생했습니다.");
@@ -237,7 +225,10 @@ const updateStoryTextByWord = (story: string, words: string[], index: number) =>
           ) : error ? (
             <div className="text-red-500 text-center">
               <p>{error}</p>
-              <button onClick={() => window.location.reload()} className="mt-4 underline">
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 underline"
+              >
                 다시 시도
               </button>
             </div>
@@ -260,8 +251,10 @@ const updateStoryTextByWord = (story: string, words: string[], index: number) =>
 
         {/* 하단 메시지 영역 */}
         <div className="w-full max-w-2xl mb-20">
-          <div className="bg-custom-background bg-opacity-60 border-gray-900 border-2
-          rounded-lg p-6 shadow-2xl">
+          <div
+            className="bg-custom-background bg-opacity-60 border-gray-900 border-2
+          rounded-lg p-6 shadow-2xl"
+          >
             <div className="text-base leading-relaxed">
               {gameState.mainMessage || "Loading..."}
             </div>
