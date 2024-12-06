@@ -132,12 +132,17 @@ const GamePage: React.FC = () => {
         userSelect: choiceText, // 선택한 텍스트
         gameId: gameState.gameId,
       };
+      const endPayload = {
+        genre,
+        userChoice: choiceText, // 선택한 텍스트
+        gameId: gameState.gameId,
+      };
 
       if (currentStage < 4) {
         generateImage(choiceText, genre);
       } else {
         const generatedImage = await generateImage(choiceText, genre);
-        const endResponse = await axios.post("/generate-story/end", payload);
+        const endResponse = await axios.post("/generate-story/end", endPayload);
 
         navigate("/game-ending", {
           state: {
