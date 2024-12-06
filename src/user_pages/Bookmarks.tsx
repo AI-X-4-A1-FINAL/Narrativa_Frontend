@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 import { useDarkMode } from "../Contexts/DarkModeContext";
+import { parseCookieKeyValue } from "../api/cookie";
 
 const Bookmarks: React.FC = () => {
   const navigate = useNavigate();
@@ -11,48 +12,54 @@ const Bookmarks: React.FC = () => {
 
   const genreImages: { [key: string]: string[] } = {
     생존: [
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
+      "images/game-start.webp",
+      "images/game-start.webp",
+      "images/game-start.webp",
+      "images/game-start.webp",
     ],
     추리: [
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
-      "images/game-start.jpeg",
+
     ],
     연애: [
-      "images/romance1.png",
-      "images/romance2.png",
-      "images/romance3.png",
-      "images/romance4.png",
+
     ],
     성장: [
-      "images/growth1.png",
-      "images/growth2.png",
-      "images/growth3.png",
-      "images/growth4.png",
+
     ],
   };
 
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const [cookie, setCookie, removeCookie] = useCookies(["token"]);
 
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
+  const checkAuth = async (userId: number, accessToken: string) => {
+    const isAuthenticated = await AuthGuard(userId, accessToken);
     if (!isAuthenticated) {
       navigate("/");
     }
   };
 
   useEffect(() => {
-    console.log("cookies.id", cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    }
+    const cookieToken = cookie.token;
+    console.log('cookie: ', cookie);
+    console.log('cookieToken: ', cookieToken);
 
-    if (!checkAuth(cookies.id)) {
+    cookieToken == null && navigate("/");
+
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+    console.log('_cookieContent: ', _cookieContent);
+
+    if (_cookieContent == null) {
       navigate("/");
+    } else {
+      const _cookieContentAccesToken = _cookieContent.access_token;
+      const _cookieContentId = _cookieContent.user_id;
+  
+      if (_cookieContentAccesToken == null || _cookieContentId == null) {
+        navigate("/");
+      } else {
+        if (!checkAuth(_cookieContentId, _cookieContentAccesToken)) {
+          navigate("/");
+        }
+      }
     }
   }, []);
 

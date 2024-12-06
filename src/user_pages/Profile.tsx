@@ -6,6 +6,7 @@ import axiosBaseURL from "../api/axios";
 import AuthGuard from "../api/accessControl";
 import { useDarkMode } from "../Contexts/DarkModeContext";
 import { useNotification } from "../Contexts/NotificationContext";
+import { parseCookieKeyValue } from "../api/cookie";
 
 interface UserProfileInfo {
   username: string;
@@ -26,8 +27,9 @@ const Profile: React.FC = () => {
   const { isNotificationsOn, toggleNotifications } = useNotification();
   // console.log("Profile - isNotificationsOn:", isNotificationsOn);
 
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const [cookie, setCookie, removeCookie] = useCookies(["token"]);
   const [userId, setUserId] = useState(-1);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ const Profile: React.FC = () => {
     []
   );
 
-  const fetchUserData = async (userId: number) => {
+  const fetchUserData = async (userId: number, accessToken: string) => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/users`,
@@ -55,15 +57,25 @@ const Profile: React.FC = () => {
           method: "GET", // 기본적으로 GET 요청
           headers: {
             "Content-Type": "application/json", // 요청 헤더 설정
+            "Authorization": `Bearer ${accessToken}`,
           },
           credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
+      // console.log('response.ok: ', response.ok);
       if (!response.ok) throw new Error("Failed to fetch profile data.");
+
+      // console.log('response: ', response);
+      // console.log('response.body: ', response.body);
+
       let data = await response.json();
+      // console.log('data: ', data);
+      // console.log('data: ', data.nickname);
 
       const tmp_nickname = data.nickname;
       const tmp_profileUrl = data.profile_url;
+      // console.log('tmp_nickname: ', tmp_nickname);
+      // console.log('tmp_profileUrl: ', tmp_profileUrl);
 
       // 만약 data가 JSON 문자열이라면, 파싱을 시도
       if (typeof data === "string") {
@@ -82,8 +94,9 @@ const Profile: React.FC = () => {
   };
 
   // 유저 유효성 검증
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
+  const checkAuth = async (userId: number, accessToken: string) => {
+    const isAuthenticated = await AuthGuard(userId, accessToken);
+    console.log('유저 유효성 여부: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
@@ -91,17 +104,34 @@ const Profile: React.FC = () => {
 
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    } else if (Number(cookies.id) !== -1) {
-      // 'id' 쿠키 값 가져오기
-      setUserId(cookies.id);
-      fetchUserData(cookies.id);
-    }
-    setIsEditingNickname(false);
+    const cookieToken = cookie.token;
+    // console.log('cookie: ', cookie);
+    // console.log('cookieToken: ', cookieToken);
 
-    if (!checkAuth(cookies.id)) {
-      navigate("/"); // 유저 상태코드 유효하지 않으면 접근 불가 설정
+    cookieToken == null && navigate("/");
+    
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+    console.log('_cookieContent: ', _cookieContent);
+
+    if (_cookieContent != null) {
+      const _cookieContentAccesToken = _cookieContent.access_token;
+      const _cookieContentId = _cookieContent.user_id;
+      // console.log('access token: ', _cookieContentAccesToken);
+      // console.log('access id: ', _cookieContentId);
+
+      if (_cookieContentAccesToken != null && _cookieContentId != null) {
+        setAccessToken(_cookieContentAccesToken);
+        setUserId(_cookieContentId);
+        fetchUserData(_cookieContentId, _cookieContentAccesToken);
+
+        if (!checkAuth(_cookieContentId, _cookieContentAccesToken)) {
+          navigate("/"); // 유저 상태코드 유효하지 않으면 접근 불가 설정
+        }
+      } else {
+        navigate("/");  
+      }
+    } else {
+      navigate("/");
     }
   }, []);
 
@@ -121,11 +151,17 @@ const Profile: React.FC = () => {
       const formData = new FormData();
       formData.append("image", img);
 
+      // console.log('userId: ', userId);
+      // console.log('accessToken: ', accessToken);
+      console.log('formData.image: ', formData.get('image'));
       // s3에 이미지 저장
       const saveImgToS3 = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/s3/images/upload`,
         {
           method: "POST",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+          },
           body: formData, // 수정된 데이터 전송
           credentials: "include",
         }
@@ -155,6 +191,10 @@ const Profile: React.FC = () => {
         }/api/s3/image?filePath=${encodeURIComponent(extractS3FilePath)}`,
         {
           method: "GET",
+          headers: {
+            "Content-Type": "application/json", // 요청 헤더 설정
+            "Authorization": `Bearer ${accessToken}`,
+          },
           credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
@@ -177,6 +217,7 @@ const Profile: React.FC = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
           },
           body: JSON.stringify(profileData), // 수정된 데이터 전송
           credentials: "include", // 쿠키를 요청에 포함시키기
@@ -207,7 +248,7 @@ const Profile: React.FC = () => {
       const cookieDomain = getCookieDomainFromUrl();
 
       // 쿠키 삭제
-      removeCookie("id", { domain: cookieDomain, path: "/" });
+      removeCookie("token", { domain: cookieDomain, path: "/" });
     }
   };
 
@@ -217,7 +258,17 @@ const Profile: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axiosBaseURL.put(`/api/users/deactivate`);
+      const response = await axiosBaseURL.put(
+        `/api/users/deactivate`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json', // 요청 헤더 설정
+            'Authorization': `Bearer ${accessToken}`, // Authorization 헤더 설정
+          },
+          withCredentials: true, // 쿠키를 요청에 포함시키기
+        }
+      );
 
       removeUserCookie();
 
@@ -284,7 +335,7 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    // console.log("profileUrl updated: ", profileUrl);
+    console.log("profileUrl updated: ", profileUrl);
   }, [profileUrl]);
 
   return (
@@ -322,7 +373,7 @@ const Profile: React.FC = () => {
               onClick={() => document.getElementById("fileInput")?.click()}
             >
               <img
-                src="/images/edit_camera.png"
+                src="/images/edit_camera.webp"
                 alt="Edit Nickname"
                 className="w-8 h-8 grid place-items-center"
               />
@@ -362,7 +413,7 @@ const Profile: React.FC = () => {
               className="absolute -right-8 top-5 text-lg ml-2"
             >
               <img
-                src="/images/edit_pen.png"
+                src="/images/edit_pen.webp"
                 alt="Edit Nickname"
                 className="w-6 h-6 dark:invert"
               />

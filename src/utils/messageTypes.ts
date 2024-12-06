@@ -13,6 +13,7 @@ export interface MessageManagementProps {
   conversationHistory: string[];
   tags: string[];
   image: string;
+  gameId: string;
 }
 
 export interface LocationState {
@@ -22,6 +23,6 @@ export interface LocationState {
   initialStory: string;
   userInput?: string;
   previousUserInput?: string;
-  userId: number;  // 추가됨
+  userId: number; // 사용자 ID 추가
   isLoading?: boolean;
 }

@@ -6,8 +6,6 @@ import { useAudio } from "../Contexts/AudioContext";
 import { useWorldView } from "../hooks/useWorldView";
 import { LocationState } from "../utils/messageTypes";
 
-
-
 const GameWorldView: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,9 +63,7 @@ const GameWorldView: React.FC = () => {
           image,
           initialStory: worldView,
           userId,
-          // Ensure any arrays that GamePage might be mapping over are initialized
-          messages: [],  // Add this if GamePage expects an initial messages array
-          // Add any other required initial state properties that GamePage might need
+          messages: [],
         },
       });
     } catch (error) {
@@ -77,32 +73,33 @@ const GameWorldView: React.FC = () => {
 
   if (!genre || !isAuthenticated) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-900">
-        <p className="text-white text-xl">Invalid access. Redirecting...</p>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-b from-gray-800 to-gray-900">
+        <p className="text-white text-xl font-medium animate-pulse">Invalid access. Redirecting...</p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-screen text-white">
-      {/* Background Image */}
-      <div className="absolute inset-0">
+    <div className="relative w-full h-screen text-white overflow-hidden">
+      {/* 배경 이미지 */}
+      <div className="absolute inset-0 transition-transform duration-700">
         <img
           src={bgImage}
           alt="World View Background"
-          className="w-full h-full object-cover brightness-50 transition-opacity duration-500"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 opacity-50" />
+        <div className="absolute inset-0 bg-black bg-opacity-50" />
       </div>
 
-      {/* Top Navigation Bar */}
-      <div className="absolute top-4 flex justify-between w-full px-4 z-10">
+      {/* 상단 네비게이션 */}
+      <div className="absolute top-4 flex justify-between w-full px-4 z-30">
         <div className="flex items-center space-x-4">
           {musicUrl && (
             <button
               onClick={togglePlayPause}
-              className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet 
-                       transition-colors flex items-center justify-center"
+              className="bg-custom-background text-white w-10 h-10 rounded-full 
+                       hover:bg-custom-violet transition-colors 
+                       flex items-center justify-center shadow-2xl"
             >
               {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
             </button>
@@ -111,55 +108,58 @@ const GameWorldView: React.FC = () => {
 
         <button
           onClick={handleNavigateBack}
-          className="bg-custom-purple text-white w-10 h-10 rounded-full hover:bg-custom-violet 
-                   transition-colors flex items-center justify-center"
+          className="bg-custom-background text-white w-10 h-10 rounded-full 
+                   hover:bg-custom-violet transition-colors 
+                   flex items-center justify-center shadow-2xl"
         >
-          <ArrowBigLeftDash />
+          <ArrowBigLeftDash size={20} />
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-        <div className="flex flex-col items-center w-full h-full max-w-4xl max-h-[90vh] gap-4">
-          <h1 className="text-4xl font-bold text-center py-4 text-white drop-shadow-lg">
+      {/* 메인 콘텐츠 */}
+      <div className="absolute inset-0 flex flex-col items-center justify-between px-4">
+        <div className="flex flex-col justify-center items-center w-full h-full max-w-2xl space-y-6">
+          <h1 className="text-4xl font-bold text-center text-white drop-shadow-lg">
             {genre} 세계관
           </h1>
           
-          {/* World View Content */}
-          <div className="flex-1 w-full overflow-y-auto bg-custom-purple bg-opacity-50 rounded-lg p-6 
-                       backdrop-blur-sm scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-gray-800">
+          {/* 세계관 내용 */}
+          <div className="flex-1 min-h-[50vh] max-h-[60vh] overflow-y-auto
+                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent">
             {loading ? (
-              <div className="h-full flex flex-col items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin mb-2" />
+              <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
                 <p className="text-lg">세계관을 불러오는 중...</p>
               </div>
             ) : error ? (
-              <div className="h-full flex flex-col items-center justify-center text-red-400">
+              <div className="h-full w-full flex flex-col items-center justify-center text-red-500 text-center">
                 <p>{error}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-4 text-white underline"
-                >
+                <button onClick={() => window.location.reload()} className="mt-4 underline">
                   다시 시도
                 </button>
               </div>
             ) : (
-              <div className="text-lg leading-relaxed whitespace-pre-line">
-                {worldView}
+              <div className="h-full w-full bg-custom-hover bg-opacity-60 rounded-2xl p-6 shadow-2xl">
+                <div className="text-base leading-relaxed whitespace-pre-line">
+                  {worldView}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Action Button */}
-          <button
-            onClick={handleStartGame}
-            disabled={loading || !!error}
-            className="bg-custom-purple hover:bg-custom-violet text-white font-bold py-3 px-8 
-                     rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors
-                     transform hover:scale-105 active:scale-95 duration-200"
-          >
-            {loading ? "로딩중..." : error ? "다시 시도" : "게임 시작하기"}
-          </button>
+          {/* 시작 버튼 */}
+          <div className="flex justify-center">
+            <button
+              onClick={handleStartGame}
+              disabled={loading || !!error}
+              className="text-white py-4 px-8 rounded-lg animate-pulse 
+              disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="font-bold text-lg">
+                {loading ? "로딩중..." : error ? "다시 시도" : "게임 시작하기"}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

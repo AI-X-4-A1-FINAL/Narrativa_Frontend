@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
+import { parseCookieKeyValue } from "../api/cookie";
 
 interface Genre {
   name: string;
@@ -12,73 +13,79 @@ interface Genre {
 }
 
 interface UserInfo {
-  nickname: string;
-  status: string;
-  profile_url: boolean;
+  access_token: string;
+  user_id: number;
+  profile_url: string;
+  loginType: string;
+  id: number;
+  username: string;
 }
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
-  const [cookieValue, setCookieValue] = useState<string | null>(null);
+  const [cookie, setCookie, removeCookie] = useCookies(["token"]);
 
   // 회원 상태
   const [userState, setUserState] = useState<string | null>(null);
 
   // 유저 유효성 검증
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
+  const checkAuth = async (userId: number, accessToken: string) => {
+    const isAuthenticated = await AuthGuard(userId, accessToken);
+    console.log('isAuthenticated: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
   };
 
   useEffect(() => {
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    } else if (cookies.id) {
-      setCookieValue(cookies.id);
-    } else {
-      setCookieValue(null);
-    }
+    const cookieToken = cookie.token;
+    // console.log('cookie: ', cookie);
 
-    if (!checkAuth(cookies.id)) {
-      navigate("/");
-    }
+    cookieToken == null && navigate("/"); // cookieToken이 null일 때만 navigate("/")가 실행
 
-    if (cookies.id) {
-      setCookieValue(cookies.id);
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+    
+    if (_cookieContent == null) {
+      navigate("/");
     } else {
-      setCookieValue(null);
+      const userInfo: UserInfo = {
+        access_token: _cookieContent.access_token || '',
+        user_id: _cookieContent.user_id || 0,
+        profile_url: _cookieContent.profile_url || '',
+        loginType: _cookieContent.loginType || '',
+        id: _cookieContent.id || 0,
+        username: _cookieContent.username || '',
+      };
+
     }
-  }, [cookies, navigate]);
+  }, [cookie, navigate]);
 
   // 장르 데이터 배열
   const genres: Genre[] = [
     {
       name: "Survival",
       tags: ["서바이벌", "살아남기"],
-      image: "/images/survival.jpeg",
+      image: "/images/survival.webp",
       available: true,
     },
     {
       name: "Romance",
       tags: ["사랑", "드라마"],
-      image: "/images/romance.png",
+      image: "/images/romance.webp",
       available: false,
     },
     {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
-      image: "/images/simulation.png",
+      image: "/images/simulation.webp",
       available: false,
     },
     {
       name: "Mystery",
       tags: ["스릴러", "범죄"],
-      image: "/images/detective.jpg",
+      image: "/images/detective.webp",
       available: false,
     },
   ];

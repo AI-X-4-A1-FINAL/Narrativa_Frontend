@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useMessageManagement } from './useMessageManagement';
+import { useState } from "react";
+import { useMessageManagement } from "./useMessageManagement";
 
 interface UseGameChatProps {
   genre: string;
@@ -7,6 +7,7 @@ interface UseGameChatProps {
   initialStory?: string;
   tags: string[];
   image: string;
+  gameId: string;
 }
 
 export const useGameChat = ({
@@ -15,12 +16,12 @@ export const useGameChat = ({
   initialStory = "",
   tags,
   image,
+  gameId,
 }: UseGameChatProps) => {
   const [userInput, setUserInput] = useState<string>("");
   const [conversationHistory, setConversationHistory] = useState<string[]>([]);
 
-
-  // 이제 필요한 props를 전달하여 useMessageManagement을 호출합니다.
+  // useMessageManagement 호출 시 필요한 모든 props를 전달
   const {
     allMessages,
     currentMessages,
@@ -28,22 +29,21 @@ export const useGameChat = ({
     loading,
     fetchOpponentMessage,
     messagesEndRef,
-    storyId, // storyId를 반환받습니다.
   } = useMessageManagement({
     genre,
     currentStage,
     initialStory,
-    userInput,              // 추가된 userInput
-    previousUserInput: "",  // 초기값
-    conversationHistory,    // 대화 기록
+    userInput,
+    previousUserInput: "",
+    conversationHistory,
     tags,
     image,
+    gameId,
   });
 
   // 선택한 메시지를 전송하는 함수
   const sendMessage = async (choice: string) => {
-    //alert(`You selected: ${choice}`); // 선택한 내용을 alert로 표시
-    await fetchOpponentMessage(choice); // AI와 상호작용
+    await fetchOpponentMessage(choice);
   };
 
   return {
@@ -53,7 +53,6 @@ export const useGameChat = ({
     loading,
     sendMessage,
     messagesEndRef,
-    storyId, // storyId를 외부에서 사용할 수 있도록 반환
     userInput,
     setUserInput,
     conversationHistory,
