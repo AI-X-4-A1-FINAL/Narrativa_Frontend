@@ -4,13 +4,14 @@ import { FaDownload } from "react-icons/fa";
 import { useCookies } from "react-cookie";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
+import { parseCookieKeyValue } from "../api/cookie";
 
 const GameEnding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]); // 쿠키
-
+  
+  const [cookie, setCookie, removeCookie] = useCookies(["token"]); // 쿠키
+  
   const { prompt, genre } = location.state || {};
   const image = location.state?.image || "/nara-thumbnail.png";
 
@@ -43,18 +44,32 @@ const GameEnding: React.FC = () => {
   };
 
   // 유저 유효성 검증
-  const checkAuth = async (userId: number): Promise<boolean> => {
-    const isAuthenticated = await AuthGuard(userId);
+  const checkAuth = async (userId: number, accessToken: string): Promise<boolean> => {
+    const isAuthenticated = await AuthGuard(userId, accessToken);
     return isAuthenticated;
   };
 
   useEffect(() => {
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    }
+    const cookieToken = cookie.token;
+    console.log('cookie: ', cookie);
+    console.log('cookieToken: ', cookieToken);
 
-    if (!checkAuth(cookies.id)) {
+    cookieToken == null && navigate("/");
+
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+
+    if (_cookieContent == null) {
       navigate("/");
+    } else {
+      const cookieId = _cookieContent.id;
+      const cookieAccessToken = _cookieContent.access_token;
+      if (cookieId == null || cookieAccessToken == null) {
+        navigate("/");
+      } else {
+        if (!checkAuth(cookieId, cookieAccessToken)) {
+          navigate("/"); // 유저 상태코드 유효하지 않으면 접근
+        }
+      }
     }
   }, []);
 

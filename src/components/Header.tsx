@@ -40,6 +40,7 @@ const Header: React.FC = () => {
      try {
        setIsLoading(true);
        const response = await axios.get(`${process.env.REACT_APP_SPRING_URI}/api/notices`);
+       
        const notices = response.data;
        if (notices && notices.length > 0) {
          setLatestNotice(notices[0]);

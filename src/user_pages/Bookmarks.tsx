@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import AuthGuard from "../api/accessControl";
 import { useDarkMode } from "../Contexts/DarkModeContext";
+import { parseCookieKeyValue } from "../api/cookie";
 
 const Bookmarks: React.FC = () => {
   const navigate = useNavigate();
@@ -27,23 +28,38 @@ const Bookmarks: React.FC = () => {
     ],
   };
 
-  const [cookies, setCookie, removeCookie] = useCookies(["id"]);
+  const [cookie, setCookie, removeCookie] = useCookies(["token"]);
 
-  const checkAuth = async (userId: number) => {
-    const isAuthenticated = await AuthGuard(userId);
+  const checkAuth = async (userId: number, accessToken: string) => {
+    const isAuthenticated = await AuthGuard(userId, accessToken);
     if (!isAuthenticated) {
       navigate("/");
     }
   };
 
   useEffect(() => {
-    console.log("cookies.id", cookies.id);
-    if (cookies.id === undefined || cookies.id === null) {
-      navigate("/");
-    }
+    const cookieToken = cookie.token;
+    console.log('cookie: ', cookie);
+    console.log('cookieToken: ', cookieToken);
 
-    if (!checkAuth(cookies.id)) {
+    cookieToken == null && navigate("/");
+
+    const _cookieContent = parseCookieKeyValue(cookieToken);
+    console.log('_cookieContent: ', _cookieContent);
+
+    if (_cookieContent == null) {
       navigate("/");
+    } else {
+      const _cookieContentAccesToken = _cookieContent.access_token;
+      const _cookieContentId = _cookieContent.user_id;
+  
+      if (_cookieContentAccesToken == null || _cookieContentId == null) {
+        navigate("/");
+      } else {
+        if (!checkAuth(_cookieContentId, _cookieContentAccesToken)) {
+          navigate("/");
+        }
+      }
     }
   }, []);
 

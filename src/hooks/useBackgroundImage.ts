@@ -1,6 +1,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import axios from '../api/axiosInstance';
+import { parseCookieKeyValue } from '../api/cookie';
+import { Cookies } from 'react-cookie';
 
 interface UseBackgroundImageReturn {
   bgImage: string;
@@ -13,6 +15,10 @@ export const useBackgroundImage = (initialImage: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const imageFetched = useRef(false);
 
+  const cookies = new Cookies();
+  const cookieToken = cookies.get('token');
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
+
   // 이미지를 생성하는 함수 (Generate image)
   const generateImage = async (script: string, genre: string) => {
     setIsLoading(true);
@@ -22,7 +28,15 @@ export const useBackgroundImage = (initialImage: string) => {
         size: "256x256",
         n: 1,
         genre : genre
-      });
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+          "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+        },
+        withCredentials: true,  // 쿠키를 요청에 포함시키기
+      }
+    );
       setBgImage(response.data);  // API 응답을 배경 이미지로 설정
       console.log(response.config.data)
 
@@ -46,7 +60,19 @@ export const useBackgroundImage = (initialImage: string) => {
   // 랜덤 배경 이미지를 fetch하는 함수
   const fetchBackgroundImage = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SPRING_URI}/api/images/random`);
+      const response = await fetch(
+        `${process.env.REACT_APP_SPRING_URI}/api/images/random`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+          credentials: "include",
+        }
+      );
+
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

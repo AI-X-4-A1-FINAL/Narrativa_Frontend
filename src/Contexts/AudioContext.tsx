@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { Cookies } from 'react-cookie';
+import { parseCookieKeyValue } from '../api/cookie';
 
 interface AudioContextType {
   musicUrl: string | null;
@@ -19,6 +21,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(new Audio());
   const initializingRef = useRef<boolean>(false);
+
+  const cookies = new Cookies();
+  const cookieToken = cookies.get('token');
+  const userId = Number(parseCookieKeyValue(cookieToken)?.id); 
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -49,7 +56,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${genre}`
+        `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${genre}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+          credentials: "include",
+        }
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

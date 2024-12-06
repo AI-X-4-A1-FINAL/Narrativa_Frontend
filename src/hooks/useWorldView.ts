@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
+import { parseCookieKeyValue } from '../api/cookie';
 
 interface WorldViewReturn {
   worldView: string;
@@ -20,7 +21,9 @@ export const useWorldView = (
   const [error, setError] = useState<string | null>(null);
   const requestSent = useRef(false); // 요청이 이미 실행되었는지 추적
   const cookies = new Cookies();
-  const userId: number = Number(cookies.get("id"));
+  const cookieToken = cookies.get('token');
+  const userId: number = Number(parseCookieKeyValue(cookieToken)?.id); 
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   const fetchWorldView = async () => {
     if (requestSent.current || initialStory) return; // 요청 중복 방지
@@ -35,6 +38,13 @@ export const useWorldView = (
           genre,
           tags,
           userId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",  // JSON 형식으로 데이터를 보낸다는 헤더
+            "Authorization": `Bearer ${accessToken}`,  // JWT 토큰을 Authorization 헤더에 추가
+          },
+          withCredentials: true,  // 쿠키를 요청에 포함시키기
         }
       );
       console.log("Response received:", response.data);

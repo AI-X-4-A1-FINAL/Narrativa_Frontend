@@ -8,6 +8,8 @@ import { useBackgroundImage } from "../hooks/useBackgroundImage";
 import { useGameStage } from "../hooks/useGameStage";
 import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
+import { Cookies } from "react-cookie";
+import { parseCookieKeyValue } from "../api/cookie";
 
 // 타입 정의
 interface Choice {
@@ -24,8 +26,12 @@ interface GameState {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  // 이전 페이지에서 이동 시 전달된 데이터
   const { genre, tags, image, userId, initialStory } =
     location.state as LocationState;
+  const cookies = new Cookies();
+  const cookieToken = cookies.get('token');
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
@@ -78,7 +84,15 @@ const GamePage: React.FC = () => {
           genre,
           tags,
           userId,
-        });
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+            "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+          },
+          withCredentials: true,  // 쿠키를 요청에 포함시키기
+        }
+      );
 
         setGameState({
           mainMessage: "",
@@ -128,7 +142,16 @@ const GamePage: React.FC = () => {
         generateImage(choiceText, genre);
       } else {
         const generatedImage = await generateImage(choiceText, genre);
-        const endResponse = await axios.post("/generate-story/end", endPayload);
+        const endResponse = await axios.post("/generate-story/end", 
+          endPayload,
+          {
+            headers: {
+              "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+              "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+            },
+            withCredentials: true,  // 쿠키를 요청에 포함시키기
+          }
+        );
 
         navigate("/game-ending", {
           state: {
@@ -140,7 +163,16 @@ const GamePage: React.FC = () => {
         return;
       }
 
-      const response = await axios.post("/generate-story/chat", payload);
+      const response = await axios.post("/generate-story/chat", 
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
+            "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+          },
+          withCredentials: true,  // 쿠키를 요청에 포함시키기
+        }
+      );
       //alert(choiceText)
       // console.log("Response from /chat:", response.data); // 서버 응답 로그
 
