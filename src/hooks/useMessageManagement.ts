@@ -91,7 +91,7 @@ export const useMessageManagement = ({
 
           //alert(response.data.story);
 
-          await generateImage(response.data.story, genre); // 스토리와 장르를 사용
+          await generateImage(response.data.story, genre, gameId, currentStage); // gameId와 currentStage를 추가
         } catch (error) {
           console.error("Error initializing game:", error);
           const errorMessage: Message = {
