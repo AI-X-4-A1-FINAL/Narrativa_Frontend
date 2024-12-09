@@ -41,7 +41,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const cookieToken = cookie.token;
-    // console.log('cookie: ', cookie);
+    console.log('cookie: ', cookie);
 
     cookieToken == null && navigate("/"); // cookieToken이 null일 때만 navigate("/")가 실행
 
