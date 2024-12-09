@@ -20,7 +20,7 @@ interface Choice {
 interface GameState {
   mainMessage: string;
   choices: string[];
-  gameId?: number;
+  gameId?: string;
 }
 
 const GamePage: React.FC = () => {
@@ -30,7 +30,7 @@ const GamePage: React.FC = () => {
   const { genre, tags, image, userId, initialStory } =
     location.state as LocationState;
   const cookies = new Cookies();
-  const cookieToken = cookies.get('token');
+  const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   // 상태 관리
@@ -80,19 +80,21 @@ const GamePage: React.FC = () => {
       setError(null);
 
       try {
-        const response = await axios.post("/generate-story/start", {
-          genre,
-          tags,
-          userId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
-            "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+        const response = await axios.post(
+          "/generate-story/start",
+          {
+            genre,
+            tags,
+            userId,
           },
-          withCredentials: true,  // 쿠키를 요청에 포함시키기
-        }
-      );
+          {
+            headers: {
+              "Content-Type": "application/json", // JSON 형식으로 데이터 전송
+              Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 JWT 토큰 포함
+            },
+            withCredentials: true, // 쿠키를 요청에 포함시키기
+          }
+        );
 
         setGameState({
           mainMessage: "",
@@ -115,8 +117,6 @@ const GamePage: React.FC = () => {
 
     startGame();
   }, [genre, tags, userId, isAuthenticated, initialStory]);
-
-  // 선택지 선택 처리
   const handleChoice = async (choiceText: string) => {
     if (!gameState.gameId) {
       setError("게임 ID가 없습니다.");
@@ -129,30 +129,40 @@ const GamePage: React.FC = () => {
     try {
       const payload = {
         genre,
-        userSelect: choiceText, // 선택한 텍스트
-        gameId: gameState.gameId,
-      };
-      const endPayload = {
-        genre,
-        userChoice: choiceText, // 선택한 텍스트
+        userSelect: choiceText,
         gameId: gameState.gameId,
       };
 
       if (currentStage < 4) {
-        generateImage(choiceText, genre);
+        // 스테이지 진행 중
+        await generateImage(choiceText, genre, gameState.gameId, currentStage);
       } else {
-        const generatedImage = await generateImage(choiceText, genre);
-        const endResponse = await axios.post("/generate-story/end", 
+        // 엔딩 처리
+        const endPayload = {
+          genre,
+          userChoice: choiceText,
+          gameId: gameState.gameId,
+        };
+
+        const generatedImage = await generateImage(
+          choiceText,
+          genre,
+          gameState.gameId,
+          currentStage
+        );
+        const endResponse = await axios.post(
+          "/generate-story/end",
           endPayload,
           {
             headers: {
-              "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
-              "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
             },
-            withCredentials: true,  // 쿠키를 요청에 포함시키기
+            withCredentials: true,
           }
         );
 
+        // 엔딩 화면으로 이동
         navigate("/game-ending", {
           state: {
             image: generatedImage?.data,
@@ -163,34 +173,27 @@ const GamePage: React.FC = () => {
         return;
       }
 
-      const response = await axios.post("/generate-story/chat", 
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
-            "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
-          },
-          withCredentials: true,  // 쿠키를 요청에 포함시키기
-        }
-      );
-      //alert(choiceText)
-      // console.log("Response from /chat:", response.data); // 서버 응답 로그
+      // 대화 진행
+      const response = await axios.post("/generate-story/chat", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true,
+      });
 
+      // 상태 업데이트
       setGameState({
         mainMessage: "",
-        choices: response.data.choices || [], // 여기서 Choice[] 타입의 배열을 받아야 함
+        choices: response.data.choices || [],
         gameId: gameState.gameId,
       });
 
-      let storyProgress = response.data.story;
-      const words = storyProgress.split(" "); // Split story into words
+      const storyProgress = response.data.story;
+      const words = storyProgress.split(" ");
+      updateStoryTextByWord(storyProgress, words, 0);
 
-      // Call helper function to update the text word by word
-      updateStoryTextByWord(storyProgress, words, 0); // Start the animation
-
-      //generateImage(response.data.story, genre)
-      //alert(response.data.story)
-
+      // 다음 스테이지로 진행
       if (currentStage < 4) {
         goToNextStage();
       }
