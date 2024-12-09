@@ -1,61 +1,73 @@
-
-import { useState, useEffect, useRef } from 'react';
-import axios from '../api/axiosInstance';
-import { parseCookieKeyValue } from '../api/cookie';
-import { Cookies } from 'react-cookie';
+import { useState, useEffect, useRef } from "react";
+import axios from "../api/axiosInstance";
+import { parseCookieKeyValue } from "../api/cookie";
+import { Cookies } from "react-cookie";
 
 interface UseBackgroundImageReturn {
   bgImage: string;
   isLoading: boolean;
-  generateImage: (script: string) => Promise<void>;
+  generateImage: (
+    script: string,
+    genre: string,
+    gameId: string,
+    stageNumber: number
+  ) => Promise<void>;
 }
 
 export const useBackgroundImage = (initialImage: string) => {
-  const [bgImage, setBgImage] = useState<string>(initialImage || "/images/game-start.jpeg");
+  const [bgImage, setBgImage] = useState<string>(
+    initialImage || "/images/game-start.jpeg"
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const imageFetched = useRef(false);
 
   const cookies = new Cookies();
-  const cookieToken = cookies.get('token');
+  const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   // 이미지를 생성하는 함수 (Generate image)
-  const generateImage = async (script: string, genre: string) => {
+  const generateImage = async (
+    script: string,
+    genre: string,
+    gameId: string, // gameId 받아옴
+    stageNumber: number // stageNumber 받아옴
+  ) => {
     setIsLoading(true);
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SPRING_URI}/api/images/generate-image`, {
-        prompt: script,
-        size: "256x256",
-        n: 1,
-        genre : genre
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",  // JSON 형식으로 데이터 전송
-          "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더에 JWT 토큰 포함
+      const response = await axios.post(
+        `${process.env.REACT_APP_SPRING_URI}/api/images/generate-image`,
+        {
+          gameId: gameId, // gameId 추가
+          stageNumber: stageNumber + 1, // stageNumber 추가
+          prompt: script,
+          size: "256x256",
+          n: 1,
+          genre: genre,
         },
-        withCredentials: true,  // 쿠키를 요청에 포함시키기
-      }
-    );
-      setBgImage(response.data);  // API 응답을 배경 이미지로 설정
-      console.log(response.config.data)
+        {
+          headers: {
+            "Content-Type": "application/json", // JSON 형식으로 데이터 전송
+            Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 JWT 토큰 포함
+          },
+          withCredentials: true, // 쿠키를 요청에 포함시키기
+        }
+      );
+
+      setBgImage(response.data); // API 응답을 배경 이미지로 설정
+      console.log(response.config.data);
 
       const needData = JSON.parse(response.config.data);
       const text = needData.prompt;
       const gen = needData.genre;
       const data = response.data;
-      
+
       return { data, text, gen };
-      
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
-
-
 
   // 랜덤 배경 이미지를 fetch하는 함수
   const fetchBackgroundImage = async () => {
@@ -66,12 +78,11 @@ export const useBackgroundImage = (initialImage: string) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           credentials: "include",
         }
       );
-
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -87,9 +98,7 @@ export const useBackgroundImage = (initialImage: string) => {
 
   // 컴포넌트 마운트 시 이미지 불러오기
   useEffect(() => {
-    
-      fetchBackgroundImage(); // s3에서 랜덤 이미지 불러오기
-      
+    fetchBackgroundImage(); // s3에서 랜덤 이미지 불러오기
   }, []); // 빈 의존성 배열 -> 컴포넌트가 처음 마운트 될 때만 실행
 
   return { bgImage, isLoading, generateImage };
