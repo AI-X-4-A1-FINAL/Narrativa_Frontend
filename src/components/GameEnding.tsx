@@ -54,8 +54,8 @@ const GameEnding: React.FC = () => {
 
   useEffect(() => {
     const cookieToken = cookie.token;
-    console.log("cookie: ", cookie);
-    console.log("cookieToken: ", cookieToken);
+    // console.log("cookie: ", cookie);
+    // console.log("cookieToken: ", cookieToken);
 
     cookieToken == null && navigate("/");
 

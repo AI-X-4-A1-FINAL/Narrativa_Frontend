@@ -29,8 +29,8 @@ const Loading: React.FC = () => {
   
   useEffect(() => {
     const cookieToken = cookie.token;   // 쿠키의 토큰 값
-    console.log('cookie: ', cookie);
-    console.log('cookieToken: ', cookieToken);
+    // console.log('cookie: ', cookie);
+    // console.log('cookieToken: ', cookieToken);
 
     if (cookieToken == null) {
       navigate('/');  // 쿠키 토큰 값 유효x -> main 화면 이동

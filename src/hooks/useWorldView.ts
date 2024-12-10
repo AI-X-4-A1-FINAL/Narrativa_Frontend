@@ -47,7 +47,7 @@ export const useWorldView = (
           withCredentials: true, // 쿠키를 요청에 포함시키기
         }
       );
-      console.log("Response received:", response.data);
+      // console.log("Response received:", response.data);
       setWorldView(response.data.story);
       setError(null);
     } catch (error) {
