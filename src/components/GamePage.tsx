@@ -11,6 +11,8 @@ import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 
+import { trackEvent } from "../utils/analytics";
+
 // 타입 정의
 interface Choice {
   id: number;
@@ -32,6 +34,19 @@ const GamePage: React.FC = () => {
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
+
+  const [gameStartTime] = useState(new Date());
+
+  useEffect(() => {
+    return () => {
+      const endTime = new Date();
+      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
+      
+      if (genre) {
+        trackEvent.gameEnd(genre, duration);
+      }
+    };
+  }, [genre, gameStartTime]);
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
