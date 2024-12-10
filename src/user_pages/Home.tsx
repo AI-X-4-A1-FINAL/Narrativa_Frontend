@@ -23,6 +23,12 @@ interface UserInfo {
   username: string;
 }
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
 const Home: React.FC = () => {
   useEffect(() => {
     // 홈 페이지 방문 추적
@@ -105,6 +111,13 @@ const Home: React.FC = () => {
     available: boolean
   ) => {
     if (!available) return;
+
+    // Google Analytics 게임 시작 이벤트 추적
+    window.dataLayer.push({
+      'event': 'game_start',
+      'game_name': genre,
+      'game_tags': tags.join(',')
+    });
 
     navigate("/game-intro", {
       state: {
