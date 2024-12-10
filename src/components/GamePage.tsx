@@ -10,13 +10,9 @@ import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
+import ChatBot from "./ChatBot"; // ChatBot 컴포넌트 추가
 
 // 타입 정의
-interface Choice {
-  id: number;
-  text: string;
-}
-
 interface GameState {
   mainMessage: string;
   choices: string[];
@@ -26,12 +22,7 @@ interface GameState {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // 이전 페이지에서 이동 시 전달된 데이터
-  const { genre, tags, image, userId, initialStory } =
-    location.state as LocationState;
-  const cookies = new Cookies();
-  const cookieToken = cookies.get("token");
-  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
+  const { genre, tags, image, userId } = location.state as LocationState;
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
@@ -39,41 +30,33 @@ const GamePage: React.FC = () => {
     choices: [],
     gameId: undefined,
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isChoicesDisplayed, setIsChoicesDisplayed] = useState(false);
+  const [isChatBotVisible, setIsChatBotVisible] = useState(false); // ChatBot 표시 상태
 
-  // 인증
+  // 인증 및 유틸리티
   const { isAuthenticated } = useAuth();
-
-  // 오디오
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
-
-  // 배경 이미지
   const { bgImage, generateImage } = useBackgroundImage(image);
-
-  // 게임 스테이지
   const { currentStage, goToNextStage } = useGameStage({
     maxStages: 5,
     onStageChange: () => initializeMusic(genre),
   });
 
-  // Helper function to update the story text one word at a time
-  const updateStoryTextByWord = (
-    story: string,
-    words: string[],
-    index: number
-  ) => {
-    if (index < words.length) {
-      setGameState((prevState) => ({
-        ...prevState,
-        mainMessage: prevState.mainMessage + " " + words[index], // Add one word at a time
-      }));
-      setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100); // Delay between each word (400ms for slower speed)
-    }
-  };
+  const cookies = new Cookies();
+  const cookieToken = cookies.get("token");
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
-  // 초기 게임 시작
+  // 선택지 표시 상태 업데이트
+  useEffect(() => {
+    if (!isLoading && !error && gameState.choices.length > 0) {
+      setIsChoicesDisplayed(true);
+      setIsChatBotVisible(true); // ChatBot 표시
+    }
+  }, [isLoading, error, gameState.choices]);
+
+  // 게임 시작
   useEffect(() => {
     const startGame = async () => {
       setIsLoading(true);
@@ -82,17 +65,13 @@ const GamePage: React.FC = () => {
       try {
         const response = await axios.post(
           "/generate-story/start",
-          {
-            genre,
-            tags,
-            userId,
-          },
+          { genre, tags, userId },
           {
             headers: {
-              "Content-Type": "application/json", // JSON 형식으로 데이터 전송
-              Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 JWT 토큰 포함
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
             },
-            withCredentials: true, // 쿠키를 요청에 포함시키기
+            withCredentials: true,
           }
         );
 
@@ -102,11 +81,9 @@ const GamePage: React.FC = () => {
           gameId: response.data.gameId,
         });
 
-        // Initialize story text
-        let storyProgress = response.data.story;
-        const words = storyProgress.split(" ");
-
-        updateStoryTextByWord(storyProgress, words, 0);
+        // 스토리 초기화
+        const words = response.data.story.split(" ");
+        updateStoryTextByWord(response.data.story, words, 0);
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");
@@ -116,7 +93,24 @@ const GamePage: React.FC = () => {
     };
 
     startGame();
-  }, [genre, tags, userId, isAuthenticated, initialStory]);
+  }, [genre, tags, userId, accessToken]);
+
+  // 스토리 텍스트 한 단어씩 업데이트
+  const updateStoryTextByWord = (
+    story: string,
+    words: string[],
+    index: number
+  ) => {
+    if (index < words.length) {
+      setGameState((prev) => ({
+        ...prev,
+        mainMessage: prev.mainMessage + " " + words[index],
+      }));
+      setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100);
+    }
+  };
+
+  // 선택 처리
   const handleChoice = async (choiceText: string) => {
     if (!gameState.gameId) {
       setError("게임 ID가 없습니다.");
@@ -134,16 +128,13 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        // 스테이지 진행 중
         await generateImage(choiceText, genre, gameState.gameId, currentStage);
       } else {
-        // 엔딩 처리
         const endPayload = {
           genre,
           userChoice: choiceText,
           gameId: gameState.gameId,
         };
-
         const generatedImage = await generateImage(
           choiceText,
           genre,
@@ -162,18 +153,16 @@ const GamePage: React.FC = () => {
           }
         );
 
-        // 엔딩 화면으로 이동
         navigate("/game-ending", {
           state: {
             image: generatedImage?.data,
             prompt: endResponse.data.story,
-            genre: genre,
+            genre,
           },
         });
         return;
       }
 
-      // 대화 진행
       const response = await axios.post("/generate-story/chat", payload, {
         headers: {
           "Content-Type": "application/json",
@@ -182,18 +171,15 @@ const GamePage: React.FC = () => {
         withCredentials: true,
       });
 
-      // 상태 업데이트
       setGameState({
         mainMessage: "",
         choices: response.data.choices || [],
         gameId: gameState.gameId,
       });
 
-      const storyProgress = response.data.story;
-      const words = storyProgress.split(" ");
-      updateStoryTextByWord(storyProgress, words, 0);
+      const words = response.data.story.split(" ");
+      updateStoryTextByWord(response.data.story, words, 0);
 
-      // 다음 스테이지로 진행
       if (currentStage < 4) {
         goToNextStage();
       }
@@ -205,7 +191,6 @@ const GamePage: React.FC = () => {
     }
   };
 
-  // 인증 체크
   if (!isAuthenticated) {
     navigate("/");
     return null;
@@ -214,70 +199,48 @@ const GamePage: React.FC = () => {
   return (
     <div className="relative w-full h-screen text-white overflow-hidden">
       {/* 배경 이미지 */}
-      <div className="absolute inset-0 transition-transform duration-700">
+      <div className="absolute inset-0">
         <img
           src={bgImage}
           alt={`Stage ${currentStage + 1}`}
-          className="w-full h-full object-cover brightness-[0.4] transition-all duration-500"
+          className="w-full h-full object-cover brightness-50"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-50" />
       </div>
 
       {/* 상단 네비게이션 */}
-      <div className="absolute top-4 flex justify-between w-full px-4 z-30">
+      <div className="absolute top-4 flex justify-between w-full px-4">
         <button
           onClick={togglePlayPause}
-          className="bg-custom-background text-white w-10 h-10 rounded-full 
-                   hover:bg-custom-violet transition-colors 
-                   flex items-center justify-center shadow-2xl"
+          className="bg-gray-800 p-2 rounded-full"
         >
           {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
-
         <GameStageIndicator currentStage={currentStage} maxStages={5} />
-
         <button
-          onClick={() => {
-            if (window.confirm("정말 나가시겠습니까?")) {
-              navigate("/game-intro", { state: { genre, tags, image } });
-            }
-          }}
-          className="bg-custom-background text-white w-10 h-10 rounded-full 
-                   hover:bg-custom-violet transition-colors 
-                   flex items-center justify-center shadow-2xl"
+          onClick={() =>
+            navigate("/game-intro", { state: { genre, tags, image } })
+          }
+          className="bg-gray-800 p-2 rounded-full"
         >
           <ArrowBigLeftDash size={20} />
         </button>
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-between pt-20 pb-8 px-4">
+      <div className="absolute inset-0 flex flex-col justify-between p-8">
         {/* 선택지 영역 */}
-        <div className="flex-1 w-full max-w-2xl flex items-center justify-center min-h-[50vh]">
+        <div className="flex-1 flex justify-center items-center">
           {isLoading ? (
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto" />
-              <p className="mt-4">Loading...</p>
-            </div>
+            <div>Loading...</div>
           ) : error ? (
-            <div className="text-red-500 text-center">
-              <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 underline"
-              >
-                다시 시도
-              </button>
-            </div>
+            <div>{error}</div>
           ) : (
-            <div className="w-full space-y-8">
+            <div className="w-full max-w-2xl space-y-4">
               {gameState.choices.map((choice, index) => (
                 <button
                   key={index}
                   onClick={() => handleChoice(choice)}
-                  className="w-full bg-custom-background bg-opacity-60 text-white 
-                           py-4 px-6 rounded-lg hover:bg-custom-violet shadow-2xl
-                           transition-colors duration-200 text-left border-gray-900 border-2"
+                  className="w-full bg-gray-800 text-white p-4 rounded-lg"
                 >
                   {choice}
                 </button>
@@ -286,16 +249,16 @@ const GamePage: React.FC = () => {
           )}
         </div>
 
-        {/* 하단 메시지 영역 */}
-        <div className="w-full max-w-2xl mb-20">
-          <div
-            className="bg-custom-background bg-opacity-60 border-gray-900 border-2
-          rounded-lg p-6 shadow-2xl"
-          >
-            <div className="text-base leading-relaxed">
-              {gameState.mainMessage || "Loading..."}
-            </div>
+        {/* 챗봇 */}
+        {isChatBotVisible && (
+          <div className="fixed bottom-4 right-4 z-50">
+            <ChatBot />
           </div>
+        )}
+
+        {/* 하단 메시지 */}
+        <div className="bg-gray-800 p-4 rounded-lg">
+          {gameState.mainMessage}
         </div>
       </div>
     </div>

@@ -9,17 +9,30 @@ import { LocationState } from "../utils/messageTypes";
 const GameWorldView: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, initialStory, isLoading } = (location.state as LocationState) || {};
+  const { genre, tags, image, initialStory, isLoading } =
+    (location.state as LocationState) || {};
   const [bgImage, setBgImage] = useState<string>(image);
   const [musicInitialized, setMusicInitialized] = useState(false);
   const loadingCompleteRef = useRef(false);
-  
+
   const { userId, isAuthenticated } = useAuth();
-  const { musicUrl, isPlaying, togglePlayPause, initializeMusic, stop } = useAudio();
-  const { worldView, loading, error } = useWorldView(genre, tags, initialStory, isLoading || false);
+  const { musicUrl, isPlaying, togglePlayPause, initializeMusic, stop } =
+    useAudio();
+  const { worldView, loading, error } = useWorldView(
+    genre,
+    tags,
+    initialStory,
+    isLoading || false
+  );
 
   useEffect(() => {
-    if (!loading && !error && genre && isAuthenticated && !loadingCompleteRef.current) {
+    if (
+      !loading &&
+      !error &&
+      genre &&
+      isAuthenticated &&
+      !loadingCompleteRef.current
+    ) {
       loadingCompleteRef.current = true;
       const timer = setTimeout(() => {
         if (!musicInitialized) {
@@ -27,10 +40,17 @@ const GameWorldView: React.FC = () => {
           setMusicInitialized(true);
         }
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [loading, error, genre, isAuthenticated, initializeMusic, musicInitialized]);
+  }, [
+    loading,
+    error,
+    genre,
+    isAuthenticated,
+    initializeMusic,
+    musicInitialized,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -49,12 +69,12 @@ const GameWorldView: React.FC = () => {
       navigate("/");
       return;
     }
-  
+
     if (!worldView || !genre || !tags || !image) {
       console.error("Required game data is missing");
       return;
     }
-  
+
     try {
       navigate("/game-page", {
         state: {
@@ -74,7 +94,9 @@ const GameWorldView: React.FC = () => {
   if (!genre || !isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-b from-gray-800 to-gray-900">
-        <p className="text-white text-xl font-medium animate-pulse">Invalid access. Redirecting...</p>
+        <p className="text-white text-xl font-medium animate-pulse">
+          Invalid access. Redirecting...
+        </p>
       </div>
     );
   }
@@ -122,10 +144,12 @@ const GameWorldView: React.FC = () => {
           <h1 className="text-4xl font-bold text-center text-white drop-shadow-lg">
             {genre} 세계관
           </h1>
-          
+
           {/* 세계관 내용 */}
-          <div className="flex-1 min-h-[50vh] max-h-[60vh] overflow-y-auto
-                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent">
+          <div
+            className="flex-1 min-h-[50vh] max-h-[60vh] overflow-y-auto
+                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent"
+          >
             {loading ? (
               <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
@@ -134,7 +158,10 @@ const GameWorldView: React.FC = () => {
             ) : error ? (
               <div className="h-full w-full flex flex-col items-center justify-center text-red-500 text-center">
                 <p>{error}</p>
-                <button onClick={() => window.location.reload()} className="mt-4 underline">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 underline"
+                >
                   다시 시도
                 </button>
               </div>
