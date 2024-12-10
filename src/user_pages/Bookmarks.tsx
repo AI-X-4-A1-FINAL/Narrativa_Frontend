@@ -114,7 +114,9 @@ const Bookmarks: React.FC = () => {
             .map((history) => {
               // imageUrl이 없으면 장르별 기본 이미지를 사용
               const imageToUse =
-                history.imageUrl || defaultImages[history.genre];
+                history.imageUrl && history.imageUrl !== "" // imageUrl이 비어있지 않은 경우
+                  ? history.imageUrl
+                  : defaultImages[history.genre]; // 기본 이미지 사용
 
               return (
                 <div
