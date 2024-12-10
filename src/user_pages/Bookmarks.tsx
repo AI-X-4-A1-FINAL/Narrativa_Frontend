@@ -96,7 +96,7 @@ const Bookmarks: React.FC = () => {
         </div>
 
         {/* 게임 히스토리 목록 */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 justify-items-center items-center">
           {gameHistories
             .filter((history) =>
               !selectedGenre
