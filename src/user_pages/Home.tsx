@@ -46,7 +46,7 @@ const Home: React.FC = () => {
   // 유저 유효성 검증
   const checkAuth = async (userId: number, accessToken: string) => {
     const isAuthenticated = await AuthGuard(userId, accessToken);
-    console.log('isAuthenticated: ', isAuthenticated);
+    // console.log('isAuthenticated: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
@@ -54,7 +54,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const cookieToken = cookie.token;
-    console.log('cookie: ', cookie);
+    // console.log('cookie: ', cookie);
 
     cookieToken == null && navigate("/"); // cookieToken이 null일 때만 navigate("/")가 실행
 
@@ -93,7 +93,7 @@ const Home: React.FC = () => {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
       image: "/images/simulation.webp",
-      available: false,
+      available: true,
     },
     {
       name: "Mystery",
