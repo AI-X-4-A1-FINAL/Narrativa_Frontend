@@ -9,9 +9,9 @@ import { parseCookieKeyValue } from "../api/cookie";
 const GameEnding: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [cookie, setCookie, removeCookie] = useCookies(["token"]); // 쿠키
-  
+
   const { prompt, genre } = location.state || {};
   const image = location.state?.image || "/nara-thumbnail.png";
 
@@ -44,15 +44,18 @@ const GameEnding: React.FC = () => {
   };
 
   // 유저 유효성 검증
-  const checkAuth = async (userId: number, accessToken: string): Promise<boolean> => {
+  const checkAuth = async (
+    userId: number,
+    accessToken: string
+  ): Promise<boolean> => {
     const isAuthenticated = await AuthGuard(userId, accessToken);
     return isAuthenticated;
   };
 
   useEffect(() => {
     const cookieToken = cookie.token;
-    console.log('cookie: ', cookie);
-    console.log('cookieToken: ', cookieToken);
+    console.log("cookie: ", cookie);
+    console.log("cookieToken: ", cookieToken);
 
     cookieToken == null && navigate("/");
 
