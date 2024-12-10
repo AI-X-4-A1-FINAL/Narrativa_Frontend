@@ -5,6 +5,8 @@ import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 
+import { trackEvent } from '../utils/analytics';
+
 interface Genre {
   name: string;
   tags: string[];
@@ -22,6 +24,11 @@ interface UserInfo {
 }
 
 const Home: React.FC = () => {
+  useEffect(() => {
+    // 홈 페이지 방문 추적
+    trackEvent.pageView('home');
+  }, []);
+  
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
