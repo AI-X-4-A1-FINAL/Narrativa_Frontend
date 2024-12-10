@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Main from "./user_pages/Main";
 import Login from "./user_pages/Login";
@@ -23,7 +23,30 @@ import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
 import ParticleProvider from "./Contexts/ParticleContext";
 
+import { analytics } from "./firebase/firebaseConfig";
+import { logEvent } from "firebase/analytics";
+
 const AppContent: React.FC = () => {
+  useEffect(() => {
+    logEvent(analytics, 'user_presence', {
+      status: 'online',
+      timestamp: new Date().toISOString()
+    });
+
+    const handleBeforeUnload = () => {
+      logEvent(analytics, 'user_presence', {
+        status: 'offline',
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   const headerState = useHeaderVisibility();
 
   return (
@@ -35,7 +58,11 @@ const AppContent: React.FC = () => {
           {headerState.showHeader && <Header />}
           <main
             className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
-              ${headerState.isHeaderVisible && headerState.isPaddingRequired ? "pt-32 px-4" : ""}`}
+              ${
+                headerState.isHeaderVisible && headerState.isPaddingRequired
+                  ? "pt-32 px-4"
+                  : ""
+              }`}
           >
             <Routes>
               {/* 일반 라우트 */}
@@ -49,26 +76,38 @@ const AppContent: React.FC = () => {
               <Route path="/notification/:id" element={<Notification />} />
 
               {/* 게임 라우트 */}
-              <Route path="/game-intro" element={
-                <GameLayout>
-                  <GameIntro />
-                </GameLayout>
-              } />
-              <Route path="/game-world-view" element={
-                <GameLayout>
-                  <GameWorldView />
-                </GameLayout>
-              } />
-              <Route path="/game-page" element={
-                <GameLayout>
-                  <GamePage />
-                </GameLayout>
-              } />
-              <Route path="/game-ending" element={
-                <GameLayout>
-                  <GameEnding />
-                </GameLayout>
-              } />
+              <Route
+                path="/game-intro"
+                element={
+                  <GameLayout>
+                    <GameIntro />
+                  </GameLayout>
+                }
+              />
+              <Route
+                path="/game-world-view"
+                element={
+                  <GameLayout>
+                    <GameWorldView />
+                  </GameLayout>
+                }
+              />
+              <Route
+                path="/game-page"
+                element={
+                  <GameLayout>
+                    <GamePage />
+                  </GameLayout>
+                }
+              />
+              <Route
+                path="/game-ending"
+                element={
+                  <GameLayout>
+                    <GameEnding />
+                  </GameLayout>
+                }
+              />
 
               {/* 404 라우트 - 항상 마지막에 위치 */}
               <Route path="/*" element={<WrongPage />} />
@@ -84,7 +123,16 @@ const App: React.FC = () => (
   <DarkModeProvider>
     <NotificationProvider>
       <AudioProvider>
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: -1,
+          }}
+        >
           <ParticleBackground />
         </div>
         <AppContent />
