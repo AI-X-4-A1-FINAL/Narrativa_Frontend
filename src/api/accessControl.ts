@@ -22,7 +22,7 @@ const AuthGuard = async (userId: number, accessToken: string) => {
         credentials: "include",
       }
     );
-    console.log('AuthGuard response: ', response);
+    // console.log('AuthGuard response: ', response);
 
     if (!response.ok) {
       return false;
