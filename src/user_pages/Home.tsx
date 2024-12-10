@@ -93,7 +93,7 @@ const Home: React.FC = () => {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
       image: "/images/simulation.webp",
-      available: false,
+      available: true,
     },
     {
       name: "Mystery",
