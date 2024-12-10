@@ -69,6 +69,5 @@ export const useWorldView = (
     loading,
     error,
     refetch: fetchWorldView,
-    refetch: fetchWorldView,
   };
 };
