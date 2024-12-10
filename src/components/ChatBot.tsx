@@ -49,14 +49,15 @@ const ChatBot: React.FC = () => {
 
   return (
     <div>
-      {/* 플로팅 아이콘 */}
       <div
         style={{
-          position: "fixed",
-          left: position.x,
-          top: position.y,
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)", // 가로 중앙 정렬
+          bottom: "0", // 초이스 버튼 바로 아래로 이동
+          marginBottom: "2rem", // 초이스 버튼과의 간격
           zIndex: 1000,
-          cursor: isDragging ? "grabbing" : "grab",
+          cursor: "pointer", // 클릭 가능 상태 유지
         }}
         onMouseLeave={() => setIsDragging(false)} // 드래그 종료
         className="bg-custom-violet p-4 rounded-full shadow-lg"
@@ -97,21 +98,13 @@ const ChatBot: React.FC = () => {
               ))}
             </div>
 
-            {/* 입력 박스 */}
+            {/* 버튼 */}
             <div className="p-4 border-t bg-gray-50 flex">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="메시지를 입력하세요..."
-                className="flex-1 p-2 border rounded-md focus:outline-none text-black"
-                onKeyPress={handleKeyPress} // Enter로 전송
-              />
               <button
                 onClick={sendMessage}
                 className="ml-2 px-4 py-2 bg-custom-violet text-white rounded-md hover:bg-blue-600"
               >
-                전송
+                hint
               </button>
             </div>
           </div>
