@@ -37,7 +37,7 @@ export const useAuth = (): AuthReturn => {
           if (!_cookieContentId || !(await AuthGuard(_cookieContentId, _cookieContentAccesToken))) {
             navigate('/');
           } else {
-            console.log('_cookieContentId: ', _cookieContentId);
+            // console.log('_cookieContentId: ', _cookieContentId);
             setUserId(_cookieContentId);
           }
         };

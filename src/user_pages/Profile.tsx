@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
   // 유저 유효성 검증
   const checkAuth = async (userId: number, accessToken: string) => {
     const isAuthenticated = await AuthGuard(userId, accessToken);
-    console.log('유저 유효성 여부: ', isAuthenticated);
+    // console.log('유저 유효성 여부: ', isAuthenticated);
     if (!isAuthenticated) {
       navigate("/");
     }
@@ -111,7 +111,7 @@ const Profile: React.FC = () => {
     cookieToken == null && navigate("/");
     
     const _cookieContent = parseCookieKeyValue(cookieToken);
-    console.log('_cookieContent: ', _cookieContent);
+    // console.log('_cookieContent: ', _cookieContent);
 
     if (_cookieContent != null) {
       const _cookieContentAccesToken = _cookieContent.access_token;
@@ -153,7 +153,7 @@ const Profile: React.FC = () => {
 
       // console.log('userId: ', userId);
       // console.log('accessToken: ', accessToken);
-      console.log('formData.image: ', formData.get('image'));
+      // console.log('formData.image: ', formData.get('image'));
       // s3에 이미지 저장
       const saveImgToS3 = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/s3/images/upload`,
