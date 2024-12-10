@@ -63,12 +63,17 @@ const GamePage: React.FC = () => {
     };
   }, [genre, gameStartTime]);
 
+  // useEffect(() => {
+  //   if (!isLoading && !error && gameState.choices.length > 0) {
+  //     setIsChoicesVisible(true);
+  //     setIsChatBotVisible(true);
+  //   }
+  // }, [isLoading, error, gameState.choices]);
+
   useEffect(() => {
-    if (!isLoading && !error && gameState.choices.length > 0) {
-      setIsChoicesVisible(true);
-      setIsChatBotVisible(true);
-    }
-  }, [isLoading, error, gameState.choices]);
+    console.log("isStoryComplete:", isStoryComplete);
+    console.log("isChatBotVisible:", isChatBotVisible);
+  }, [isStoryComplete, isChatBotVisible]);
 
   useEffect(() => {
     const startGame = async () => {
@@ -227,14 +232,6 @@ const GamePage: React.FC = () => {
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4">
         <button
-          onClick={togglePlayPause}
-          className="bg-gray-800 p-2 rounded-full"
-        >
-          {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
-        </button>
-        <GameStageIndicator currentStage={currentStage} maxStages={5} />
-
-        <button
           onClick={() =>
             navigate("/game-intro", { state: { genre, tags, image } })
           }
@@ -242,12 +239,20 @@ const GamePage: React.FC = () => {
         >
           <ArrowBigLeftDash size={20} />
         </button>
+        <GameStageIndicator currentStage={currentStage} maxStages={5} />
+        <button
+          onClick={togglePlayPause}
+          className="bg-gray-800 p-2 rounded-full"
+        >
+          {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
       </div>
       <div className="absolute top-24 left-0 w-full px-4 z-10">
         {/* 스토리 출력창 */}
         <div className="bg-gray-800 bg-opacity-50 p-4 top-24 rounded-lg px-4 z-10">
           {gameState.mainMessage}
         </div>
+
         {/* 선택지 */}
         {isStoryComplete && isChoicesVisible && (
           <div className="mt-11 flex-1 flex justify-center items-center">
@@ -273,7 +278,7 @@ const GamePage: React.FC = () => {
       </div>
       {/* 힌트봇 */}
       {isStoryComplete && isChatBotVisible && (
-        <div className="flex justify-center mt-4 z-50 animate-fadeIn transition-transform transform translate-y-4">
+        <div className="absolute bottom-8 left-0 w-full flex justify-center z-50">
           <ChatBot />
         </div>
       )}
