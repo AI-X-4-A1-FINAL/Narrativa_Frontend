@@ -29,6 +29,14 @@ const Bookmarks: React.FC = () => {
     성장: "Simulation",
   };
 
+  // 장르별 기본 이미지 경로
+  const defaultImages: { [key: string]: string } = {
+    Survival: "/images/survival.webp",
+    Romance: "/images/romance.webp",
+    Simulation: "/images/simulation.webp",
+    Mystery: "/images/detective.webp",
+  };
+
   const fetchGameHistories = async (userId: number) => {
     try {
       const response = await axios.post(
@@ -103,31 +111,37 @@ const Bookmarks: React.FC = () => {
                 ? true
                 : history.genre === genreMapping[selectedGenre]
             )
-            .map((history) => (
-              <div
-                key={history.gameId}
-                className="rounded-lg overflow-hidden cursor-pointer"
-                style={{ width: "200px", height: "300px" }} // 카드 크기 고정
-                onClick={() =>
-                  navigate(`/game-ending`, {
-                    state: {
-                      prompt: history.story,
-                      genre: history.genre,
-                      image: history.imageUrl,
-                    },
-                  })
-                }
-              >
-                <img
-                  src={history.imageUrl || "/default-thumbnail.jpg"}
-                  alt={`${history.genre} Thumbnail`}
-                  className="w-full h-4/5 object-cover rounded-t-lg" // 이미지 크기 조정
-                />
-                <p className="text-center mt-2 text-gray-800 dark:text-white truncate px-2">
-                  {history.story}
-                </p>
-              </div>
-            ))}
+            .map((history) => {
+              // imageUrl이 없으면 장르별 기본 이미지를 사용
+              const imageToUse =
+                history.imageUrl || defaultImages[history.genre];
+
+              return (
+                <div
+                  key={history.gameId}
+                  className="rounded-lg overflow-hidden cursor-pointer"
+                  style={{ width: "200px", height: "300px" }} // 카드 크기 고정
+                  onClick={() =>
+                    navigate(`/game-ending`, {
+                      state: {
+                        prompt: history.story,
+                        genre: history.genre,
+                        image: imageToUse,
+                      },
+                    })
+                  }
+                >
+                  <img
+                    src={imageToUse}
+                    alt={`${history.genre} Thumbnail`}
+                    className="w-full h-4/5 object-cover rounded-t-lg"
+                  />
+                  <p className="text-center mt-2 text-gray-800 dark:text-white truncate px-2">
+                    {history.story}
+                  </p>
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>
