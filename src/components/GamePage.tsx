@@ -12,6 +12,8 @@ import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot"; // ChatBot 컴포넌트 추가
 
+import { trackEvent } from "../utils/analytics";
+
 // 타입 정의
 interface GameState {
   mainMessage: string;
@@ -23,6 +25,19 @@ const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { genre, tags, image, userId } = location.state as LocationState;
+
+  const [gameStartTime] = useState(new Date());
+
+  useEffect(() => {
+    return () => {
+      const endTime = new Date();
+      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
+      
+      if (genre) {
+        trackEvent.gameEnd(genre, duration);
+      }
+    };
+  }, [genre, gameStartTime]);
 
   // 상태 관리
   const [gameState, setGameState] = useState<GameState>({

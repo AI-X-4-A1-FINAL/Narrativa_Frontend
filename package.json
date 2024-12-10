@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@firebase/analytics": "^0.10.10",
     "@lottiefiles/dotlottie-react": "^0.9.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -16,6 +17,7 @@
     "@types/react-dom": "^18.3.1",
     "axios": "^1.7.7",
     "boring-avatars": "^1.11.2",
+    "firebase": "^11.0.2",
     "html2canvas": "^1.4.1",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.462.0",
