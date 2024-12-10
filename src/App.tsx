@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Main from "./user_pages/Main";
 import Login from "./user_pages/Login";
@@ -23,7 +23,30 @@ import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
 import ParticleProvider from "./Contexts/ParticleContext";
 
+import { analytics } from "./firebase/firebaseConfig";
+import { logEvent } from "firebase/analytics";
+
 const AppContent: React.FC = () => {
+  useEffect(() => {
+    logEvent(analytics, 'user_presence', {
+      status: 'online',
+      timestamp: new Date().toISOString()
+    });
+
+    const handleBeforeUnload = () => {
+      logEvent(analytics, 'user_presence', {
+        status: 'offline',
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   const headerState = useHeaderVisibility();
 
   return (
