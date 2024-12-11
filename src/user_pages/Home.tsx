@@ -4,6 +4,7 @@ import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
+import { statisticsService } from '../service/statisticsService';
 
 import { trackEvent } from '../utils/analytics';
 
@@ -31,9 +32,8 @@ declare global {
 
 const Home: React.FC = () => {
   useEffect(() => {
-    // 홈 페이지 방문 추적
-    trackEvent.pageView('home');
-  }, []);
+    statisticsService.incrementTraffic();
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
   
   const navigate = useNavigate();
 
