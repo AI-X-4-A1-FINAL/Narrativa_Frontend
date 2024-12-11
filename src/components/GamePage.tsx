@@ -70,10 +70,7 @@ const GamePage: React.FC = () => {
   //   }
   // }, [isLoading, error, gameState.choices]);
 
-  useEffect(() => {
-    console.log("isStoryComplete:", isStoryComplete);
-    console.log("isChatBotVisible:", isChatBotVisible);
-  }, [isStoryComplete, isChatBotVisible]);
+  useEffect(() => {}, [isStoryComplete, isChatBotVisible]);
 
   useEffect(() => {
     const startGame = async () => {
@@ -279,7 +276,7 @@ const GamePage: React.FC = () => {
       {/* 힌트봇 */}
       {isStoryComplete && isChatBotVisible && (
         <div className="absolute bottom-8 left-0 w-full flex justify-center z-50">
-          <ChatBot />
+          <ChatBot gameId={gameState.gameId || ""} />
         </div>
       )}
     </div>
