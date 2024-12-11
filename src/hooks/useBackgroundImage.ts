@@ -40,7 +40,7 @@ export const useBackgroundImage = (initialImage: string) => {
           gameId: gameId, // gameId 추가
           stageNumber: stageNumber + 1, // stageNumber 추가
           prompt: script,
-          size: "256x256",
+          size: "9:16",
           n: 1,
           genre: genre,
         },

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { LocationState } from "../utils/messageTypes";
 
-import { trackEvent } from '../utils/analytics';
+import { trackEvent } from "../utils/analytics";
 
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
@@ -79,10 +79,14 @@ const GameIntro: React.FC = () => {
         </div>
 
         {/* Description */}
-        <p className="text-base leading-relaxed mb-6 p-4 rounded-2xl 
-        bg-white/80 dark:bg-gray-800/80 shadow-xl dark:shadow-gray-950">
+        <p
+          className="text-base leading-relaxed mb-6 p-4 rounded-2xl 
+        bg-white/80 dark:bg-gray-800/80 shadow-xl dark:shadow-gray-950"
+        >
           매혹적인{" "}
-          <span className="text-custom-violet font-semibold">{genre}</span> 세계에서<br/>
+          <span className="text-custom-violet font-semibold">{genre}</span>{" "}
+          세계에서
+          <br />
           당신만의 <span className="text-red-500 font-extrabold">선택</span>으로
           유일한 이야기를 써내려가세요.
         </p>
@@ -91,7 +95,7 @@ const GameIntro: React.FC = () => {
         <button
           onClick={handleStart}
           className="relative px-8 py-1 rounded-xl font-extrabold animate-pulse 
-          text-gray-700 dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300"
+          text-gray-700 dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300 text-4xl"
         >
           Start Game
         </button>

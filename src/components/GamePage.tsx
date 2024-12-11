@@ -10,11 +10,9 @@ import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
-import ChatBot from "./ChatBot"; // ChatBot 컴포넌트 추가
-
+import ChatBot from "./ChatBot";
 import { trackEvent } from "../utils/analytics";
 
-// 타입 정의
 interface GameState {
   mainMessage: string;
   choices: string[];
@@ -24,22 +22,13 @@ interface GameState {
 const GamePage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { genre, tags, image, userId } = location.state as LocationState;
+  const { genre, tags, image, userId, initialStory } =
+    location.state as LocationState;
+  const cookies = new Cookies();
+  const cookieToken = cookies.get("token");
+  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   const [gameStartTime] = useState(new Date());
-
-  useEffect(() => {
-    return () => {
-      const endTime = new Date();
-      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
-      
-      if (genre) {
-        trackEvent.gameEnd(genre, duration);
-      }
-    };
-  }, [genre, gameStartTime]);
-
-  // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -47,10 +36,10 @@ const GamePage: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isChoicesDisplayed, setIsChoicesDisplayed] = useState(false);
-  const [isChatBotVisible, setIsChatBotVisible] = useState(false); // ChatBot 표시 상태
+  const [isChatBotVisible, setIsChatBotVisible] = useState(false);
+  const [isChoicesVisible, setIsChoicesVisible] = useState(false);
+  const [isStoryComplete, setIsStoryComplete] = useState(false);
 
-  // 인증 및 유틸리티
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
   const { bgImage, generateImage } = useBackgroundImage(image);
@@ -58,25 +47,30 @@ const GamePage: React.FC = () => {
     maxStages: 5,
     onStageChange: () => initializeMusic(genre),
   });
+  const [isChatBotActive, setIsChatBotActive] = useState(false);
+  const [chatBotPosition, setChatBotPosition] = useState<"center" | "left">(
+    "center"
+  );
 
-  const cookies = new Cookies();
-  const cookieToken = cookies.get("token");
-  const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-
-  // 선택지 표시 상태 업데이트
   useEffect(() => {
-    if (!isLoading && !error && gameState.choices.length > 0) {
-      setIsChoicesDisplayed(true);
-      setIsChatBotVisible(true); // ChatBot 표시
-    }
-  }, [isLoading, error, gameState.choices]);
+    return () => {
+      const endTime = new Date();
+      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
+      if (genre) {
+        trackEvent.gameEnd(genre, duration);
+      }
+    };
+  }, [genre, gameStartTime]);
 
-  // 게임 시작
+  useEffect(() => {
+    console.log("isStoryComplete:", isStoryComplete);
+    console.log("isChatBotVisible:", isChatBotVisible);
+  }, [isStoryComplete, isChatBotVisible]);
+
   useEffect(() => {
     const startGame = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
         const response = await axios.post(
           "/generate-story/start",
@@ -89,14 +83,11 @@ const GamePage: React.FC = () => {
             withCredentials: true,
           }
         );
-
         setGameState({
           mainMessage: "",
           choices: response.data.choices || [],
           gameId: response.data.gameId,
         });
-
-        // 스토리 초기화
         const words = response.data.story.split(" ");
         updateStoryTextByWord(response.data.story, words, 0);
       } catch (err) {
@@ -106,34 +97,41 @@ const GamePage: React.FC = () => {
         setIsLoading(false);
       }
     };
-
     startGame();
-  }, [genre, tags, userId, accessToken]);
+  }, [genre, tags, userId, accessToken, isAuthenticated, initialStory]);
 
-  // 스토리 텍스트 한 단어씩 업데이트
   const updateStoryTextByWord = (
     story: string,
     words: string[],
     index: number
   ) => {
     if (index < words.length) {
-      setGameState((prev) => ({
-        ...prev,
-        mainMessage: prev.mainMessage + " " + words[index],
+      setGameState((prevState) => ({
+        ...prevState,
+        mainMessage: prevState.mainMessage + " " + words[index],
       }));
       setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100);
+    } else {
+      setIsStoryComplete(true);
+      setTimeout(() => {
+        setIsChoicesVisible(true);
+        setTimeout(() => {
+          setIsChatBotActive(true);
+        }, 500);
+      }, 300);
     }
   };
 
-  // 선택 처리
   const handleChoice = async (choiceText: string) => {
     if (!gameState.gameId) {
       setError("게임 ID가 없습니다.");
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsChoicesVisible(false);
+    setChatBotPosition("center");
+    setIsChatBotActive(false);
+    setIsStoryComplete(false);
 
     try {
       const payload = {
@@ -141,7 +139,6 @@ const GamePage: React.FC = () => {
         userSelect: choiceText,
         gameId: gameState.gameId,
       };
-
       if (currentStage < 4) {
         await generateImage(choiceText, genre, gameState.gameId, currentStage);
       } else {
@@ -167,7 +164,6 @@ const GamePage: React.FC = () => {
             withCredentials: true,
           }
         );
-
         navigate("/game-ending", {
           state: {
             image: generatedImage?.data,
@@ -177,7 +173,6 @@ const GamePage: React.FC = () => {
         });
         return;
       }
-
       const response = await axios.post("/generate-story/chat", payload, {
         headers: {
           "Content-Type": "application/json",
@@ -185,21 +180,18 @@ const GamePage: React.FC = () => {
         },
         withCredentials: true,
       });
-
       setGameState({
         mainMessage: "",
         choices: response.data.choices || [],
         gameId: gameState.gameId,
       });
-
       const words = response.data.story.split(" ");
       updateStoryTextByWord(response.data.story, words, 0);
-
       if (currentStage < 4) {
         goToNextStage();
       }
-    } catch (error) {
-      console.error("Error processing choice:", error);
+    } catch (err) {
+      console.error("Error processing choice:", err);
       setError("선택 처리 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
@@ -210,6 +202,12 @@ const GamePage: React.FC = () => {
     navigate("/");
     return null;
   }
+
+  const handleChatBotToggle = () => {
+    if (isChatBotActive) {
+      setChatBotPosition((prev) => (prev === "center" ? "left" : "center"));
+    }
+  };
 
   return (
     <div className="relative w-full h-screen text-white overflow-hidden">
@@ -223,59 +221,63 @@ const GamePage: React.FC = () => {
       </div>
 
       {/* 상단 네비게이션 */}
-      <div className="absolute top-4 flex justify-between w-full px-4">
-        <button
-          onClick={togglePlayPause}
-          className="bg-gray-800 p-2 rounded-full"
-        >
-          {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
-        </button>
-        <GameStageIndicator currentStage={currentStage} maxStages={5} />
+      <div className="absolute top-4 flex justify-between w-full px-4 z-20">
         <button
           onClick={() =>
             navigate("/game-intro", { state: { genre, tags, image } })
           }
-          className="bg-gray-800 p-2 rounded-full"
+          className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
           <ArrowBigLeftDash size={20} />
         </button>
+        <GameStageIndicator currentStage={currentStage} maxStages={5} />
+        <button
+          onClick={togglePlayPause}
+          className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
+        >
+          {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
       </div>
 
-      {/* 메인 콘텐츠 */}
-      <div className="absolute inset-0 flex flex-col justify-between p-8">
-        {/* 선택지 영역 */}
-        <div className="flex-1 flex justify-center items-center">
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : error ? (
-            <div>{error}</div>
-          ) : (
-            <div className="w-full max-w-2xl space-y-4">
-              {gameState.choices.map((choice, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleChoice(choice)}
-                  className="w-full bg-gray-800 text-white p-4 rounded-lg"
-                >
-                  {choice}
-                </button>
-              ))}
+      {/* 메인 컨텐츠 영역 */}
+      <div className="absolute top-24 left-0 w-full px-4 z-10">
+        <div className="mx-auto max-w-4xl">
+          <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm">
+            {gameState.mainMessage}
+          </div>
+          {isStoryComplete && isChoicesVisible && (
+            <div className="mt-8">
+              {isLoading ? (
+                <div className="text-center">Loading...</div>
+              ) : error ? (
+                <div className="text-center text-red-500">{error}</div>
+              ) : (
+                <div className="space-y-4">
+                  {gameState.choices.map((choice, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleChoice(choice)}
+                      className="w-full bg-gray-800/70 text-white p-4 rounded-lg opacity-0 animate-fadeIn transition-all duration-300 hover:bg-gray-700/90 hover:scale-[1.02] border border-purple-500/20 backdrop-blur-sm"
+                      style={{ animationDelay: `${index * 0.2}s` }}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
-
-        {/* 챗봇 */}
-        {isChatBotVisible && (
-          <div className="fixed bottom-4 right-4 z-50">
-            <ChatBot />
-          </div>
-        )}
-
-        {/* 하단 메시지 */}
-        <div className="bg-gray-800 p-4 rounded-lg">
-          {gameState.mainMessage}
-        </div>
       </div>
+
+      {/* ChatBot */}
+      {isStoryComplete && isChatBotActive && (
+        <ChatBot
+          gameId={gameState.gameId}
+          position={chatBotPosition}
+          onToggle={handleChatBotToggle}
+        />
+      )}
     </div>
   );
 };
