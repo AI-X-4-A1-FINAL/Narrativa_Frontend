@@ -10,8 +10,7 @@ import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
-import ChatBot from "./ChatBot"; // ChatBot 컴포넌트 추가
-import { trackEvent } from "../utils/analytics";
+import ChatBot from "./ChatBot";
 
 interface GameState {
   mainMessage: string;
@@ -27,20 +26,7 @@ const GamePage: React.FC = () => {
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-  const [gameStartTime] = useState(new Date());
 
-  useEffect(() => {
-    return () => {
-      const endTime = new Date();
-      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
-
-      if (genre) {
-        trackEvent.gameEnd(genre, duration);
-      }
-    };
-  }, [genre, gameStartTime]);
-
-  // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -65,16 +51,6 @@ const GamePage: React.FC = () => {
   );
 
   useEffect(() => {
-    return () => {
-      const endTime = new Date();
-      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
-      if (genre) {
-        trackEvent.gameEnd(genre, duration);
-      }
-    };
-  }, [genre, gameStartTime]);
-
-  useEffect(() => {
     console.log("isStoryComplete:", isStoryComplete);
     console.log("isChatBotVisible:", isChatBotVisible);
   }, [isStoryComplete, isChatBotVisible]);
@@ -84,6 +60,15 @@ const GamePage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
+        setGameState({
+          mainMessage: "",
+          choices: [], // 초기 선택지는 빈 배열로 시작
+          gameId: undefined, // gameId는 아직 없음
+        });
+        const words = initialStory.split(" ");
+        updateStoryTextByWord(initialStory, words, 0);
+
+        // gameId만 따로 받아오기 위한 API 호출
         const response = await axios.post(
           "/generate-story/start",
           { genre, tags, userId },
@@ -95,13 +80,13 @@ const GamePage: React.FC = () => {
             withCredentials: true,
           }
         );
-        setGameState({
-          mainMessage: "",
-          choices: response.data.choices || [],
+
+        // gameId만 업데이트
+        setGameState((prev) => ({
+          ...prev,
           gameId: response.data.gameId,
-        });
-        const words = response.data.story.split(" ");
-        updateStoryTextByWord(response.data.story, words, 0);
+          choices: response.data.choices || [],
+        }));
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");

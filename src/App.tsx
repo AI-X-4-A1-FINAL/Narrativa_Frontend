@@ -21,31 +21,9 @@ import { AudioProvider } from "./Contexts/AudioContext";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
-import ParticleProvider from "./Contexts/ParticleContext";
-
-import { analytics } from "./firebase/firebaseConfig";
-import { logEvent } from "firebase/analytics";
+import ParticleProvider from "./Contexts/ParticleContext"; 
 
 const AppContent: React.FC = () => {
-  useEffect(() => {
-    logEvent(analytics, 'user_presence', {
-      status: 'online',
-      timestamp: new Date().toISOString()
-    });
-
-    const handleBeforeUnload = () => {
-      logEvent(analytics, 'user_presence', {
-        status: 'offline',
-        timestamp: new Date().toISOString()
-      });
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
 
   const headerState = useHeaderVisibility();
 
