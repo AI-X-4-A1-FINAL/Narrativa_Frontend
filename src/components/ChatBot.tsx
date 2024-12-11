@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
-import { parseCookieKeyValue } from "../api/cookie";  // 쿠키 파싱 유틸리티 import
+import { parseCookieKeyValue } from "../api/cookie";
 
 interface ChatBotProps {
   gameId?: string;
+  position: "center" | "left";
+  onToggle: () => void;
 }
 
 interface ChoiceAdvice {
@@ -19,76 +22,69 @@ interface NPCAdvice {
   game_id: string;
   additional_comment: string | null;
 }
-
-const ChatBot: React.FC<ChatBotProps> = ({ gameId }) => {
-  const [isHintOpen, setIsHintOpen] = useState(false);
+const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
   const [hint, setHint] = useState<string | null>(null);
   const [npcAdvice, setNpcAdvice] = useState<NPCAdvice | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showAdvice, setShowAdvice] = useState(true);
+  const [currentChoiceIndex, setCurrentChoiceIndex] = useState(0);
+  const [showComment, setShowComment] = useState(false);
+  const [showingAnalysis, setShowingAnalysis] = useState(false);
+  const [showingHint, setShowingHint] = useState(false);
+  const [iconPosition, setIconPosition] = useState<"center" | "left">("center");
 
+  // 토큰 가져오기
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
-  useEffect(() => {
-    console.log("ChatBot received gameId:", gameId); // gameId 확인용 로그
-  }, [gameId]);
-
-    // 뒤로가기 처리
-  const handleBack = () => {
-    setShowAdvice(true);
-    setNpcAdvice(null);
-  };
-
-  // 모달 닫기 처리
-  const handleCloseModal = () => {
-    setIsHintOpen(false);
-    setShowAdvice(true); // 모달 닫을 때 초기 상태로 복귀
-    setNpcAdvice(null);
-  };
-
-  const toggleHintModal = async () => {
-    setIsHintOpen((prev: boolean) => !prev);
-    setHint(null);
-
-    if (!isHintOpen) {  // 모달을 열 때만 API 호출
-      if (!gameId) {
-        setError("게임 ID가 없습니다.");
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          "/npc/advice",
-          { gameId: Number(gameId) },  // string을 number로 변환
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}`,  // Authorization 헤더 수정
-            },
-            withCredentials: true  // withCredentials 추가
-          }
-        );
-        setHint(response.data.npcMessage);
-        setError(null);
-      } catch (error: any) {
-        console.error("NPC 조언 요청 실패:", error);
-        setError(error.response?.data?.message || "NPC 조언을 받아오는데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
+  const handleIconClick = async () => {
+    if (!showingHint) {
+      // 처음 클릭 시
+      setShowingHint(true);
+      // NPC 조언 가져오기
+      await fetchHint();
+      setTimeout(() => {
+        setIconPosition("left");
+        onToggle(); // 부모 컴포넌트에 알림
+      }, 100);
+    } else {
+      // 다시 클릭 시
+      setShowingHint(false);
+      setShowingAnalysis(false);
+      setCurrentChoiceIndex(0);
+      setShowComment(false);
+      setNpcAdvice(null);
+      // 아이콘 위치를 중앙으로 복귀
+      setIconPosition("center");
+      onToggle();
     }
   };
 
-  const showHint = async () => {
-    if (!gameId) {
-      setError("게임 ID가 없습니다.");
-      return;
+  const fetchHint = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "/npc/advice",
+        { gameId: Number(gameId) },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+          withCredentials: true
+        }
+      );
+      setHint(response.data.npcMessage);
+      setError(null);
+    } catch (error) {
+      setError("조언을 가져오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
     }
-  
+  };
+
+  const handleAnalysis = async () => {
     setLoading(true);
     try {
       const response = await axios.post<NPCAdvice>(
@@ -102,160 +98,213 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId }) => {
           withCredentials: true
         }
       );
-      
-      console.log("NPC Response:", response.data); // 응답 데이터 확인
       setNpcAdvice(response.data);
+      setShowingAnalysis(true);
       setError(null);
-    } catch (error: any) {
-      console.error("NPC 채팅 요청 실패:", error);
-      setError(error.response?.data?.message || "생존률 정보를 받아오는데 실패했습니다.");
+    } catch (error) {
+      setError("분석을 가져오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
+  const getBestChoice = () => {
+    if (!npcAdvice?.response) return null;
+    
+    return Object.entries(npcAdvice.response).reduce((best, current) => {
+      return (best[1].survival_rate > current[1].survival_rate) ? best : current;
+    });
+  };
 
-  // ChatBot.tsx
+  const handleNext = () => {
+    if (npcAdvice?.response) {
+      const maxIndex = Object.keys(npcAdvice.response).length - 1;
+      if (currentChoiceIndex < maxIndex) {
+        setCurrentChoiceIndex(prev => prev + 1);
+      } else if (currentChoiceIndex === maxIndex && !showComment) {
+        setShowComment(true);
+      }
+    }
+  };
+
   return (
-    <div>
-      {/* 아이콘 버튼 */}
+    <>
+      {/* 챗봇 아이콘 */}
       <div
-        className="bg-custom-violet p-4 rounded-full shadow-lg absolute left-1/2 transform -translate-x-1/2 bottom-[100px] z-50 cursor-pointer hover:scale-110 transition-transform duration-200 ease-in-out animate-bounce"
-        onClick={toggleHintModal}
-        title="NPC 조언 받기"
+        className={`fixed transform transition-all duration-1000 ease-in-out z-50 ${
+          iconPosition === "center"
+            ? "left-1/2 -translate-x-1/2 bottom-[50px]"
+            : "left-95 bottom-[50px] translate-x-0"
+        }`}
       >
-        <img
-          src="/images/nati.webp"
-          alt="Chatbot Icon"
-          className="w-10 h-10 object-contain"
-        />
+        <button
+          onClick={handleIconClick}
+          className="bg-gray-800 bg-opacity-80 p-4 rounded-full shadow-lg hover:shadow-purple-500/50 
+                    hover:scale-110 transition-all duration-300 ease-out border border-purple-500/30"
+        >
+          <div className="w-10 h-10 relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-purple-500 opacity-20 rounded-full animate-pulse"></div>
+            <img
+              src="/images/nati.webp"
+              alt="Chatbot"
+              className="w-8 h-8 object-contain relative z-10"
+              style={{
+                animation: "wiggle 2s infinite ease-in-out"
+              }}
+            />
+          </div>
+        </button>
       </div>
-  
-      {/* 모달창 */}
-      {isHintOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 animate-fadeIn">
-          <div className="bg-white rounded-lg shadow-lg w-96 max-w-full flex flex-col h-[32rem]">
-            {/* 모달 헤더 */}
-            <div className="flex justify-between items-center p-4 bg-custom-violet text-white rounded-t-lg">
-              <div className="flex items-center">
-                {!showAdvice && (
-                  <button
-                    onClick={handleBack}
-                    className="mr-3 hover:text-gray-200 transition-colors"
-                  >
-                    ←
-                  </button>
-                )}
-                <h3 className="text-lg font-bold flex items-center">
-                  <span className="mr-2">🤖</span>
-                  {showAdvice ? "NPC 조언" : "선택지 분석"}
-                </h3>
-              </div>
-              <button 
-                className="text-xl hover:text-gray-200 transition-colors"
-                onClick={handleCloseModal}
-              >
-                ✖️
-              </button>
-            </div>
+          
+      {/* 말풍선 컨테이너 */}
+      {position === "left" && (
+        <div 
+          className={`fixed left-1/2 -translate-x-1/2 bottom-[60px] w-80 transform transition-all duration-700 
+                    ease-[cubic-bezier(0.34,1.56,0.64,1)] z-40 ${
+            position === "left" 
+              ? "translate-y-0 opacity-100 scale-100" 
+              : "translate-y-8 opacity-0 scale-95"
+          }`}
+        >
+          <div className="bg-gray-900 bg-opacity-90 rounded-lg shadow-2xl p-4 relative
+                        border border-purple-500/30 backdrop-blur-sm
+                        transition-all duration-500 ease-out
+                        hover:shadow-purple-500/20">
+            {/* 말풍선 꼬리 애니메이션 */}
+            <div className="absolute -left-3 bottom-4 w-0 h-0 
+                          border-t-[10px] border-t-transparent 
+                          border-r-[16px] border-r-gray-900/90
+                          border-b-[10px] border-b-transparent
+                          transition-all duration-500 ease-out
+                          transform origin-right" />
 
+            <style>{`
+              @keyframes wiggle {
+                0%, 100% { transform: rotate(-5deg); }
+                50% { transform: rotate(5deg); }
+              }
+            `}</style>
+  
             {/* 컨텐츠 영역 */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            <div className="space-y-4">
               {loading ? (
-                <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-custom-violet"></div>
+                <div className="flex justify-center p-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-purple-500 border-t-transparent" />
                 </div>
               ) : error ? (
-                <div className="bg-red-100 p-4 rounded-lg text-red-600">
-                  <p>{error}</p>
-                </div>
-              ) : showAdvice ? (
-                // NPC 조언 화면
-                <div className="bg-white p-4 rounded-lg shadow-sm animate-fadeIn">
-                  <div className="flex items-start mb-2">
-                    <span className="mr-2 text-lg">💭</span>
-                    <p className="text-gray-800">{hint || "NPC의 조언을 기다리고 있습니다..."}</p>
-                  </div>
-                </div>
+                <div className="text-red-400 p-2">{error}</div>
               ) : (
-                // 선택지 분석 화면
-                <div className="space-y-4 animate-fadeIn">
-                  {npcAdvice && npcAdvice.response && (
-                    <>
-                      {Object.entries(npcAdvice.response).map(([key, value], index) => (
-                        <div 
-                          key={key} 
-                          className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-start">
-                              <span className="mr-2 text-lg">🎯</span>
-                              <p className="text-gray-800">{value.advice}</p>
-                            </div>
-                            <div className="mt-2">
-                              <div className="flex items-center mb-1">
-                                <span className="text-sm text-gray-600 mr-2">생존 가능성</span>
-                                <span className="text-blue-600 font-bold">{value.survival_rate}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full transition-all duration-1000 ease-out"
-                                  style={{ 
-                                    width: `${value.survival_rate}%`,
-                                    backgroundColor: `rgb(${Math.round(255 * (1 - value.survival_rate/100))}, ${Math.round(255 * (value.survival_rate/100))}, 0)`
-                                  }}
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {npcAdvice.additional_comment && (
-                        <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200 animate-fadeIn">
+                <div className="space-y-4">
+                  {/* NPC 조언 */}
+                  {hint && !showingAnalysis && (
+                    <div className="animate-fadeIn">
+                      <p className="text-gray-200 mb-4 leading-relaxed">{hint}</p>
+                      <button
+                        onClick={handleAnalysis}
+                        className="w-full bg-purple-600 bg-opacity-80 text-white py-2 px-4 rounded-lg
+                                 hover:bg-purple-500 transition-colors border border-purple-400/30
+                                 shadow-lg hover:shadow-purple-500/50"
+                      >
+                        생존률 분석하기
+                      </button>
+                    </div>
+                  )}
+  
+                  {/* 선택지 분석 - 스타일 수정 */}
+                  {showingAnalysis && npcAdvice && (
+                    <div className="animate-fadeIn text-gray-200">
+                      {/* 현재 선택지 분석 또는 마지막 단계의 최고 생존률 선택지 */}
+                      {!showComment ? (
+                        <div className="space-y-3">
                           <div className="flex items-start">
-                            <span className="mr-2 text-lg">💡</span>
-                            <p className="text-gray-700">{npcAdvice.additional_comment}</p>
+                            <span className="mr-2">🎯</span>
+                            <p className="leading-relaxed">
+                              {Object.entries(npcAdvice.response)[currentChoiceIndex][1].advice}
+                            </p>
+                          </div>
+                          <div className="mt-4">
+                            <div className="flex justify-between text-sm mb-2">
+                              <span>생존 가능성</span>
+                              <span className="font-bold text-purple-300">
+                                {Object.entries(npcAdvice.response)[currentChoiceIndex][1].survival_rate}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-800 rounded-full h-2 border border-purple-500/20">
+                              <div
+                                className="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-purple-600 to-purple-400"
+                                style={{
+                                  width: `${Object.entries(npcAdvice.response)[currentChoiceIndex][1].survival_rate}%`
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
+                      ) : (
+                        // 최고 생존률 선택지와 추가 코멘트
+                        <>
+                          {/* 최고 생존률 선택지 */}
+                          {getBestChoice() && (
+                            <div className="space-y-3 mb-4">
+                              <div className="p-3 bg-purple-900/30 rounded-lg border border-purple-500/30">
+                                <p className="text-gray-200 font-medium mb-2">최고 생존률 선택지:</p>
+                                <div className="flex items-start">
+                                  <span className="mr-2">⭐</span>
+                                  <p className="leading-relaxed">
+                                    {getBestChoice()?.[1].advice}
+                                  </p>
+                                </div>
+                                <div className="mt-4">
+                                  <div className="flex justify-between text-sm mb-2">
+                                    <span>생존 가능성</span>
+                                    <span className="font-bold text-purple-300">
+                                      {getBestChoice()?.[1].survival_rate}%
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-800 rounded-full h-2 border border-purple-500/20">
+                                    <div
+                                      className="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-purple-600 to-purple-400"
+                                      style={{
+                                        width: `${getBestChoice()?.[1].survival_rate}%`
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* 추가 코멘트 */}
+                          {npcAdvice.additional_comment && (
+                            <div className="p-3 bg-purple-900/30 rounded-lg border border-purple-500/30 animate-fadeIn">
+                              <p className="text-gray-200">
+                                <span className="mr-2">💡</span>
+                                {npcAdvice.additional_comment}
+                              </p>
+                            </div>
+                          )}
+                        </>
                       )}
-                    </>
+  
+                      {/* 다음 버튼 */}
+                      {!showComment && (
+                        <button
+                          onClick={handleNext}
+                          className="mt-4 w-full bg-gray-800 text-white py-2 px-4 rounded-lg 
+                                   hover:bg-gray-700 transition-colors border border-purple-500/30
+                                   flex items-center justify-center"
+                        >
+                          다음 <ArrowRight className="ml-2 w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
             </div>
-
-            {/* 하단 버튼 영역 */}
-            {showAdvice && (
-              <div className="p-4 bg-white border-t">
-                <button
-                  onClick={() => {
-                    showHint();
-                    setShowAdvice(false);
-                  }}
-                  disabled={loading}
-                  className={`w-full px-4 py-3 rounded-lg shadow-md transition-all duration-200 flex items-center justify-center
-                    ${loading 
-                      ? 'bg-gray-300 cursor-not-allowed' 
-                      : 'bg-yellow-400 hover:bg-yellow-500 hover:transform hover:scale-105'}`}
-                >
-                  {loading ? (
-                    <span className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      분석 중...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <span className="mr-2">🔍</span>
-                      생존률 분석하기
-                    </span>
-                  )}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
