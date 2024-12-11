@@ -13,10 +13,6 @@ import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
 import { trackEvent } from "../utils/analytics";
 
-interface Choice {
-  id: number;
-  text: string;
-}
 
 interface GameState {
   mainMessage: string;
@@ -108,11 +104,7 @@ const GamePage: React.FC = () => {
     startGame();
   }, [genre, tags, userId, accessToken, isAuthenticated, initialStory]);
 
-  const updateStoryTextByWord = (
-    story: string,
-    words: string[],
-    index: number
-  ) => {
+  const updateStoryTextByWord = (story: string, words: string[], index: number) => {
     if (index < words.length) {
       setGameState((prevState) => ({
         ...prevState,
@@ -120,18 +112,13 @@ const GamePage: React.FC = () => {
       }));
       setTimeout(() => updateStoryTextByWord(story, words, index + 1), 100);
     } else {
-      // 스토리 출력이 완료된 상태 설정
       setIsStoryComplete(true);
-
-      // 초이스 버튼 표시 (스토리 출력 완료 후)
       setTimeout(() => {
         setIsChoicesVisible(true);
-
-        // 챗봇 버튼 표시 (초이스 버튼 이후)
         setTimeout(() => {
           setIsChatBotVisible(true);
-        }, 500); // 초이스 버튼이 나타난 후 500ms 딜레이
-      }, 300); // 초이스 버튼이 스토리 종료 후 300ms 딜레이로 나타남
+        }, 500);
+      }, 300);
     }
   };
 
@@ -219,6 +206,8 @@ const GamePage: React.FC = () => {
     return null;
   }
 
+<ChatBot gameId={gameState.gameId} />
+
   return (
     <div className="relative w-full h-screen text-white overflow-hidden">
       {/* 배경 */}
@@ -279,7 +268,7 @@ const GamePage: React.FC = () => {
       {/* 힌트봇 */}
       {isStoryComplete && isChatBotVisible && (
         <div className="absolute bottom-8 left-0 w-full flex justify-center z-50">
-          <ChatBot />
+          <ChatBot gameId={gameState.gameId} />
         </div>
       )}
     </div>
