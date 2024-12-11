@@ -6,8 +6,6 @@ import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 import { statisticsService } from '../service/statisticsService';
 
-import { trackEvent } from '../utils/analytics';
-
 interface Genre {
   name: string;
   tags: string[];
