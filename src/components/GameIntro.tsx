@@ -3,8 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { LocationState } from "../utils/messageTypes";
 
-import { trackEvent } from "../utils/analytics";
-
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,9 +22,6 @@ const GameIntro: React.FC = () => {
     }
 
     try {
-      // 게임 시작 이벤트 추적
-      trackEvent.gameStart(genre);
-
       navigate("/game-world-view", {
         state: {
           genre,

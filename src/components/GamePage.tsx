@@ -11,7 +11,6 @@ import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
-import { trackEvent } from "../utils/analytics";
 
 interface GameState {
   mainMessage: string;
@@ -28,7 +27,6 @@ const GamePage: React.FC = () => {
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
-  const [gameStartTime] = useState(new Date());
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -51,16 +49,6 @@ const GamePage: React.FC = () => {
   const [chatBotPosition, setChatBotPosition] = useState<"center" | "left">(
     "center"
   );
-
-  useEffect(() => {
-    return () => {
-      const endTime = new Date();
-      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
-      if (genre) {
-        trackEvent.gameEnd(genre, duration);
-      }
-    };
-  }, [genre, gameStartTime]);
 
   useEffect(() => {
     console.log("isStoryComplete:", isStoryComplete);
