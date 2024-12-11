@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "../api/axiosInstance";
 import { parseCookieKeyValue } from "../api/cookie";
 import { Cookies } from "react-cookie";
+import { arrayBuffer } from "stream/consumers";
 
 interface UseBackgroundImageReturn {
   bgImage: string;
@@ -53,7 +54,16 @@ export const useBackgroundImage = (initialImage: string) => {
         }
       );
 
-      setBgImage(response.data); // API 응답을 배경 이미지로 설정
+      console.log(response.data)
+
+      // 서버로부터 Base64 이미지 데이터 추출
+      const imageData = response.data.image;
+        if (imageData) {
+          setBgImage(imageData); // 배경 이미지를 업데이트
+        } else {
+          console.error("No image data received from the server.");
+      }
+
       console.log(response.config.data);
 
       const needData = JSON.parse(response.config.data);
