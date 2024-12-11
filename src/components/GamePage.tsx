@@ -10,9 +10,8 @@ import GameStageIndicator from "./GameStageIndicator";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
-import ChatBot from "./ChatBot";
+import ChatBot from "./ChatBot"; // ChatBot 컴포넌트 추가
 import { trackEvent } from "../utils/analytics";
-
 
 interface GameState {
   mainMessage: string;
@@ -28,8 +27,20 @@ const GamePage: React.FC = () => {
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-
   const [gameStartTime] = useState(new Date());
+
+  useEffect(() => {
+    return () => {
+      const endTime = new Date();
+      const duration = (endTime.getTime() - gameStartTime.getTime()) / 1000;
+
+      if (genre) {
+        trackEvent.gameEnd(genre, duration);
+      }
+    };
+  }, [genre, gameStartTime]);
+
+  // 상태 관리
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -104,7 +115,11 @@ const GamePage: React.FC = () => {
     startGame();
   }, [genre, tags, userId, accessToken, isAuthenticated, initialStory]);
 
-  const updateStoryTextByWord = (story: string, words: string[], index: number) => {
+  const updateStoryTextByWord = (
+    story: string,
+    words: string[],
+    index: number
+  ) => {
     if (index < words.length) {
       setGameState((prevState) => ({
         ...prevState,
@@ -206,7 +221,7 @@ const GamePage: React.FC = () => {
     return null;
   }
 
-<ChatBot gameId={gameState.gameId} />
+  <ChatBot gameId={gameState.gameId} />;
 
   return (
     <div className="relative w-full h-screen text-white overflow-hidden">
