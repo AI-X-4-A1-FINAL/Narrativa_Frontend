@@ -19,7 +19,9 @@ interface UseBackgroundImageReturn {
   } | null>;
 }
 
-export const useBackgroundImage = (initialImage: string): UseBackgroundImageReturn => {
+export const useBackgroundImage = (
+  initialImage: string
+): UseBackgroundImageReturn => {
   const [bgImage, setBgImage] = useState<string>(
     initialImage || "/images/game-start.jpeg"
   );
@@ -61,11 +63,11 @@ export const useBackgroundImage = (initialImage: string): UseBackgroundImageRetu
       if (imageData) {
         setBgImage(imageData);
         const needData = JSON.parse(response.config.data);
-        
+
         return {
           imageData: imageData,
           text: needData.prompt,
-          genre: needData.genre
+          genre: needData.genre,
         };
       } else {
         console.error("No image data received from the server.");
