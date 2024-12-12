@@ -12,10 +12,16 @@ interface UseBackgroundImageReturn {
     genre: string,
     gameId: string,
     stageNumber: number
-  ) => Promise<void>;
+  ) => Promise<{
+    imageData: string;
+    text: string;
+    genre: string;
+  } | null>;
 }
 
-export const useBackgroundImage = (initialImage: string) => {
+export const useBackgroundImage = (
+  initialImage: string
+): UseBackgroundImageReturn => {
   const [bgImage, setBgImage] = useState<string>(
     initialImage || "/images/game-start.jpeg"
   );
@@ -26,20 +32,19 @@ export const useBackgroundImage = (initialImage: string) => {
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
-  // 이미지를 생성하는 함수 (Generate image)
   const generateImage = async (
     script: string,
     genre: string,
-    gameId: string, // gameId 받아옴
-    stageNumber: number // stageNumber 받아옴
+    gameId: string,
+    stageNumber: number
   ) => {
     setIsLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_SPRING_URI}/api/images/generate-image`,
         {
-          gameId: gameId, // gameId 추가
-          stageNumber: stageNumber + 1, // stageNumber 추가
+          gameId: gameId,
+          stageNumber: stageNumber + 1,
           prompt: script,
           size: "9:16",
           n: 1,
@@ -47,39 +52,35 @@ export const useBackgroundImage = (initialImage: string) => {
         },
         {
           headers: {
-            "Content-Type": "application/json", // JSON 형식으로 데이터 전송
-            Authorization: `Bearer ${accessToken}`, // Authorization 헤더에 JWT 토큰 포함
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
-          withCredentials: true, // 쿠키를 요청에 포함시키기
+          withCredentials: true,
         }
       );
 
-      console.log(response.data)
-
-      // 서버로부터 Base64 이미지 데이터 추출
       const imageData = response.data.image;
-        if (imageData) {
-          setBgImage(imageData); // 배경 이미지를 업데이트
-        } else {
-          console.error("No image data received from the server.");
+      if (imageData) {
+        setBgImage(imageData);
+        const needData = JSON.parse(response.config.data);
+
+        return {
+          imageData: imageData,
+          text: needData.prompt,
+          genre: needData.genre,
+        };
+      } else {
+        console.error("No image data received from the server.");
+        return null;
       }
-
-      console.log(response.config.data);
-
-      const needData = JSON.parse(response.config.data);
-      const text = needData.prompt;
-      const gen = needData.genre;
-      const data = response.data;
-
-      return { data, text, gen };
     } catch (error) {
       console.error("Error generating image:", error);
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 랜덤 배경 이미지를 fetch하는 함수
   const fetchBackgroundImage = async () => {
     try {
       const response = await fetch(
@@ -98,18 +99,16 @@ export const useBackgroundImage = (initialImage: string) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Received image URL:", data.imageUrl); // 받은 imageUrl 출력
-      setBgImage(data.imageUrl); // 서버에서 받은 이미지 URL로 배경 설정
+      setBgImage(data.imageUrl);
     } catch (error) {
       console.error("Error fetching background image:", error);
-      setBgImage("/images/pikachu.webp"); // 에러 시 기본 이미지로 설정
+      setBgImage("/images/pikachu.webp");
     }
   };
 
-  // 컴포넌트 마운트 시 이미지 불러오기
   useEffect(() => {
-    fetchBackgroundImage(); // s3에서 랜덤 이미지 불러오기
-  }, []); // 빈 의존성 배열 -> 컴포넌트가 처음 마운트 될 때만 실행
+    fetchBackgroundImage();
+  }, []);
 
   return { bgImage, isLoading, generateImage };
 };

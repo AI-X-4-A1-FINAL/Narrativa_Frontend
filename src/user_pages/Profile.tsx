@@ -335,7 +335,7 @@ const Profile: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("profileUrl updated: ", profileUrl);
+    // console.log("profileUrl updated: ", profileUrl);
   }, [profileUrl]);
 
   return (

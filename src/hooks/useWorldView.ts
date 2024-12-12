@@ -31,7 +31,7 @@ export const useWorldView = (
 
     setLoading(true);
     try {
-      console.log("Sending request:", { genre, tags, userId });
+      // console.log("Sending request:", { genre, tags, userId });
       const response = await axios.post(
         `${process.env.REACT_APP_SPRING_URI}/generate-story/start`,
         {
