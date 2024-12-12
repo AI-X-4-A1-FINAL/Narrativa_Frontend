@@ -71,11 +71,12 @@ const Bookmarks: React.FC = () => {
         }
       );
 
-      // Transform the response to convert byte array to base64 images
       const transformedHistories: GameHistory[] = response.data.map(
         (item: any) => ({
           ...item,
-          imageUrl: convertByteArrayToImage(item.imageUrl),
+          imageUrl: item.imageUrl
+            ? `data:image/jpeg;base64,${item.imageUrl}`
+            : null, // null 처리
         })
       );
 

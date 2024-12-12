@@ -124,19 +124,19 @@ const GamePage: React.FC = () => {
       setError("게임 ID가 없습니다.");
       return;
     }
-  
+
     setIsChoicesVisible(false);
     setChatBotPosition("center");
     setIsChatBotActive(false);
     setIsStoryComplete(false);
-  
+
     try {
       const payload = {
         genre,
         userSelect: choiceText,
         gameId: gameState.gameId,
       };
-      
+
       if (currentStage < 4) {
         const generatedImageResult = await generateImage(
           choiceText,
@@ -144,12 +144,12 @@ const GamePage: React.FC = () => {
           gameState.gameId,
           currentStage
         );
-        
+
         // 이미지 생성 실패 시 처리
         if (!generatedImageResult) {
           throw new Error("이미지 생성에 실패했습니다.");
         }
-  
+
         const response = await axios.post("/generate-story/chat", payload, {
           headers: {
             "Content-Type": "application/json",
@@ -157,17 +157,16 @@ const GamePage: React.FC = () => {
           },
           withCredentials: true,
         });
-        
+
         setGameState({
           mainMessage: "",
           choices: response.data.choices || [],
           gameId: gameState.gameId,
         });
-        
+
         const words = response.data.story.split(" ");
         updateStoryTextByWord(response.data.story, words, 0);
         goToNextStage();
-        
       } else {
         // 엔딩 처리
         const endPayload = {
@@ -175,7 +174,7 @@ const GamePage: React.FC = () => {
           userChoice: choiceText,
           gameId: gameState.gameId,
         };
-        
+
         const [generatedImageResult, endResponse] = await Promise.all([
           generateImage(choiceText, genre, gameState.gameId, currentStage),
           axios.post("/generate-story/end", endPayload, {
@@ -184,13 +183,13 @@ const GamePage: React.FC = () => {
               Authorization: `Bearer ${accessToken}`,
             },
             withCredentials: true,
-          })
+          }),
         ]);
-  
+
         if (!generatedImageResult) {
           throw new Error("엔딩 이미지 생성에 실패했습니다.");
         }
-  
+
         navigate("/game-ending", {
           state: {
             image: generatedImageResult.imageData,
