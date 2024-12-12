@@ -112,13 +112,13 @@ const Bookmarks: React.FC = () => {
       <div className="w-full mx-auto mt-20">
         {/* 장르 필터 버튼 */}
         <div
-          className="w-full p-4 mb-9 flex justify-center gap-4"
-          style={{ borderRadius: "60px", height: "80px" }}
+          className="w-full p-4 mb-9 flex flex-wrap justify-center gap-4"
+          style={{ borderRadius: "60px", height: "auto" }}
         >
           {predefinedGenres.map((genre) => (
             <button
               key={genre}
-              className={`flex-1 max-w-[150px] px-4 py-2 text-center rounded-full ${
+              className={`flex-1 min-w-[70px] max-w-[150px] px-4 py-2 text-center rounded-full ${
                 genre === selectedGenre || (genre === "전체" && !selectedGenre)
                   ? "bg-custom-violet text-white"
                   : "dark:text-white hover:bg-custom-violet hover:text-white"
@@ -132,46 +132,56 @@ const Bookmarks: React.FC = () => {
         </div>
 
         {/* 게임 히스토리 목록 */}
-        <div className="grid grid-cols-2 gap-6 justify-items-center items-center">
-          {gameHistories
-            .filter((history) =>
-              !selectedGenre
-                ? true
-                : history.genre === genreMapping[selectedGenre]
-            )
-            .map((history) => {
-              // imageUrl이 없으면 장르별 기본 이미지를 사용
-              const imageToUse = history.imageUrl // base64 이미지 사용
-                ? history.imageUrl
-                : defaultImages[history.genre]; // 기본 이미지 사용
+        {gameHistories.length === 0 ? (
+          <p className="text-center text-gray-800 dark:text-white mt-10">
+            아직 기록된 게임이 없습니다.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center items-center">
+            {gameHistories
+              .filter((history) =>
+                !selectedGenre
+                  ? true
+                  : history.genre === genreMapping[selectedGenre]
+              )
+              .map((history) => {
+                // imageUrl이 없으면 장르별 기본 이미지를 사용
+                const imageToUse = history.imageUrl // base64 이미지 사용
+                  ? history.imageUrl
+                  : defaultImages[history.genre]; // 기본 이미지 사용
 
-              return (
-                <div
-                  key={history.gameId}
-                  className="rounded-lg overflow-hidden cursor-pointer"
-                  style={{ width: "200px", height: "300px" }} // 카드 크기 고정
-                  onClick={() =>
-                    navigate(`/game-ending`, {
-                      state: {
-                        prompt: history.story,
-                        genre: history.genre,
-                        image: imageToUse,
-                      },
-                    })
-                  }
-                >
-                  <img
-                    src={imageToUse}
-                    alt={`${history.genre} Thumbnail`}
-                    className="w-full h-4/5 object-cover rounded-t-lg"
-                  />
-                  <p className="text-center mt-2 text-gray-800 dark:text-white truncate px-2">
-                    {history.story}
-                  </p>
-                </div>
-              );
-            })}
-        </div>
+                return (
+                  <div
+                    key={history.gameId}
+                    className="rounded-lg overflow-hidden cursor-pointer"
+                    style={{
+                      width: "100%",
+                      maxWidth: "250px",
+                      height: "350px",
+                    }} // 카드 크기 고정
+                    onClick={() =>
+                      navigate(`/game-ending`, {
+                        state: {
+                          prompt: history.story,
+                          genre: history.genre,
+                          image: imageToUse,
+                        },
+                      })
+                    }
+                  >
+                    <img
+                      src={imageToUse}
+                      alt={`${history.genre} Thumbnail`}
+                      className="w-full h-4/5 object-cover rounded-t-lg"
+                    />
+                    <p className="text-center mt-2 text-gray-800 dark:text-white truncate px-2">
+                      {history.story}
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
+        )}
       </div>
     </div>
   );
