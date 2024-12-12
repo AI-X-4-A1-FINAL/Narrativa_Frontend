@@ -8,14 +8,14 @@ import { parseCookieKeyValue } from "../api/cookie";
 interface GameHistory {
   gameId: number;
   story: string;
-  imageUrl: string;
+  imageUrl: string | null;
   genre: string;
 }
 
 const Bookmarks: React.FC = () => {
   const navigate = useNavigate();
   const { isDarkMode } = useDarkMode();
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null); // 선택된 장르
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [gameHistories, setGameHistories] = useState<GameHistory[]>([]);
   const [cookie] = useCookies(["token"]);
 
@@ -37,6 +37,25 @@ const Bookmarks: React.FC = () => {
     Mystery: "/images/detective.webp",
   };
 
+  // Convert byte array to base64 image
+  const convertByteArrayToImage = (
+    byteArray: number[] | null
+  ): string | null => {
+    if (!byteArray || byteArray.length === 0) return null;
+
+    try {
+      // Convert byte array to base64
+      const uint8Array = new Uint8Array(byteArray);
+      const base64Image = btoa(
+        String.fromCharCode.apply(null, Array.from(uint8Array))
+      );
+      return `data:image/jpeg;base64,${base64Image}`;
+    } catch (error) {
+      console.error("Error converting byte array to image:", error);
+      return null;
+    }
+  };
+
   const fetchGameHistories = async (userId: number) => {
     try {
       const response = await axios.post(
@@ -52,7 +71,15 @@ const Bookmarks: React.FC = () => {
         }
       );
 
-      setGameHistories(response.data);
+      // Transform the response to convert byte array to base64 images
+      const transformedHistories: GameHistory[] = response.data.map(
+        (item: any) => ({
+          ...item,
+          imageUrl: convertByteArrayToImage(item.imageUrl),
+        })
+      );
+
+      setGameHistories(transformedHistories);
     } catch (error) {
       console.error("Error fetching game histories:", error);
     }
@@ -77,7 +104,7 @@ const Bookmarks: React.FC = () => {
     }
 
     fetchGameHistories(userId);
-  }, [cookie.token]);
+  }, [cookie.token, navigate]);
 
   return (
     <div className="flex flex-col items-center w-full mx-auto pt-5 bg-white text-gray-800 p-2 min-h-screen dark:bg-custom-background">
@@ -113,10 +140,9 @@ const Bookmarks: React.FC = () => {
             )
             .map((history) => {
               // imageUrl이 없으면 장르별 기본 이미지를 사용
-              const imageToUse =
-                history.imageUrl && history.imageUrl !== "" // imageUrl이 비어있지 않은 경우
-                  ? history.imageUrl
-                  : defaultImages[history.genre]; // 기본 이미지 사용
+              const imageToUse = history.imageUrl // base64 이미지 사용
+                ? history.imageUrl
+                : defaultImages[history.genre]; // 기본 이미지 사용
 
               return (
                 <div

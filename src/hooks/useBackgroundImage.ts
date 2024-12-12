@@ -54,17 +54,17 @@ export const useBackgroundImage = (initialImage: string) => {
         }
       );
 
-      console.log(response.data)
+      // console.log(response.data);
 
       // 서버로부터 Base64 이미지 데이터 추출
       const imageData = response.data.image;
-        if (imageData) {
-          setBgImage(imageData); // 배경 이미지를 업데이트
-        } else {
-          console.error("No image data received from the server.");
+      if (imageData) {
+        setBgImage(imageData); // 배경 이미지를 업데이트
+      } else {
+        console.error("No image data received from the server.");
       }
 
-      console.log(response.config.data);
+      // console.log(response.config.data);
 
       const needData = JSON.parse(response.config.data);
       const text = needData.prompt;
@@ -98,7 +98,7 @@ export const useBackgroundImage = (initialImage: string) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Received image URL:", data.imageUrl); // 받은 imageUrl 출력
+      // console.log("Received image URL:", data.imageUrl); // 받은 imageUrl 출력
       setBgImage(data.imageUrl); // 서버에서 받은 이미지 URL로 배경 설정
     } catch (error) {
       console.error("Error fetching background image:", error);

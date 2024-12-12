@@ -51,8 +51,8 @@ const GamePage: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("isStoryComplete:", isStoryComplete);
-    console.log("isChatBotVisible:", isChatBotVisible);
+    // console.log("isStoryComplete:", isStoryComplete);
+    // console.log("isChatBotVisible:", isChatBotVisible);
   }, [isStoryComplete, isChatBotVisible]);
 
   useEffect(() => {
