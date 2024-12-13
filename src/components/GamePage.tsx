@@ -195,6 +195,9 @@ const GamePage: React.FC = () => {
           throw new Error("엔딩 이미지 생성에 실패했습니다.");
         }
 
+        // 엔딩페이지로 넘어갈 때 음악 정지
+        togglePlayPause();
+
         navigate("/game-ending", {
           state: {
             image: generatedImageResult.imageData,
