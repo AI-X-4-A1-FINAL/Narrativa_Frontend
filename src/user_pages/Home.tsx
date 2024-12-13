@@ -4,7 +4,7 @@ import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
-import { statisticsService } from '../service/statisticsService';
+import { statisticsService } from "../service/statisticsService";
 
 interface Genre {
   name: string;
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     statisticsService.incrementTraffic();
   }, []); // 컴포넌트 마운트 시 한 번만 실행
-  
+
   const navigate = useNavigate();
 
   // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
@@ -57,19 +57,18 @@ const Home: React.FC = () => {
     cookieToken == null && navigate("/"); // cookieToken이 null일 때만 navigate("/")가 실행
 
     const _cookieContent = parseCookieKeyValue(cookieToken);
-    
+
     if (_cookieContent == null) {
       navigate("/");
     } else {
       const userInfo: UserInfo = {
-        access_token: _cookieContent.access_token || '',
+        access_token: _cookieContent.access_token || "",
         user_id: _cookieContent.user_id || 0,
-        profile_url: _cookieContent.profile_url || '',
-        loginType: _cookieContent.loginType || '',
+        profile_url: _cookieContent.profile_url || "",
+        loginType: _cookieContent.loginType || "",
         id: _cookieContent.id || 0,
-        username: _cookieContent.username || '',
+        username: _cookieContent.username || "",
       };
-
     }
   }, [cookie, navigate]);
 
@@ -85,7 +84,7 @@ const Home: React.FC = () => {
       name: "Romance",
       tags: ["사랑", "드라마"],
       image: "/images/romance.webp",
-      available: false,
+      available: true,
     },
     {
       name: "Simulation",
@@ -112,9 +111,9 @@ const Home: React.FC = () => {
 
     // Google Analytics 게임 시작 이벤트 추적
     window.dataLayer.push({
-      'event': 'game_start',
-      'game_name': genre,
-      'game_tags': tags.join(',')
+      event: "game_start",
+      game_name: genre,
+      game_tags: tags.join(","),
     });
 
     navigate("/game-intro", {

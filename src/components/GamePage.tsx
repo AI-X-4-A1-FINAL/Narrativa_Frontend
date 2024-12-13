@@ -53,8 +53,8 @@ const GamePage: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log("isStoryComplete:", isStoryComplete);
-    console.log("isChatBotVisible:", isChatBotVisible);
+    // console.log("isStoryComplete:", isStoryComplete);
+    // console.log("isChatBotVisible:", isChatBotVisible);
   }, [isStoryComplete, isChatBotVisible]);
 
   useEffect(() => {
@@ -65,11 +65,11 @@ const GamePage: React.FC = () => {
         setGameState({
           mainMessage: "",
           choices: [], // 초기 선택지는 빈 배열로 시작
-          gameId: undefined,  // gameId는 아직 없음
+          gameId: undefined, // gameId는 아직 없음
         });
         const words = initialStory.split(" ");
         updateStoryTextByWord(initialStory, words, 0);
-        
+
         // gameId만 따로 받아오기 위한 API 호출
         const response = await axios.post(
           "/generate-story/start",
@@ -82,14 +82,13 @@ const GamePage: React.FC = () => {
             withCredentials: true,
           }
         );
-        
+
         // gameId만 업데이트
-        setGameState(prev => ({
+        setGameState((prev) => ({
           ...prev,
           gameId: response.data.gameId,
           choices: response.data.choices || [],
         }));
-        
       } catch (err) {
         console.error("Error starting game:", err);
         setError("게임을 시작하는 중 오류가 발생했습니다.");
@@ -127,12 +126,12 @@ const GamePage: React.FC = () => {
       setError("게임 ID가 없습니다.");
       return;
     }
-  
+
     setIsChoicesVisible(false);
     setChatBotPosition("center");
     setIsChatBotActive(false);
     setIsStoryComplete(false);
-  
+
     try {
       const payload = {
         genre,
@@ -140,8 +139,6 @@ const GamePage: React.FC = () => {
         gameId: gameState.gameId,
       };
 
-      
-      
       if (currentStage < 4) {
         setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
@@ -150,12 +147,12 @@ const GamePage: React.FC = () => {
           gameState.gameId,
           currentStage
         );
-        
+
         // 이미지 생성 실패 시 처리
         if (!generatedImageResult) {
           throw new Error("이미지 생성에 실패했습니다.");
         }
-  
+
         const response = await axios.post("/generate-story/chat", payload, {
           headers: {
             "Content-Type": "application/json",
@@ -163,17 +160,16 @@ const GamePage: React.FC = () => {
           },
           withCredentials: true,
         });
-        
+
         setGameState({
           mainMessage: "",
           choices: response.data.choices || [],
           gameId: gameState.gameId,
         });
-        
+
         const words = response.data.story.split(" ");
         updateStoryTextByWord(response.data.story, words, 0);
         goToNextStage();
-        
       } else {
         // 엔딩 처리
         const endPayload = {
@@ -181,7 +177,7 @@ const GamePage: React.FC = () => {
           userChoice: choiceText,
           gameId: gameState.gameId,
         };
-        
+
         const [generatedImageResult, endResponse] = await Promise.all([
           generateImage(choiceText, genre, gameState.gameId, currentStage),
           axios.post("/generate-story/end", endPayload, {
@@ -190,13 +186,13 @@ const GamePage: React.FC = () => {
               Authorization: `Bearer ${accessToken}`,
             },
             withCredentials: true,
-          })
+          }),
         ]);
-  
+
         if (!generatedImageResult) {
           throw new Error("엔딩 이미지 생성에 실패했습니다.");
         }
-  
+
         navigate("/game-ending", {
           state: {
             image: generatedImageResult.imageData,
