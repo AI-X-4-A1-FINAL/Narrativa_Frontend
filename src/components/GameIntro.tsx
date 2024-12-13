@@ -2,12 +2,14 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { LocationState } from "../utils/messageTypes";
+import { useSound } from "../hooks/useSound";
 
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = (location.state as LocationState) || {};
   const { userId, isAuthenticated, logout } = useAuth();
+  const playSound = useSound("/audios/button1.mp3");
 
   const handleStart = async () => {
     if (!genre) {
@@ -88,7 +90,10 @@ const GameIntro: React.FC = () => {
 
         {/* Start Button */}
         <button
-          onClick={handleStart}
+          onClick={() => {
+            playSound();
+            handleStart();
+          }}
           className="relative px-8 py-1 rounded-xl font-extrabold animate-pulse 
           text-gray-700 dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300 text-4xl"
         >

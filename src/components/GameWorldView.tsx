@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useAudio } from "../Contexts/AudioContext";
 import { useWorldView } from "../hooks/useWorldView";
 import { LocationState } from "../utils/messageTypes";
+import { useSound } from "../hooks/useSound";
 
 const GameWorldView: React.FC = () => {
   const location = useLocation();
