@@ -43,6 +43,25 @@ const PromptPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const resetForm = () => {
+    setSelectedPrompt(null);
+    setFormData({
+      title: '',
+      content: '',
+      genre: '',
+    });
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    resetForm();
+  };
+
+  const handleNewPromptClick = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
   const fetchPrompts = async () => {
     try {
       setLoading(true);
@@ -132,9 +151,6 @@ const PromptPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const toggleExpand = (id: number) => {
-    setExpandedPromptId(prev => (prev === id ? null : id));
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -166,7 +182,7 @@ const PromptPage: React.FC = () => {
           </form>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleNewPromptClick}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors mb-6"
           >
             새 프롬프트 등록
@@ -202,9 +218,9 @@ const PromptPage: React.FC = () => {
         </div>
 
         {/* 모달 */}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <h2 className="text-xl font-bold mb-4">{selectedPrompt ? '프롬프트 수정' : '새 프롬프트 등록'}</h2>
-          <form onSubmit={handleSubmit}>
+        <Modal isOpen={isModalOpen} onClose={handleModalClose}>
+            <h2 className="text-xl font-bold mb-4">{selectedPrompt ? '프롬프트 수정' : '새 프롬프트 등록'}</h2>
+            <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               <input
                 type="text"
