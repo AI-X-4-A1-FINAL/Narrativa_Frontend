@@ -39,7 +39,6 @@ const GamePage: React.FC = () => {
   const [isChoicesVisible, setIsChoicesVisible] = useState(false);
   const [isStoryComplete, setIsStoryComplete] = useState(false);
   const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false); // 퍼즐 모달 상태
-
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
   const { bgImage, generateImage } = useBackgroundImage(image);
@@ -248,9 +247,10 @@ const GamePage: React.FC = () => {
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-20">
         <button
-          onClick={() =>
-            navigate("/game-intro", { state: { genre, tags, image } })
-          }
+          onClick={() => {
+            togglePlayPause(); // 음악을 멈추기 위한 함수 호출
+            navigate("/game-intro", { state: { genre, tags, image } }); // 네비게이션
+          }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
           <ArrowBigLeftDash size={20} />
