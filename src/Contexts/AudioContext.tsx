@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
-import { Cookies } from 'react-cookie';
-import { parseCookieKeyValue } from '../api/cookie';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
+import { Cookies } from "react-cookie";
+import { parseCookieKeyValue } from "../api/cookie";
 
 interface AudioContextType {
   musicUrl: string | null;
@@ -14,7 +20,9 @@ interface AudioContextType {
 
 const AudioContext = createContext<AudioContextType | null>(null);
 
-export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [musicUrl, setMusicUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,37 +31,42 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const initializingRef = useRef<boolean>(false);
 
   const cookies = new Cookies();
-  const cookieToken = cookies.get('token');
-  const userId = Number(parseCookieKeyValue(cookieToken)?.id); 
+  const cookieToken = cookies.get("token");
+  const userId = Number(parseCookieKeyValue(cookieToken)?.id);
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
 
   useEffect(() => {
     const audio = audioRef.current;
-    
+
     const handleEnded = () => setIsPlaying(false);
     const handleError = () => {
       setError("음악 재생 중 오류가 발생했습니다.");
       setIsPlaying(false);
     };
 
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
 
     return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
       audio.pause();
-      audio.src = '';
+      audio.src = "";
     };
   }, []);
 
   const initializeMusic = async (genre: string, autoPlay: boolean = false) => {
-    if (initializingRef.current) return;
+    if (
+      initializingRef.current ||
+      (audioRef.current.src && audioRef.current.src.includes(genre))
+    ) {
+      return; // 이미 해당 장르의 음악이 재생 중이라면 초기화하지 않음
+    }
     initializingRef.current = true;
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_SPRING_URI}/api/music/random?genre=${genre}`,
@@ -61,7 +74,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           credentials: "include",
         }
@@ -70,22 +83,19 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      
-      setMusicUrl(data.url);
-      audioRef.current.src = data.url;
-      
-      if (autoPlay) {
-        try {
+
+      if (audioRef.current.src !== data.url) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.src = data.url;
+        setMusicUrl(data.url);
+
+        if (autoPlay) {
           const playPromise = audioRef.current.play();
           if (playPromise !== undefined) {
             await playPromise;
             setIsPlaying(true);
           }
-        } catch (error) {
-          setIsPlaying(false);
         }
       }
     } catch (error) {
@@ -126,15 +136,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <AudioContext.Provider 
-      value={{ 
-        musicUrl, 
-        isPlaying, 
+    <AudioContext.Provider
+      value={{
+        musicUrl,
+        isPlaying,
         isLoading,
         error,
         initializeMusic,
         togglePlayPause,
-        stop
+        stop,
       }}
     >
       {children}
@@ -145,7 +155,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 export const useAudio = () => {
   const context = useContext(AudioContext);
   if (!context) {
-    throw new Error('useAudio must be used within an AudioProvider');
+    throw new Error("useAudio must be used within an AudioProvider");
   }
   return context;
 };
