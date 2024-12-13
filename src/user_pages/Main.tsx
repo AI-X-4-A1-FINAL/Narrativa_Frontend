@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import Lottie from "lottie-react";
 import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
-import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const Main: React.FC = () => {
   const [showLoadingLottie, setShowLoadingLottie] = useState(false);
-  const playSound = useSound("/audios/button2.mp3");
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   const handleComplete = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
@@ -54,7 +54,7 @@ const Main: React.FC = () => {
           <div className="flex flex-col items-center mt-10">
             <Link to="/login">
               <button
-                onClick={() => playSound()}
+                onClick={() => playSound(0)}
                 className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded"
               >
                 START

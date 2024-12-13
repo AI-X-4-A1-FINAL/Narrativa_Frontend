@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useNotification } from "../Contexts/NotificationContext";
 import axios from "axios";
-import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface Notice {
   id: number;
@@ -21,7 +21,7 @@ const Header: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const playSound = useSound("/audios/button2.mp3");
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -82,7 +82,7 @@ const Header: React.FC = () => {
       <div className="flex justify-between items-center w-full">
         <Link
           to="/home"
-          onClick={() => playSound()} // 효과음 추가
+          onClick={() => playSound(0)} // 효과음 추가
         >
           <img
             src="/images/Group 18317.webp"
@@ -94,7 +94,7 @@ const Header: React.FC = () => {
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => {
-              playSound();
+              playSound(0);
               toggleMenu();
             }}
             className="self-end focus:outline-none"
@@ -116,7 +116,7 @@ const Header: React.FC = () => {
                     to="/profile"
                     className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                     onClick={() => {
-                      playSound();
+                      playSound(0);
                       handleMenuItemClick();
                     }}
                   >
@@ -128,7 +128,7 @@ const Header: React.FC = () => {
                     to="/bookmarks"
                     className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                     onClick={() => {
-                      playSound();
+                      playSound(0);
                       handleMenuItemClick();
                     }}
                   >

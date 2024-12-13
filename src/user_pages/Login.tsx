@@ -3,11 +3,11 @@ import { getKakaoLoginLink } from "../api/kakaoApi";
 import { getGoogleLoginLink } from "../api/googleApi";
 import { getGithubLoginLink } from "../api/githubApi";
 import { useNavigate } from "react-router-dom";
-import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const playSound = useSound("/audios/button2.mp3");
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   useEffect(() => {
     // 스크롤 비활성화
@@ -45,7 +45,7 @@ const Login: React.FC = () => {
         <button
           key={index}
           onClick={() => {
-            playSound(); // 효과음 재생
+            playSound(0); // 효과음 재생
             const link = photo.onClick();
             window.location.href = link; // 효과음 재생 후 리디렉션
           }}

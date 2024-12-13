@@ -7,7 +7,7 @@ import AuthGuard from "../api/accessControl";
 import { useDarkMode } from "../Contexts/DarkModeContext";
 import { useNotification } from "../Contexts/NotificationContext";
 import { parseCookieKeyValue } from "../api/cookie";
-import useMultipleSoundEffects from "../hooks/useMultipleSoundEffects";
+import { useSoundContext } from "../Contexts/SoundContext";
 
 import { useSound } from "../hooks/useSound";
 
@@ -19,10 +19,7 @@ interface UserProfileInfo {
 const Profile: React.FC = () => {
   const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
-  const { isSoundOn, toggleSound, playSound } = useMultipleSoundEffects([
-    "/audios/button1.mp3",
-    "/audios/button2.mp3",
-  ]);
+  const { isSoundOn, toggleSound } = useSoundContext();
 
   // 개별 효과음 재생 (전역 상태와 독립적)
   const playIndividualSound = (soundSrc: string) => {

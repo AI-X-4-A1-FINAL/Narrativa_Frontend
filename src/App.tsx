@@ -100,35 +100,35 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <DarkModeProvider>
-    <NotificationProvider>
-      <AudioProvider>
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: -1,
-          }}
-        >
-          <ParticleBackground />
-        </div>
-        <AppContent />
-      </AudioProvider>
-    </NotificationProvider>
-  </DarkModeProvider>
+  <SoundProvider>
+    {" "}
+    {/* 전역 상태를 제공 */}
+    <DarkModeProvider>
+      <NotificationProvider>
+        <AudioProvider>
+          <ParticleProvider>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                zIndex: -1,
+              }}
+            >
+              <ParticleBackground />
+            </div>
+            <Router>
+              <Routes>
+                <Route path="/*" element={<AppContent />} />
+              </Routes>
+            </Router>
+          </ParticleProvider>
+        </AudioProvider>
+      </NotificationProvider>
+    </DarkModeProvider>
+  </SoundProvider>
 );
 
-const AppWithRouter: React.FC = () => (
-  <ParticleProvider>
-    <Router>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </Router>
-  </ParticleProvider>
-);
-
-export default AppWithRouter;
+export default App;

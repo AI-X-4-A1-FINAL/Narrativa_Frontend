@@ -12,7 +12,7 @@ import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
 import PuzzleModal from "../components/PuzzleModal"; // PuzzleModal로 변경
-import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface GameState {
   mainMessage: string;
@@ -28,8 +28,7 @@ const GamePage: React.FC = () => {
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-  const playSound = useSound("/audios/button1.mp3");
-
+  const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -251,7 +250,7 @@ const GamePage: React.FC = () => {
       <div className="absolute top-4 flex justify-between w-full px-4 z-20">
         <button
           onClick={() => {
-            playSound(); // 효과음 재생
+            playSound(0); // 효과음 재생
             navigate("/game-intro", { state: { genre, tags, image } });
           }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
@@ -262,7 +261,7 @@ const GamePage: React.FC = () => {
         <button
           onClick={() => {
             togglePlayPause(); // 볼륨 토글
-            playSound(); // 효과음 재생
+            playSound(0); // 효과음 재생
           }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
@@ -287,7 +286,7 @@ const GamePage: React.FC = () => {
                     <button
                       key={index}
                       onClick={() => {
-                        playSound(); // 효과음 재생
+                        playSound(0); // 효과음 재생
                         handleChoice(choice); // 선택 처리
                       }}
                       className="w-full bg-gray-800/70 text-white p-4 rounded-lg opacity-0 animate-fadeIn transition-all duration-300 hover:bg-gray-700/90 hover:scale-[1.02] border border-purple-500/20 backdrop-blur-sm"
@@ -306,7 +305,7 @@ const GamePage: React.FC = () => {
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
         onClose={() => {
-          playSound(); // 효과음 재생
+          playSound(0); // 효과음 재생
           handlePuzzleModalClose(); // 모달 닫기 함수
         }}
         bgImage={bgImage}
@@ -317,7 +316,7 @@ const GamePage: React.FC = () => {
           gameId={gameState.gameId}
           position={chatBotPosition}
           onToggle={() => {
-            playSound(); // 효과음 재생
+            playSound(0); // 효과음 재생
             handleChatBotToggle(); // 챗봇 토글 함수
           }}
         />
