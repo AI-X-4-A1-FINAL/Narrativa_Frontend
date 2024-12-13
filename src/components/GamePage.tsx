@@ -38,14 +38,16 @@ const GamePage: React.FC = () => {
   const [isChatBotVisible, setIsChatBotVisible] = useState(false);
   const [isChoicesVisible, setIsChoicesVisible] = useState(false);
   const [isStoryComplete, setIsStoryComplete] = useState(false);
-  const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false);  // 퍼즐 모달 상태
+  const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false); // 퍼즐 모달 상태
 
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
   const { bgImage, generateImage } = useBackgroundImage(image);
   const { currentStage, goToNextStage } = useGameStage({
     maxStages: 5,
-    onStageChange: () => initializeMusic(genre),
+    onStageChange: () => {
+      if (genre) initializeMusic(genre, true); // 스테이지 변경 시 음악 재생 유지
+    },
   });
   const [isChatBotActive, setIsChatBotActive] = useState(false);
   const [chatBotPosition, setChatBotPosition] = useState<"center" | "left">(
@@ -140,7 +142,7 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
+        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -295,7 +297,7 @@ const GamePage: React.FC = () => {
         isOpen={isPuzzleModalOpen}
         onClose={handlePuzzleModalClose}
         // onGameComplete={handleGameComplete}
-        bgImage = {bgImage}
+        bgImage={bgImage}
       />
 
       {/* ChatBot */}
