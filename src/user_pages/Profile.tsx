@@ -151,6 +151,17 @@ const Profile: React.FC = () => {
       const formData = new FormData();
       formData.append("image", img);
 
+    // Get file extension
+    const fileExtension = img.name.split('.').pop()?.toLowerCase();
+
+    // Check if file extension is one of the allowed types
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'svg'];
+
+    if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+      alert("해당 파일은 이미지가 아닙니다.");
+      return;
+    }
+
       // console.log('userId: ', userId);
       // console.log('accessToken: ', accessToken);
       // console.log('formData.image: ', formData.get('image'));
