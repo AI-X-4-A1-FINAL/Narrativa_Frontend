@@ -11,6 +11,7 @@ import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
+import PuzzleModal from "../components/PuzzleModal"; // PuzzleModal로 변경
 
 interface GameState {
   mainMessage: string;
@@ -37,6 +38,7 @@ const GamePage: React.FC = () => {
   const [isChatBotVisible, setIsChatBotVisible] = useState(false);
   const [isChoicesVisible, setIsChoicesVisible] = useState(false);
   const [isStoryComplete, setIsStoryComplete] = useState(false);
+  const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false);  // 퍼즐 모달 상태
 
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
@@ -137,8 +139,11 @@ const GamePage: React.FC = () => {
         userSelect: choiceText,
         gameId: gameState.gameId,
       };
+
+      
       
       if (currentStage < 4) {
+        setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -207,6 +212,14 @@ const GamePage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePuzzleModalClose = () => {
+    setIsPuzzleModalOpen(false); // 퍼즐 모달 닫기
+  };
+
+  const handleGameComplete = () => {
+    setIsPuzzleModalOpen(false); // 퍼즐 게임 완료 후 모달 닫기
   };
 
   if (!isAuthenticated) {
@@ -280,6 +293,14 @@ const GamePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* 퍼즐 모달 */}
+      <PuzzleModal
+        isOpen={isPuzzleModalOpen}
+        onClose={handlePuzzleModalClose}
+        // onGameComplete={handleGameComplete}
+        bgImage = {bgImage}
+      />
 
       {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
