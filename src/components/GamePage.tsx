@@ -47,7 +47,9 @@ const GamePage: React.FC = () => {
   const { bgImage, generateImage } = useBackgroundImage(image);
   const { currentStage, goToNextStage } = useGameStage({
     maxStages: 5,
-    onStageChange: () => initializeMusic(genre),
+    onStageChange: () => {
+      if (genre) initializeMusic(genre, true); // 스테이지 변경 시 음악 재생 유지
+    },
   });
   const [isChatBotActive, setIsChatBotActive] = useState(false);
   const [chatBotPosition, setChatBotPosition] = useState<"center" | "left">(
@@ -143,6 +145,7 @@ const GamePage: React.FC = () => {
 
       if (currentStage < 4) {
         setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
+        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -194,6 +197,9 @@ const GamePage: React.FC = () => {
         if (!generatedImageResult) {
           throw new Error("엔딩 이미지 생성에 실패했습니다.");
         }
+
+        // 엔딩페이지로 넘어갈 때 음악 정지
+        togglePlayPause();
 
         navigate("/game-ending", {
           state: {
@@ -305,7 +311,7 @@ const GamePage: React.FC = () => {
         }}
         bgImage={bgImage}
       />
-      /* ChatBot */
+      {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
         <ChatBot
           gameId={gameState.gameId}

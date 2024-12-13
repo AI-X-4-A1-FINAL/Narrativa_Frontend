@@ -61,6 +61,7 @@ const GameWorldView: React.FC = () => {
   }, []);
 
   const handleNavigateBack = () => {
+    togglePlayPause();
     stop();
     navigate(-1);
   };
