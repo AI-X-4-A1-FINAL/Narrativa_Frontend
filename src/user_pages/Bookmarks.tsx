@@ -112,13 +112,13 @@ const Bookmarks: React.FC = () => {
       <div className="w-full mx-auto mt-20">
         {/* 장르 필터 버튼 */}
         <div
-          className="w-full p-4 mb-9 flex flex-wrap justify-center gap-4"
+          className="w-full p-4 mb-9 flex flex-wrap justify-center gap-4 md:gap-6"
           style={{ borderRadius: "60px", height: "auto" }}
         >
           {predefinedGenres.map((genre) => (
             <button
               key={genre}
-              className={`flex-1 min-w-[70px] max-w-[150px] px-4 py-2 text-center rounded-full ${
+              className={`flex-1 px-2 py-1 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-center rounded-full ${
                 genre === selectedGenre || (genre === "전체" && !selectedGenre)
                   ? "bg-custom-violet text-white"
                   : "dark:text-white hover:bg-custom-violet hover:text-white"
