@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { getKakaoLoginLink } from '../api/kakaoApi';
 import { getGoogleLoginLink } from '../api/googleApi';
-import { getGithubLoginLink } from '../api/githubApi';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
@@ -20,7 +19,6 @@ const Login: React.FC = () => {
   const photos = [
     { src: '/images/kakaotalk.webp', alt: 'Kakao Login', onClick: getKakaoLoginLink },
     { src: '/images/google.webp', alt: 'Google Login', onClick: getGoogleLoginLink },
-    { src: '/images/git.webp', alt: 'GitHub Login', onClick: getGithubLoginLink },
   ];
 
   return (
