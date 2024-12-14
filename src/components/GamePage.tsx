@@ -12,6 +12,7 @@ import { Cookies } from "react-cookie";
 import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
 import PuzzleModal from "../components/PuzzleModal"; // PuzzleModal로 변경
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface GameState {
   mainMessage: string;
@@ -27,7 +28,7 @@ const GamePage: React.FC = () => {
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-
+  const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
   const [gameState, setGameState] = useState<GameState>({
     mainMessage: "",
     choices: [],
@@ -39,6 +40,7 @@ const GamePage: React.FC = () => {
   const [isChoicesVisible, setIsChoicesVisible] = useState(false);
   const [isStoryComplete, setIsStoryComplete] = useState(false);
   const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false); // 퍼즐 모달 상태
+
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
   const { bgImage, generateImage } = useBackgroundImage(image);
@@ -142,6 +144,7 @@ const GamePage: React.FC = () => {
 
       if (currentStage < 4) {
         setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
+        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -243,13 +246,12 @@ const GamePage: React.FC = () => {
           className="w-full h-full object-cover brightness-50"
         />
       </div>
-
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-20">
         <button
           onClick={() => {
-            togglePlayPause(); // 음악을 멈추기 위한 함수 호출
-            navigate("/game-intro", { state: { genre, tags, image } }); // 네비게이션
+            playSound(0); // 효과음 재생
+            navigate("/game-intro", { state: { genre, tags, image } });
           }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
@@ -257,13 +259,15 @@ const GamePage: React.FC = () => {
         </button>
         <GameStageIndicator currentStage={currentStage} maxStages={5} />
         <button
-          onClick={togglePlayPause}
+          onClick={() => {
+            togglePlayPause(); // 볼륨 토글
+            playSound(0); // 효과음 재생
+          }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
           {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
       </div>
-
       {/* 메인 컨텐츠 영역 */}
       <div className="absolute top-24 left-0 w-full px-4 z-10">
         <div className="mx-auto max-w-4xl">
@@ -281,7 +285,10 @@ const GamePage: React.FC = () => {
                   {gameState.choices.map((choice, index) => (
                     <button
                       key={index}
-                      onClick={() => handleChoice(choice)}
+                      onClick={() => {
+                        playSound(0); // 효과음 재생
+                        handleChoice(choice); // 선택 처리
+                      }}
                       className="w-full bg-gray-800/70 text-white p-4 rounded-lg opacity-0 animate-fadeIn transition-all duration-300 hover:bg-gray-700/90 hover:scale-[1.02] border border-purple-500/20 backdrop-blur-sm"
                       style={{ animationDelay: `${index * 0.2}s` }}
                     >
@@ -294,21 +301,24 @@ const GamePage: React.FC = () => {
           )}
         </div>
       </div>
-
       {/* 퍼즐 모달 */}
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
-        onClose={handlePuzzleModalClose}
-        // onGameComplete={handleGameComplete}
+        onClose={() => {
+          playSound(0); // 효과음 재생
+          handlePuzzleModalClose(); // 모달 닫기 함수
+        }}
         bgImage={bgImage}
       />
-
       {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
         <ChatBot
           gameId={gameState.gameId}
           position={chatBotPosition}
-          onToggle={handleChatBotToggle}
+          onToggle={() => {
+            playSound(0); // 효과음 재생
+            handleChatBotToggle(); // 챗봇 토글 함수
+          }}
         />
       )}
     </div>

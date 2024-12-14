@@ -2,12 +2,14 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { LocationState } from "../utils/messageTypes";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const GameIntro: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { genre, tags, image } = (location.state as LocationState) || {};
   const { userId, isAuthenticated, logout } = useAuth();
+  const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
 
   const handleStart = async () => {
     if (!genre) {
@@ -55,9 +57,9 @@ const GameIntro: React.FC = () => {
       {/* Content Container */}
       <div className="text-center text-black dark:text-white w-full max-w-lg">
         {/* Title */}
-        <h1 className="text-4xl font-bold mb-6 text-black dark:text-white">
+        {/* <h1 className="text-2xl font-semibold mb-6 text-black dark:text-white">
           {genre} Game
-        </h1>
+        </h1> */}
 
         {/* Tags */}
         <div className="flex flex-wrap justify-center gap-2 mb-4">
@@ -65,8 +67,8 @@ const GameIntro: React.FC = () => {
             tags.map((tag, index) => (
               <span
                 key={index}
-                className="text-sm font-semibold px-4 py-1.5 rounded-full
-                bg-gray-700 dark:bg-gray-300 text-white dark:text-black shadow-md"
+                className="text-sm font-semibold px-4 py-1.5 
+                 text-black dark:text-white shadow-md"
               >
                 #{tag}
               </span>
@@ -76,7 +78,7 @@ const GameIntro: React.FC = () => {
         {/* Description */}
         <p
           className="text-base leading-relaxed mb-6 p-4 rounded-2xl 
-        bg-white/80 dark:bg-gray-800/80 shadow-xl dark:shadow-gray-950"
+        bg-white/80 bg-opacity-40 dark:bg-gray-800 shadow-xl dark:shadow-gray-950 dark:bg-opacity-80"
         >
           매혹적인{" "}
           <span className="text-custom-violet font-semibold">{genre}</span>{" "}
@@ -88,9 +90,12 @@ const GameIntro: React.FC = () => {
 
         {/* Start Button */}
         <button
-          onClick={handleStart}
-          className="relative px-8 py-1 rounded-xl font-extrabold animate-pulse 
-          text-gray-700 dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300 text-4xl"
+          onClick={() => {
+            playSound(0);
+            handleStart();
+          }}
+          className="relative px-8 py-2 font-extrabold animate-pulse bg-slate-200 rounded-full
+          text-gray-700 dark:text-custom-violet dark:bg-gray-200 transform hover:scale-105 active:scale-105 transition-all duration-300 text-4xl"
         >
           Start Game
         </button>

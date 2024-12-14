@@ -7,6 +7,9 @@ import AuthGuard from "../api/accessControl";
 import { useDarkMode } from "../Contexts/DarkModeContext";
 import { useNotification } from "../Contexts/NotificationContext";
 import { parseCookieKeyValue } from "../api/cookie";
+import { useSoundContext } from "../Contexts/SoundContext";
+
+import { useSound } from "../hooks/useSound";
 
 interface UserProfileInfo {
   username: string;
@@ -16,6 +19,16 @@ interface UserProfileInfo {
 const Profile: React.FC = () => {
   const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
+  const { isSoundOn, toggleSound } = useSoundContext();
+
+  // 개별 효과음 재생 (전역 상태와 독립적)
+  const playIndividualSound = (soundSrc: string) => {
+    if (isSoundOn) {
+      const sound = new Howl({ src: [soundSrc], volume: 0.5 });
+      sound.play();
+    }
+  };
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
 
@@ -24,8 +37,8 @@ const Profile: React.FC = () => {
 
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
+
   const { isNotificationsOn, toggleNotifications } = useNotification();
-  // console.log("Profile - isNotificationsOn:", isNotificationsOn);
 
   const [cookie, setCookie, removeCookie] = useCookies(["token"]);
   const [userId, setUserId] = useState(-1);
@@ -60,25 +73,18 @@ const Profile: React.FC = () => {
           method: "GET", // 기본적으로 GET 요청
           headers: {
             "Content-Type": "application/json", // 요청 헤더 설정
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           credentials: "include", // 쿠키를 요청에 포함시키기
         }
       );
-      // console.log('response.ok: ', response.ok);
+
       if (!response.ok) throw new Error("Failed to fetch profile data.");
 
-      // console.log('response: ', response);
-      // console.log('response.body: ', response.body);
-
       let data = await response.json();
-      // console.log('data: ', data);
-      // console.log('data: ', data.nickname);
 
       const tmp_nickname = data.nickname;
       const tmp_profileUrl = data.profile_url;
-      // console.log('tmp_nickname: ', tmp_nickname);
-      // console.log('tmp_profileUrl: ', tmp_profileUrl);
 
       // 만약 data가 JSON 문자열이라면, 파싱을 시도
       if (typeof data === "string") {
@@ -88,7 +94,6 @@ const Profile: React.FC = () => {
       // 상태에 사용자 데이터 저장
       setNickname(tmp_nickname);
       setProfileUrl(tmp_profileUrl);
-
     } catch (error) {
       if (error instanceof Error) {
         setError("Failed to load user data.");
@@ -108,19 +113,14 @@ const Profile: React.FC = () => {
   // 데이터베이스에서 닉네임 가져오기
   useEffect(() => {
     const cookieToken = cookie.token;
-    // console.log('cookie: ', cookie);
-    // console.log('cookieToken: ', cookieToken);
 
     cookieToken == null && navigate("/");
-    
+
     const _cookieContent = parseCookieKeyValue(cookieToken);
-    // console.log('_cookieContent: ', _cookieContent);
 
     if (_cookieContent != null) {
       const _cookieContentAccesToken = _cookieContent.access_token;
       const _cookieContentId = _cookieContent.user_id;
-      // console.log('access token: ', _cookieContentAccesToken);
-      // console.log('access id: ', _cookieContentId);
 
       if (_cookieContentAccesToken != null && _cookieContentId != null) {
         setAccessToken(_cookieContentAccesToken);
@@ -131,7 +131,7 @@ const Profile: React.FC = () => {
           navigate("/"); // 유저 상태코드 유효하지 않으면 접근 불가 설정
         }
       } else {
-        navigate("/");  
+        navigate("/");
       }
     } else {
       navigate("/");
@@ -140,7 +140,6 @@ const Profile: React.FC = () => {
 
   // 수정 완료 버튼 클릭 시 데이터베이스에 저장
   const handleSave = async () => {
-
     const profileImgData = {
       image: profileUrl,
     };
@@ -154,6 +153,17 @@ const Profile: React.FC = () => {
       const formData = new FormData();
       formData.append("image", img);
 
+      // Get file extension
+      const fileExtension = img.name.split(".").pop()?.toLowerCase();
+
+      // Check if file extension is one of the allowed types
+      const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
+
+      if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+        alert("해당 파일은 이미지가 아닙니다.");
+        return;
+      }
+
       // console.log('userId: ', userId);
       // console.log('accessToken: ', accessToken);
       // console.log('formData.image: ', formData.get('image'));
@@ -163,7 +173,7 @@ const Profile: React.FC = () => {
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: formData, // 수정된 데이터 전송
           credentials: "include",
@@ -196,7 +206,7 @@ const Profile: React.FC = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json", // 요청 헤더 설정
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           credentials: "include", // 쿠키를 요청에 포함시키기
         }
@@ -220,7 +230,7 @@ const Profile: React.FC = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(profileData), // 수정된 데이터 전송
           credentials: "include", // 쿠키를 요청에 포함시키기
@@ -266,8 +276,8 @@ const Profile: React.FC = () => {
         {},
         {
           headers: {
-            'Content-Type': 'application/json', // 요청 헤더 설정
-            'Authorization': `Bearer ${accessToken}`, // Authorization 헤더 설정
+            "Content-Type": "application/json", // 요청 헤더 설정
+            Authorization: `Bearer ${accessToken}`, // Authorization 헤더 설정
           },
           withCredentials: true, // 쿠키를 요청에 포함시키기
         }
@@ -394,7 +404,10 @@ const Profile: React.FC = () => {
             {/* 이미지 클릭 시 파일 선택 */}
             <button
               className="w-48 grid place-items-center"
-              onClick={() => document.getElementById("fileInput")?.click()}
+              onClick={() => {
+                playIndividualSound("/audios/button2.mp3");
+                document.getElementById("fileInput")?.click();
+              }}
             >
               <img
                 src="/images/edit_camera.webp"
@@ -433,7 +446,10 @@ const Profile: React.FC = () => {
 
           {isEditMode && !isEditingNickname && (
             <button
-              onClick={() => setIsEditingNickname(true)}
+              onClick={() => {
+                playIndividualSound("/audios/button2.mp3");
+                setIsEditingNickname(true);
+              }}
               className="absolute -right-8 top-5 text-lg ml-2"
             >
               <img
@@ -448,9 +464,15 @@ const Profile: React.FC = () => {
 
       <div className="flex space-x-4">
         <button
-          onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className={`px-10 py-2 text-white  rounded my-2 bg-custom-violet shadow-lg dark:shadow-gray-950
-            hover:bg-blue-900 dark:text-white `}
+          onClick={() => {
+            playIndividualSound("/audios/button2.mp3");
+            if (isEditMode) {
+              handleSave(); // 수정 완료 로직
+            } else {
+              setIsEditMode(true); // 수정 모드 활성화
+            }
+          }}
+          className={`px-10 py-2 text-white rounded my-2 bg-custom-violet shadow-lg dark:shadow-gray-950 hover:bg-blue-900 dark:text-white`}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>
@@ -490,6 +512,24 @@ const Profile: React.FC = () => {
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
                 isBackgroundMusicOn ? "translate-x-6" : "translate-x-0"
+              }`}
+            />
+          </div>
+        </label>
+        <label
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+        >
+          <span className="mr-48">효과음</span>
+          <div
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+              isSoundOn ? "bg-custom-violet" : "bg-gray-300"
+            }`}
+            onClick={toggleSound} // toggleSound를 직접 호출
+          >
+            <div
+              className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                isSoundOn ? "translate-x-6" : "translate-x-0"
               }`}
             />
           </div>

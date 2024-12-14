@@ -5,6 +5,8 @@ import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 import { statisticsService } from "../service/statisticsService";
+// import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface Genre {
   name: string;
@@ -124,6 +126,7 @@ const Home: React.FC = () => {
       },
     });
   };
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   return (
     <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2">
@@ -137,14 +140,15 @@ const Home: React.FC = () => {
               className={`relative ${
                 genre.available ? "cursor-pointer" : "cursor-not-allowed"
               }`}
-              onClick={() =>
+              onClick={() => {
+                playSound(0);
                 handleClick(
                   genre.name,
                   genre.tags,
                   genre.image,
                   genre.available
-                )
-              }
+                );
+              }}
             >
               <img
                 src={genre.image}

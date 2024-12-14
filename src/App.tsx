@@ -13,20 +13,19 @@ import GamePage from "./components/GamePage";
 import GameEnding from "./components/GameEnding";
 import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
-import { DarkModeProvider } from "./Contexts/DarkModeContext";
-import { NotificationProvider } from "./Contexts/NotificationContext";
 import NotificationList from "./components/NotificationList";
 import Notification from "./components/Notification";
-import { AudioProvider } from "./Contexts/AudioContext";
+import PromptPage from "./user_pages/PromptManagement";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
-import ParticleProvider from "./Contexts/ParticleContext"; 
-import PromptPage from './user_pages/PromptManagement';
-
+import { DarkModeProvider } from "./Contexts/DarkModeContext";
+import { NotificationProvider } from "./Contexts/NotificationContext";
+import { SoundProvider } from "./Contexts/SoundContext";
+import { AudioProvider } from "./Contexts/AudioContext";
+import ParticleProvider from "./Contexts/ParticleContext";
 
 const AppContent: React.FC = () => {
-
   const headerState = useHeaderVisibility();
 
   return (
@@ -90,7 +89,7 @@ const AppContent: React.FC = () => {
                 }
               />
 
-              {/* 404 라우트 - 항상 마지막에 위치 */}
+              {/* 404 라우트 */}
               <Route path="/*" element={<WrongPage />} />
             </Routes>
           </main>
@@ -101,35 +100,35 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <DarkModeProvider>
-    <NotificationProvider>
-      <AudioProvider>
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: -1,
-          }}
-        >
-          <ParticleBackground />
-        </div>
-        <AppContent />
-      </AudioProvider>
-    </NotificationProvider>
-  </DarkModeProvider>
+  <SoundProvider>
+    {" "}
+    {/* 전역 상태를 제공 */}
+    <DarkModeProvider>
+      <NotificationProvider>
+        <AudioProvider>
+          <ParticleProvider>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                zIndex: -1,
+              }}
+            >
+              <ParticleBackground />
+            </div>
+            <Router>
+              <Routes>
+                <Route path="/*" element={<AppContent />} />
+              </Routes>
+            </Router>
+          </ParticleProvider>
+        </AudioProvider>
+      </NotificationProvider>
+    </DarkModeProvider>
+  </SoundProvider>
 );
 
-const AppWithRouter: React.FC = () => (
-  <ParticleProvider>
-    <Router>
-      <Routes>
-        <Route path="/*" element={<App />} />
-      </Routes>
-    </Router>
-  </ParticleProvider>
-);
-
-export default AppWithRouter;
+export default App;

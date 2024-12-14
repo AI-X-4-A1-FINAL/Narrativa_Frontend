@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../api/axiosInstance";
 import { useDarkMode } from "../Contexts/DarkModeContext";
 import { parseCookieKeyValue } from "../api/cookie";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface GameHistory {
   gameId: number;
@@ -21,6 +22,7 @@ const Bookmarks: React.FC = () => {
 
   // 미리 정의된 장르 리스트
   const predefinedGenres = ["전체", "생존", "추리", "연애", "성장"];
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   const genreMapping: { [key: string]: string } = {
     생존: "Survival",
@@ -124,7 +126,10 @@ const Bookmarks: React.FC = () => {
                   : "dark:text-white hover:bg-custom-violet hover:text-white"
               }`}
               style={{ borderRadius: "60px" }}
-              onClick={() => setSelectedGenre(genre === "전체" ? null : genre)}
+              onClick={() => {
+                playSound(0);
+                setSelectedGenre(genre === "전체" ? null : genre);
+              }}
             >
               {genre}
             </button>

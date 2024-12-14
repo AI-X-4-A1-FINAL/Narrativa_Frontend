@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useAudio } from "../Contexts/AudioContext";
 import { useWorldView } from "../hooks/useWorldView";
 import { LocationState } from "../utils/messageTypes";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const GameWorldView: React.FC = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const GameWorldView: React.FC = () => {
   const [bgImage, setBgImage] = useState<string>(image);
   const [musicInitialized, setMusicInitialized] = useState(false);
   const loadingCompleteRef = useRef(false);
+  const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
 
   const { userId, isAuthenticated } = useAuth();
   const { musicUrl, isPlaying, togglePlayPause, initializeMusic, stop } =
@@ -117,7 +119,10 @@ const GameWorldView: React.FC = () => {
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-30">
         <button
-          onClick={handleNavigateBack}
+          onClick={() => {
+            playSound(0);
+            handleNavigateBack();
+          }}
           className="bg-custom-background text-white w-10 h-10 rounded-full 
                    hover:bg-custom-violet transition-colors 
                    flex items-center justify-center shadow-2xl"
@@ -128,7 +133,10 @@ const GameWorldView: React.FC = () => {
         <div className="flex items-center space-x-4">
           {musicUrl && (
             <button
-              onClick={togglePlayPause}
+              onClick={() => {
+                playSound(0);
+                togglePlayPause();
+              }}
               className="bg-custom-background text-white w-10 h-10 rounded-full 
                        hover:bg-custom-violet transition-colors 
                        flex items-center justify-center shadow-2xl"
@@ -160,7 +168,10 @@ const GameWorldView: React.FC = () => {
               <div className="h-full w-full flex flex-col items-center justify-center text-red-500 text-center">
                 <p>{error}</p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => {
+                    playSound(0);
+                    window.location.reload();
+                  }}
                   className="mt-4 underline"
                 >
                   다시 시도
@@ -178,14 +189,17 @@ const GameWorldView: React.FC = () => {
           {/* 시작 버튼 */}
           <div className="flex justify-center">
             <button
-              onClick={handleStartGame}
+              onClick={() => {
+                playSound(0);
+                handleStartGame();
+              }}
               disabled={loading || !!error}
               className="text-white py-4 px-8 rounded-lg animate-pulse 
               disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="font-bold text-2xl ">
                 {loading
-                  ? "이제부터 모든 것은 당신의 선택에 달려 있습니다."
+                  ? "이제, 모든 선택은 당신의 몫입니다."
                   : error
                   ? "다시 시도"
                   : "게임 시작하기"}
