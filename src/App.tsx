@@ -25,6 +25,7 @@ import { NotificationProvider } from "./Contexts/NotificationContext";
 import { SoundProvider } from "./Contexts/SoundContext";
 import { AudioProvider } from "./Contexts/AudioContext";
 import ParticleProvider from "./Contexts/ParticleContext";
+import { BGMProvider } from "./Contexts/BGMContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
@@ -102,35 +103,36 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <SoundProvider>
-    {" "}
-    {/* 전역 상태를 제공 */}
-    <DarkModeProvider>
-      <NotificationProvider>
-        <AudioProvider>
-          <ParticleProvider>
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: -1,
-              }}
-            >
-              <ParticleBackground />
-            </div>
-            <Router>
-              <Routes>
-                <Route path="/*" element={<AppContent />} />
-              </Routes>
-            </Router>
-          </ParticleProvider>
-        </AudioProvider>
-      </NotificationProvider>
-    </DarkModeProvider>
-  </SoundProvider>
+  <BGMProvider>
+    <SoundProvider>
+      {" "}
+      <DarkModeProvider>
+        <NotificationProvider>
+          <AudioProvider>
+            <ParticleProvider>
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  zIndex: -1,
+                }}
+              >
+                <ParticleBackground />
+              </div>
+              <Router>
+                <Routes>
+                  <Route path="/*" element={<AppContent />} />
+                </Routes>
+              </Router>
+            </ParticleProvider>
+          </AudioProvider>
+        </NotificationProvider>
+      </DarkModeProvider>
+    </SoundProvider>
+  </BGMProvider>
 );
 
 export default App;

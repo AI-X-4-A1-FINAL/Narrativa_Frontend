@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Lottie from "lottie-react";
 import loadingLottie from "./Animation2.json";
@@ -54,7 +54,10 @@ const Main: React.FC = () => {
           <div className="flex flex-col items-center mt-10">
             <Link to="/login">
               <button
-                onClick={() => playSound(0)}
+                onClick={() => {
+                  playSound(0); // 버튼 사운드 재생
+                  // handleStart(); // 배경음악 재생
+                }}
                 className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded"
               >
                 START

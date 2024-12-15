@@ -8,7 +8,7 @@ import { useDarkMode } from "../Contexts/DarkModeContext";
 import { useNotification } from "../Contexts/NotificationContext";
 import { parseCookieKeyValue } from "../api/cookie";
 import { useSoundContext } from "../Contexts/SoundContext";
-
+import { useBGM } from "../Contexts/BGMContext";
 import { useSound } from "../hooks/useSound";
 
 interface UserProfileInfo {
@@ -28,6 +28,7 @@ const Profile: React.FC = () => {
       sound.play();
     }
   };
+  const { isPlaying, toggleBGM } = useBGM();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
@@ -36,7 +37,6 @@ const Profile: React.FC = () => {
   const [profileUrl, setProfileUrl] = useState<string>(""); // profile url
 
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
 
   const { isNotificationsOn, toggleNotifications } = useNotification();
 
@@ -481,13 +481,13 @@ const Profile: React.FC = () => {
           <span className="mr-48">배경음악</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
-              isBackgroundMusicOn ? "bg-custom-violet" : "bg-gray-300"
+              isPlaying ? "bg-custom-violet" : "bg-gray-300"
             }`}
-            onClick={() => handleToggle(setIsBackgroundMusicOn)}
+            onClick={toggleBGM}
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                isBackgroundMusicOn ? "translate-x-6" : "translate-x-0"
+                isPlaying ? "translate-x-6" : "translate-x-0"
               }`}
             />
           </div>
