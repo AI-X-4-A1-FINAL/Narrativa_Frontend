@@ -143,8 +143,7 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
-        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
+        setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -304,11 +303,9 @@ const GamePage: React.FC = () => {
       {/* 퍼즐 모달 */}
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
-        onClose={() => {
-          playSound(0); // 효과음 재생
-          handlePuzzleModalClose(); // 모달 닫기 함수
-        }}
-        bgImage={bgImage}
+        onClose={handlePuzzleModalClose}
+        // onGameComplete={handleGameComplete}
+        bgImage = {bgImage}
       />
       {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
