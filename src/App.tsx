@@ -34,9 +34,9 @@ import { BGMProvider } from "./Contexts/BGMContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
-  const location = useLocation(); // 현재 라우트 확인
+  const location = useLocation();
   const [isBgmPlaying, setIsBgmPlaying] = useState(true);
-  // 특정 라우트에서 배경음 조정
+
   useEffect(() => {
     const gameRoutes = [
       "/game-page",
@@ -45,9 +45,9 @@ const AppContent: React.FC = () => {
       "/game-ending",
     ];
     if (gameRoutes.includes(location.pathname)) {
-      setIsBgmPlaying(false); // 게임 라우트에서 배경음 멈춤
+      setIsBgmPlaying(false);
     } else {
-      setIsBgmPlaying(true); // 그 외 라우트에서 배경음 재생
+      setIsBgmPlaying(true);
     }
   }, [location.pathname]);
 
@@ -56,10 +56,10 @@ const AppContent: React.FC = () => {
       {headerState.isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl">
+        <div className="flex flex-col min-h-[100svh] items-center justify-between shadow-2xl">
           {headerState.showHeader && <Header />}
           <main
-            className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
+            className={`flex-grow w-full h-[100svh] max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
               ${
                 headerState.isHeaderVisible && headerState.isPaddingRequired
                   ? "pt-32 px-4"
@@ -137,7 +137,7 @@ const App: React.FC = () => (
                   top: 0,
                   left: 0,
                   width: "100%",
-                  height: "100%",
+                  height: "100svh",
                   zIndex: -1,
                 }}
               >
