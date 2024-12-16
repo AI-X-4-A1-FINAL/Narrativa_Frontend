@@ -18,12 +18,13 @@ const GameEnding: React.FC = () => {
   const location = useLocation();
   const [cookies] = useCookies(["token"]);
 
-  const { prompt, genre, survivalRate, image } = location.state as LocationState || {
-    prompt: "",
-    genre: "",
-    survivalRate: 0,
-    image: ""
-  };
+  const { prompt, genre, survivalRate, image } =
+    (location.state as LocationState) || {
+      prompt: "",
+      genre: "",
+      survivalRate: 0,
+      image: "",
+    };
 
   const handleDownload = async () => {
     const captureArea = document.querySelector(".capture-area");
@@ -60,21 +61,21 @@ const GameEnding: React.FC = () => {
   useEffect(() => {
     const validateAuth = async () => {
       const cookieToken = cookies.token;
-      
+
       if (!cookieToken) {
         navigate("/");
         return;
       }
 
       const cookieContent = parseCookieKeyValue(cookieToken);
-      
+
       if (!cookieContent || !cookieContent.id || !cookieContent.access_token) {
         navigate("/");
         return;
       }
 
       const isAuthenticated = await AuthGuard(
-        cookieContent.id, 
+        cookieContent.id,
         cookieContent.access_token
       );
 
@@ -121,9 +122,7 @@ const GameEnding: React.FC = () => {
             className="w-4/5 flex flex-row justify-center text-center text-gray-100 bg-opacity-70
             bg-gray-900 rounded-xl border border-gray-600/50 shadow-xl p-5"
           >
-            <p className="text-2xl font-bold tracking-wider">
-              {genre} Summary
-            </p>
+            <p className="text-2xl font-bold tracking-wider">{genre} Summary</p>
           </div>
 
           {/* 내용 영역 */}
@@ -140,28 +139,28 @@ const GameEnding: React.FC = () => {
               }}
             >
               {/* 스토리 텍스트 */}
-              <div className="flex-grow">
-                {prompt}
-              </div>
-              
+              <div className="flex-grow">{prompt}</div>
+
               {/* 생존률 스탬프 */}
               {survivalRate !== undefined && (
                 <div className="flex justify-center mt-6 mb-4">
                   <div className="w-28 h-28 animate-stamp">
                     <div className="relative w-full h-full">
-                      <div 
+                      <div
                         className="absolute inset-0 border-4 border-red-500 rounded-full 
-                        flex items-center justify-center transform rotate-[-15deg]"
+          flex items-center justify-center transform rotate-[-15deg]"
                       >
                         <div className="text-red-500 font-bold">
-                          <div className="text-lg">생존률</div>
+                          <div className="text-lg">
+                            {genre === "Romance" ? "연예성공률" : "생존률"}
+                          </div>
                           <div className="text-3xl">{survivalRate}%</div>
                         </div>
                       </div>
                       {/* 스탬프 테두리 효과 */}
-                      <div 
+                      <div
                         className="absolute inset-0 border-4 border-red-500 rounded-full opacity-30 
-                        transform scale-[1.1] rotate-[15deg]"
+          transform scale-[1.1] rotate-[15deg]"
                       />
                     </div>
                   </div>
