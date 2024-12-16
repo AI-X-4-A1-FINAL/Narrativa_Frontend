@@ -3,6 +3,7 @@ import S from "../layouts/Style.Puzzle";
 import ImageDivide from "../hooks/image_divide";
 import usePuzzle from "../hooks/usePuzzle";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
+import countDownLottie from "./countdown.json"; // Lottie JSON file
 
 interface PuzzleModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   const [touchedPiece, setTouchedPiece] = useState<number | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const puzzleRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const [countdown, setCountdown] = useState(5); // 카운트다운 상태
 
   const handlePiecesGenerated = (newPieces: string[]) => {
     setPieces(newPieces);
@@ -61,6 +64,8 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
     const touch = e.touches[0];
     const currentPiece = findPuzzlePieceAtPosition(touch.clientX, touch.clientY);
 
+    
+
     if (currentPiece !== -1 && currentPiece !== touchedPiece) {
       dragEnter(currentPiece);
       playSound(2);
@@ -86,6 +91,23 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
     }
   }, [isOpen]);
 
+  // 카운트다운 타이머
+  useEffect(() => {
+    if (isOpen) {
+      setCountdown(5); // 모달이 열릴 때 5초로 초기화
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer); // 타이머 정지
+            onClose(); // 타이머 종료 후 모달 닫기
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
+    }
+  }, [isOpen, onClose]);
+
   return (
     <>
       {isOpen && (
@@ -102,9 +124,23 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
             </button>
 
             <h1 className="text-center text-xl font-semibold">PUZZLE GAME</h1>
-            <span className="dark:text-gray-300 text-black">
+            <span className="dark:text-gray-300 text-white">
               마우스나 터치로 드래그해서 퍼즐을 맞춰주세요
             </span>
+
+            {/* 카운트다운 표시 */}
+            <div className="text-center text-lg text-red-500 font-bold">
+              남은 시간: {countdown}초
+            </div>
+
+            {/* Lottie 애니메이션과 퍼즐 영역을 같은 컨테이너에 배치
+            <div className="flex flex-col items-center">
+              <Lottie
+                animationData={countDownLottie}
+                loop={false}
+                autoplay={true}
+                className="w-[40svh] h-[40svh]" // 크기 조정
+                </div> */}
 
             <ImageDivide
               imageSrc={bgImage}

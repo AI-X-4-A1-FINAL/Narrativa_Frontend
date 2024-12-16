@@ -481,8 +481,8 @@ const Profile: React.FC = () => {
 
       <div className="space-y-4">
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
-        bg-white dark:bg-gray-700 border-gray-200 rounded mt-10 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:bg-opacity-80 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
         >
           <span className="w-56 text-sm">다크모드</span>
           <div
@@ -503,8 +503,8 @@ const Profile: React.FC = () => {
         </label>
 
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
-        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:shadow-gray-900 dark:bg-opacity-80 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="w-56 text-sm">배경음악</span>
           <div
@@ -524,8 +524,8 @@ const Profile: React.FC = () => {
           </div>
         </label>
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
-        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:shadow-gray-900 dark:bg-opacity-80 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="w-56 text-sm">효과음</span>
           <div
@@ -546,8 +546,8 @@ const Profile: React.FC = () => {
         </label>
 
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
-        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
+        bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:shadow-gray-900 dark:bg-opacity-80 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="w-56 text-sm">공지사항</span>
           <div
