@@ -127,7 +127,6 @@ const Home: React.FC = () => {
     });
   };
   const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
-
   return (
     <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2">
       <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">

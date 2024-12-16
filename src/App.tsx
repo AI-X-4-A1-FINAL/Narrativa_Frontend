@@ -16,6 +16,7 @@ import Loading from "./action/Loading";
 import NotificationList from "./components/NotificationList";
 import Notification from "./components/Notification";
 import PromptPage from "./user_pages/PromptManagement";
+import TemplatePage from "./user_pages/TemplateManagement";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
@@ -24,6 +25,7 @@ import { NotificationProvider } from "./Contexts/NotificationContext";
 import { SoundProvider } from "./Contexts/SoundContext";
 import { AudioProvider } from "./Contexts/AudioContext";
 import ParticleProvider from "./Contexts/ParticleContext";
+import { BGMProvider } from "./Contexts/BGMContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
@@ -54,6 +56,7 @@ const AppContent: React.FC = () => {
               <Route path="/notification-list" element={<NotificationList />} />
               <Route path="/notification/:id" element={<Notification />} />
               <Route path="/prompts" element={<PromptPage />} />
+              <Route path="/template" element={<TemplatePage />} />
 
               {/* 게임 라우트 */}
               <Route
@@ -100,35 +103,36 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <SoundProvider>
-    {" "}
-    {/* 전역 상태를 제공 */}
-    <DarkModeProvider>
-      <NotificationProvider>
-        <AudioProvider>
-          <ParticleProvider>
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: -1,
-              }}
-            >
-              <ParticleBackground />
-            </div>
-            <Router>
-              <Routes>
-                <Route path="/*" element={<AppContent />} />
-              </Routes>
-            </Router>
-          </ParticleProvider>
-        </AudioProvider>
-      </NotificationProvider>
-    </DarkModeProvider>
-  </SoundProvider>
+  <BGMProvider>
+    <SoundProvider>
+      {" "}
+      <DarkModeProvider>
+        <NotificationProvider>
+          <AudioProvider>
+            <ParticleProvider>
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  zIndex: -1,
+                }}
+              >
+                <ParticleBackground />
+              </div>
+              <Router>
+                <Routes>
+                  <Route path="/*" element={<AppContent />} />
+                </Routes>
+              </Router>
+            </ParticleProvider>
+          </AudioProvider>
+        </NotificationProvider>
+      </DarkModeProvider>
+    </SoundProvider>
+  </BGMProvider>
 );
 
 export default App;
