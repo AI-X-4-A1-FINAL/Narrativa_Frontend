@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import Lottie from "lottie-react";
-import loadingLottie from "./Animation2.json";
 import backLottie from "./Animation3.json";
+import { getKakaoLoginLink } from '../api/kakaoApi';
+import { getGoogleLoginLink } from '../api/googleApi';
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const Main: React.FC = () => {
@@ -13,6 +13,11 @@ const Main: React.FC = () => {
     // 첫 번째 애니메이션이 끝나자마자 상태 변경
     setShowLoadingLottie(true);
   };
+
+  const photos = [
+    { src: '/images/kakaotalk.webp', alt: 'Kakao Login', onClick: getKakaoLoginLink },
+    { src: '/images/google.webp', alt: 'Google Login', onClick: getGoogleLoginLink },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-between bg-black">
@@ -33,36 +38,35 @@ const Main: React.FC = () => {
 
         {/* 이미지 섹션 */}
         {showLoadingLottie && (
-          <div className="flex flex-col items-center mt-40">
+          <div className="flex flex-col items-center justify-center mt-24 md:mt-24 lg:mt-24 h-[50vh]">
             <img
-              src="/images/NARRATIVA.webp"
+              src="/images/narrativa_main.webp"
               alt="Header Image"
-              className="w-auto h-[80px]"
+              className="w-[50vw] sm:w-[50vw] md:w-[50vw] lg:w-[50vw] max-w-[250px] h-auto object-contain"
             />
           </div>
         )}
 
-        {/* 아래쪽 애니메이션 섹션 */}
-        {showLoadingLottie && (
-          <div className="flex flex-col items-center justify-center w-full mt-10 ml-5">
-            <img src="/images/nati_1.gif" alt="NATI" className="w-auto h-64" />
-          </div>
-        )}
 
-        {/* START 버튼 섹션 */}
+        {/* 로그인 버튼들 */}
         {showLoadingLottie && (
-          <div className="flex flex-col items-center mt-10">
-            <Link to="/login">
+          <div className="flex flex-col items-center justify-center md:mt-0 lg:mt-0">
+            {photos.map((photo, index) => (
               <button
+                key={index}
                 onClick={() => {
-                  playSound(0); // 버튼 사운드 재생
-                  // handleStart(); // 배경음악 재생
+                  const link = photo.onClick();
+                  window.location.href = link;
                 }}
-                className="flex items-center justify-center font-custom-font text-white bg-custom-violet rounded"
+                className="mb-4 focus:outline-none flex justify-center w-full max-w-[200px]"
               >
-                START
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  className="w-full h-auto object-contain rounded-md"
+                />
               </button>
-            </Link>
+            ))}
           </div>
         )}
       </main>
