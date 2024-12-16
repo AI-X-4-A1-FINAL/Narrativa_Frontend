@@ -225,19 +225,22 @@ const Bookmarks: React.FC = () => {
             >
               이전
             </button>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                className={`px-4 py-2 rounded-full ${
-                  currentPage === index + 1
-                    ? "bg-custom-dark-violet text-white"
-                    : "bg-custom-violet text-white hover:bg-custom-dark-violet"
-                }`}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            {Array.from({ length: totalPages }, (_, index) => {
+              const isSelected = currentPage === index + 1; // 현재 페이지와 비교
+              return (
+                <button
+                  key={index + 1}
+                  className={`px-4 py-2 rounded-full ${
+                    isSelected
+                      ? "bg-custom-violet text-white" // 선택된 페이지: 보라색 배경, 흰 글씨
+                      : "bg-white text-black hover:bg-custom-violet hover:text-white" // 선택되지 않은 페이지: 흰 배경, 검정 글씨
+                  }`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
             <button
               className="px-4 py-2 rounded-full bg-custom-violet text-white hover:bg-custom-dark-violet"
               disabled={currentPage === totalPages}
