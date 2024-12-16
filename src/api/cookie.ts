@@ -8,24 +8,26 @@ interface UserInfo {
 }
 
 // 쿠키 파싱 함수
-export const parseCookieKeyValue = (inputString: string | null): Partial<UserInfo> | null => {
+export const parseCookieKeyValue = (
+  inputString: string | null
+): Partial<UserInfo> | null => {
   if (!inputString) {
     return null;
   }
 
   // 문자열 파싱 로직
-  const cleanedString = inputString.replace(/[{}]/g, '').trim();
+  const cleanedString = inputString.replace(/[{}]/g, "").trim();
   const keyValueObj: Partial<UserInfo> = {};
 
-  cleanedString.split(',+').forEach(pair => {
-    const [key, value] = pair.split('=');
+  cleanedString.split(",+").forEach((pair) => {
+    const [key, value] = pair.split("=");
     if (key && value) {
       const trimmedKey = key.trim() as keyof UserInfo;
       const trimmedValue = value.trim();
 
       switch (trimmedKey) {
-        case 'user_id':
-        case 'id':
+        case "user_id":
+        case "id":
           keyValueObj[trimmedKey] = parseInt(trimmedValue, 10); // number로 변환
           break;
         default:
