@@ -35,29 +35,15 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const [isBgmPlaying, setIsBgmPlaying] = useState(true);
 
-  useEffect(() => {
-    const gameRoutes = [
-      "/game-page",
-      "/game-intro",
-      "/game-world-view",
-      "/game-ending",
-    ];
-    if (gameRoutes.includes(location.pathname)) {
-      setIsBgmPlaying(false);
-    } else {
-      setIsBgmPlaying(true);
-    }
-  }, [location.pathname]);
-
   return (
     <>
       {headerState.isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-[100svh] items-center justify-between shadow-2xl">
+        <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl font-yang">
           {headerState.showHeader && <Header />}
           <main
-            className={`flex-grow w-full h-[100svh] max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
+            className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
               ${
                 headerState.isHeaderVisible && headerState.isPaddingRequired
                   ? "pt-32 px-4"

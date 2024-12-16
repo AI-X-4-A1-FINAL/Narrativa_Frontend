@@ -148,7 +148,7 @@ const GameWorldView: React.FC = () => {
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-between px-4">
+      <div className="absolute inset-0 flex flex-col items-center justify-between px-4 font-NanumBarunGothic">
         <div className="flex flex-col justify-center items-center w-full h-full max-w-2xl space-y-6">
           <h1 className="text-4xl font-bold text-center text-white drop-shadow-lg">
             {genre} 세계관
@@ -157,7 +157,7 @@ const GameWorldView: React.FC = () => {
           {/* 세계관 내용 */}
           <div
             className="flex-1 min-h-[50vh] max-h-[60vh] overflow-y-auto
-                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent"
+                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent "
           >
             {loading ? (
               <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
