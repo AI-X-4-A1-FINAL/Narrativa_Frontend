@@ -33,14 +33,15 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative bg-black p-6 rounded-lg shadow-lg max-w-lg w-full">
-            {/* <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+             <button
+              className="text-gray-500 hover:text-gray-800"
               onClick={onClose}
             >
               &times;
-            </button> */}
+            </button> 
 
-            <h2 className="text-center text-xl font-semibold mb-4">퍼즐 게임</h2> 
+            <h1 className="text-center text-xl font-semibold">퍼즐을 맞춰라!!!</h1> 
+            
             
 
             {/* 이미지 조각 생성 */}
