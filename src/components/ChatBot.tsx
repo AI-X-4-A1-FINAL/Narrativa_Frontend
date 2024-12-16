@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import axios from "../api/axiosInstance";
 import { Cookies } from "react-cookie";
@@ -32,36 +32,45 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
   const [showingAnalysis, setShowingAnalysis] = useState(false);
   const [showingHint, setShowingHint] = useState(false);
   const [iconPosition, setIconPosition] = useState<"center" | "left">("center");
-
-  // 토큰 가져오기
+  const [isProcessing, setIsProcessing] = useState(false); // 처리 중 상태 추가
+  const [fetchedStages, setFetchedStages] = useState<Set<string>>(new Set());
+ 
   const cookies = new Cookies();
   const cookieToken = cookies.get("token");
   const accessToken = parseCookieKeyValue(cookieToken)?.access_token;
-
-  const handleIconClick = async () => {
-    if (!showingHint) {
-      // 처음 클릭 시
-      setShowingHint(true);
-      // NPC 조언 가져오기
-      await fetchHint();
-      setTimeout(() => {
-        setIconPosition("left");
-        onToggle(); // 부모 컴포넌트에 알림
-      }, 100);
-    } else {
-      // 다시 클릭 시
-      setShowingHint(false);
-      setShowingAnalysis(false);
-      setCurrentChoiceIndex(0);
-      setShowComment(false);
-      setNpcAdvice(null);
-      // 아이콘 위치를 중앙으로 복귀
-      setIconPosition("center");
-      onToggle();
+ 
+  const getBestChoice = () => {
+    if (!npcAdvice?.response) return null;
+    
+    return Object.entries(npcAdvice.response).reduce((best, current) => {
+      return (best[1].survival_rate > current[1].survival_rate) ? best : current;
+    });
+  };
+ 
+  const handleNext = () => {
+    if (npcAdvice?.response) {
+      const maxIndex = Object.keys(npcAdvice.response).length - 1;
+      if (currentChoiceIndex < maxIndex) {
+        setCurrentChoiceIndex(prev => prev + 1);
+      } else if (currentChoiceIndex === maxIndex && !showComment) {
+        setShowComment(true); 
+      }
     }
   };
-
-  const fetchHint = async () => {
+ 
+  const fetchHint = useCallback(async () => {
+    if (!gameId || loading) return;
+    
+    // 이미 해당 스테이지의 데이터를 가져왔는지 확인
+    const stageKey = `${gameId}`; 
+    if (fetchedStages.has(stageKey)) {
+      // 이미 데이터가 있으면 바로 표시
+      setShowingHint(true);
+      setIconPosition("left");
+      onToggle();
+      return;
+    }
+  
     setLoading(true);
     try {
       const response = await axios.post(
@@ -70,21 +79,59 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           withCredentials: true
         }
       );
       setHint(response.data.npcMessage);
       setError(null);
+      // 가져온 스테이지 기록 및 바로 UI 표시
+      setFetchedStages(prev => new Set(prev).add(stageKey));
+      setShowingHint(true);
+      setIconPosition("left");
+      onToggle();
     } catch (error) {
       setError("조언을 가져오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [gameId, accessToken, loading, fetchedStages, onToggle]);
 
-  const handleAnalysis = async () => {
+
+ 
+  const handleIconClick = useCallback(async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    try {
+      if (!showingHint) {
+        await fetchHint();
+      } else {
+        // 닫기 동작
+        setShowingHint(false);
+        setShowingAnalysis(false);
+        setCurrentChoiceIndex(0);
+        setShowComment(false);
+        setIconPosition("center");
+        onToggle();
+      }
+    } finally {
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 500);
+    }
+  }, [showingHint, fetchHint, onToggle, isProcessing]);
+ 
+  const handleAnalysis = useCallback(async () => {
+    if (loading || !gameId) return;
+
+    const stageKey = `${gameId}_analysis`; // 분석 데이터용 별도 키
+    if (fetchedStages.has(stageKey)) {
+      setShowingAnalysis(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await axios.post<NPCAdvice>(
@@ -93,7 +140,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
         {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           withCredentials: true
         }
@@ -101,32 +148,24 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
       setNpcAdvice(response.data);
       setShowingAnalysis(true);
       setError(null);
+      // 분석 데이터 가져온 것 기록
+      setFetchedStages(prev => new Set(prev).add(stageKey));
     } catch (error) {
       setError("분석을 가져오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [gameId, accessToken, loading, fetchedStages]);
 
-  const getBestChoice = () => {
-    if (!npcAdvice?.response) return null;
-    
-    return Object.entries(npcAdvice.response).reduce((best, current) => {
-      return (best[1].survival_rate > current[1].survival_rate) ? best : current;
-    });
-  };
-
-  const handleNext = () => {
-    if (npcAdvice?.response) {
-      const maxIndex = Object.keys(npcAdvice.response).length - 1;
-      if (currentChoiceIndex < maxIndex) {
-        setCurrentChoiceIndex(prev => prev + 1);
-      } else if (currentChoiceIndex === maxIndex && !showComment) {
-        setShowComment(true);
-      }
-    }
-  };
-
+  useEffect(() => {
+    setNpcAdvice(null);
+    setHint(null);
+    setShowingAnalysis(false);
+    setShowingHint(false);
+    setCurrentChoiceIndex(0);
+    setShowComment(false);
+  }, [gameId]);
+ 
   return (
     <>
       {/* 챗봇 아이콘 */}
@@ -139,18 +178,20 @@ const ChatBot: React.FC<ChatBotProps> = ({ gameId, position, onToggle }) => {
       >
         <button
           onClick={handleIconClick}
-          className="bg-gray-800 bg-opacity-80 p-4 rounded-full shadow-lg hover:shadow-purple-500/50 
-                    hover:scale-110 transition-all duration-300 ease-out border border-purple-500/30"
+          disabled={isProcessing}
+          className={`bg-gray-800 bg-opacity-80 p-4 rounded-full shadow-lg 
+                     hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300 ease-out 
+                     border border-purple-500/30
+                     ${isProcessing ? 'cursor-not-allowed opacity-50' : ''}`}
         >
           <div className="w-10 h-10 relative flex items-center justify-center">
-            <div className="absolute inset-0 bg-purple-500 opacity-20 rounded-full animate-pulse"></div>
+            <div className={`absolute inset-0 bg-purple-500 opacity-20 rounded-full
+                          ${loading ? 'animate-ping' : 'animate-pulse'}`}></div>
             <img
               src="/images/nati.webp"
               alt="Chatbot"
-              className="w-8 h-8 object-contain relative z-10"
-              style={{
-                animation: "wiggle 2s infinite ease-in-out"
-              }}
+              className={`w-8 h-8 object-contain relative z-10 
+                       ${loading ? '' : 'animate-wiggle'}`}
             />
           </div>
         </button>
