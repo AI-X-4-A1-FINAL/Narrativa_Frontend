@@ -9,7 +9,7 @@ import { useNotification } from "../Contexts/NotificationContext";
 import { parseCookieKeyValue } from "../api/cookie";
 import { useSoundContext } from "../Contexts/SoundContext";
 import { useBGM } from "../Contexts/BGMContext";
-import { useSound } from "../hooks/useSound";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface UserProfileInfo {
   username: string;
@@ -20,6 +20,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate(); // navigate 훅을 사용하여 리디렉션
 
   const { isSoundOn, toggleSound } = useSoundContext();
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   // 개별 효과음 재생 (전역 상태와 독립적)
   const playIndividualSound = (soundSrc: string) => {
@@ -405,7 +406,7 @@ const Profile: React.FC = () => {
             <button
               className="w-48 grid place-items-center"
               onClick={() => {
-                playIndividualSound("/audios/button2.mp3");
+                playSound(0);
                 document.getElementById("fileInput")?.click();
               }}
             >
@@ -447,7 +448,7 @@ const Profile: React.FC = () => {
           {isEditMode && !isEditingNickname && (
             <button
               onClick={() => {
-                playIndividualSound("/audios/button2.mp3");
+                playSound(0);
                 setIsEditingNickname(true);
               }}
               className="absolute -right-8 top-5 text-lg ml-2"
@@ -465,7 +466,7 @@ const Profile: React.FC = () => {
       <div className="flex space-x-4">
         <button
           onClick={() => {
-            playIndividualSound("/audios/button2.mp3");
+            playSound(0);
             if (isEditMode) {
               handleSave(); // 수정 완료 로직
             } else {
@@ -480,15 +481,18 @@ const Profile: React.FC = () => {
 
       <div className="space-y-4">
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-800 border-gray-200 rounded mt-12 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
+        bg-white dark:bg-gray-700 border-gray-200 rounded mt-10 dark:text-white dark:border-opacity-10"
         >
-          <span className="mr-48">다크모드</span>
+          <span className="w-56 text-sm">다크모드</span>
           <div
-            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer overflow-hidden ${
               isDarkMode ? "bg-custom-violet" : "bg-gray-300"
             }`}
-            onClick={toggleDarkMode} // 전역 토글 함수 호출
+            onClick={() => {
+              playSound(0);
+              toggleDarkMode();
+            }} // 전역 토글 함수 호출
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
@@ -499,15 +503,18 @@ const Profile: React.FC = () => {
         </label>
 
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
+        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
-          <span className="mr-48">배경음악</span>
+          <span className="w-56 text-sm">배경음악</span>
           <div
-            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer overflow-hidden ${
               isPlaying ? "bg-custom-violet" : "bg-gray-300"
             }`}
-            onClick={toggleBGM}
+            onClick={() => {
+              playSound(0);
+              toggleBGM();
+            }}
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
@@ -517,15 +524,18 @@ const Profile: React.FC = () => {
           </div>
         </label>
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
+        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
-          <span className="mr-48">효과음</span>
+          <span className="w-56 text-sm">효과음</span>
           <div
-            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer overflow-hidden ${
               isSoundOn ? "bg-custom-violet" : "bg-gray-300"
             }`}
-            onClick={toggleSound} // toggleSound를 직접 호출
+            onClick={() => {
+              playSound(0);
+              toggleSound();
+            }} // toggleSound를 직접 호출
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
@@ -536,12 +546,12 @@ const Profile: React.FC = () => {
         </label>
 
         <label
-          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
-        bg-white dark:bg-gray-800 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
+          className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-sm dark:shadow-gray-950
+        bg-white dark:bg-gray-700 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
-          <span className="mr-48">공지사항</span>
+          <span className="w-56 text-sm">공지사항</span>
           <div
-            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${
+            className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer overflow-hidden ${
               isNotificationsOn ? "bg-custom-violet" : "bg-gray-300"
             }`}
             onClick={toggleNotifications}
@@ -559,7 +569,10 @@ const Profile: React.FC = () => {
         {/* 첫 번째 줄: 회원탈퇴, 로그아웃 */}
         <div className="flex space-x-2">
           <button
-            onClick={deactivateAccount}
+            onClick={() => {
+              playSound(0);
+              deactivateAccount();
+            }}
             disabled={isLoading}
             className="hover:underline"
           >
@@ -567,12 +580,25 @@ const Profile: React.FC = () => {
           </button>
           {error && <div style={{ color: "red" }}>{error}</div>}
           <span>|</span>
-          <button onClick={handleRemoveCookie}>로그아웃</button>
+          <button
+            onClick={() => {
+              playSound(0);
+              handleRemoveCookie();
+            }}
+          >
+            로그아웃
+          </button>
         </div>
 
         {/* 두 번째 줄: 개인정보처리방침 */}
         <div className="ml-2">
-          <button onClick={openModal} className="hover:underline">
+          <button
+            onClick={() => {
+              playSound(0);
+              openModal();
+            }}
+            className="hover:underline"
+          >
             개인정보처리방침
           </button>
         </div>
@@ -589,7 +615,10 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="pt-4 flex justify-end">
                   <button
-                    onClick={closeModal}
+                    onClick={() => {
+                      playSound(0);
+                      closeModal();
+                    }}
                     className="px-4 py-2 bg-custom-violet text-white rounded hover:bg-blue-600 transition-colors duration-200"
                   >
                     확인

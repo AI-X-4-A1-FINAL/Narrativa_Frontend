@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import S from '../layouts/Style.Puzzle';
-import ImageDivide from '../hooks/image_divide'; // ImageDivide 컴포넌트 import
-import usePuzzle from '../hooks/usePuzzle'; // 퍼즐 상태 관리 훅
+import S from "../layouts/Style.Puzzle";
+import ImageDivide from "../hooks/image_divide"; // ImageDivide 컴포넌트 import
+import usePuzzle from "../hooks/usePuzzle"; // 퍼즐 상태 관리 훅
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface PuzzleModalProps {
   isOpen: boolean; // 모달 열림 상태
@@ -15,8 +16,12 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   bgImage,
 }) => {
   const [pieces, setPieces] = useState<string[]>([]); // 분할된 이미지 조각들 저장
-  const { puzzle, dragEnter, dragStart, drop, scale } = usePuzzle(pieces, onClose); // usePuzzle 훅으로 퍼즐 상태 관리
+  const { puzzle, dragEnter, dragStart, drop, scale } = usePuzzle(
+    pieces,
+    onClose
+  ); // usePuzzle 훅으로 퍼즐 상태 관리
   const [isGameFinished, setIsGameFinished] = useState(false); // 게임 완료 상태
+  const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
 
   // ImageDivide에서 6등분된 이미지 조각을 받는 콜백
   const handlePiecesGenerated = (newPieces: string[]) => {
@@ -33,21 +38,25 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative bg-black p-6 rounded-lg shadow-lg max-w-lg w-full">
-             <button
+            <button
               className="text-gray-500 hover:text-gray-800"
-              onClick={onClose}
+              onClick={() => {
+                playSound(0);
+                onClose();
+              }}
             >
               &times;
-            </button> 
+            </button>
 
-            <h1 className="text-center text-xl font-semibold">퍼즐을 맞춰라!!!</h1> 
-            
-            
+            <h1 className="text-center text-xl font-semibold">PUZZLE GAME</h1>
+            <span className="dark:text-gray-300 text-black">
+              마우스를 드래그해서 퍼즐을 맞춰주세요
+            </span>
 
             {/* 이미지 조각 생성 */}
-            <ImageDivide 
+            <ImageDivide
               imageSrc={bgImage}
-              onPiecesGenerated={handlePiecesGenerated} 
+              onPiecesGenerated={handlePiecesGenerated}
             />
 
             {/* 퍼즐 게임 */}
@@ -57,10 +66,21 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
                   key={idx}
                   gridArea={idx}
                   hoverScale={scale}
-                  onDragStart={() => dragStart(idx)}
-                  onDragEnter={() => dragEnter(idx)}
-                  onDragOver={(e: React.DragEvent<HTMLDivElement>) => e.preventDefault()}
-                  onDragEnd={drop}
+                  onDragStart={() => {
+                    playSound(1); // 드래그 시작 시 사운드 재생
+                    dragStart(idx);
+                  }}
+                  onDragEnter={() => {
+                    playSound(2); // 드래그 중 다른 박스로 들어갈 때 사운드 재생
+                    dragEnter(idx);
+                  }}
+                  onDragOver={(e: React.DragEvent<HTMLDivElement>) =>
+                    e.preventDefault()
+                  }
+                  onDragEnd={() => {
+                    playSound(3); // 드래그가 끝날 때 사운드 재생
+                    drop();
+                  }}
                   draggable
                 >
                   <S.PuzzleImg src={url} alt={`${num}조각`} />

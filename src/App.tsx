@@ -1,5 +1,10 @@
-import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Main from "./user_pages/Main";
 import Login from "./user_pages/Login";
 import Home from "./user_pages/Home";
@@ -29,6 +34,22 @@ import { BGMProvider } from "./Contexts/BGMContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
+  const location = useLocation(); // 현재 라우트 확인
+  const [isBgmPlaying, setIsBgmPlaying] = useState(true);
+  // 특정 라우트에서 배경음 조정
+  useEffect(() => {
+    const gameRoutes = [
+      "/game-page",
+      "/game-intro",
+      "/game-world-view",
+      "/game-ending",
+    ];
+    if (gameRoutes.includes(location.pathname)) {
+      setIsBgmPlaying(false); // 게임 라우트에서 배경음 멈춤
+    } else {
+      setIsBgmPlaying(true); // 그 외 라우트에서 배경음 재생
+    }
+  }, [location.pathname]);
 
   return (
     <>
