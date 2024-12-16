@@ -43,7 +43,7 @@ const GamePage: React.FC = () => {
 
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
-  const { bgImage, generateImage } = useBackgroundImage(image);
+  const { bgImage, generateImage } = useBackgroundImage(image, genre);
   const { currentStage, goToNextStage } = useGameStage({
     maxStages: 5,
     onStageChange: () => {
@@ -303,9 +303,11 @@ const GamePage: React.FC = () => {
       {/* 퍼즐 모달 */}
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
-        onClose={handlePuzzleModalClose}
-        // onGameComplete={handleGameComplete}
-        bgImage = {bgImage}
+        onClose={() => {
+          playSound(0); // 효과음 재생
+          handlePuzzleModalClose(); // 모달 닫기 함수
+        }}
+        bgImage={bgImage}
       />
       {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
