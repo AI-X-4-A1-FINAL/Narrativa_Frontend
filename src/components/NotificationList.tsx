@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface Notice {
   id: number;
@@ -15,7 +16,8 @@ const NotificationList: React.FC = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,11 +28,13 @@ const NotificationList: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axios.get(`${process.env.REACT_APP_SPRING_URI}/api/notices`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_SPRING_URI}/api/notices`
+      );
       setNotices(response.data);
     } catch (err) {
-      setError('공지사항을 불러오는데 실패했습니다.');
-      console.error('Error fetching notices:', err);
+      setError("공지사항을 불러오는데 실패했습니다.");
+      console.error("Error fetching notices:", err);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +63,10 @@ const NotificationList: React.FC = () => {
           {notices.map((notice) => (
             <li
               key={notice.id}
-              onClick={() => handleNoticeClick(notice.id)}
+              onClick={() => {
+                playSound(0);
+                handleNoticeClick(notice.id);
+              }}
               className="p-4 bg-white dark:dark:bg-gray-800 rounded-lg shadow-lg 
                 dark:shadow-gray-950 hover:bg-gray-200 dark:hover:bg-gray-600 
                 transition cursor-pointer"

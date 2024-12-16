@@ -78,7 +78,7 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="flex flex-col items-center w-full max-w-lg mx-auto p-4 bg-white dark:bg-custom-background text-black fixed top-0 z-10 dark:text-white">
+    <header className="flex flex-col items-center w-full max-w-lg mx-auto p-2 bg-white dark:bg-custom-background text-black fixed top-0 z-10 dark:text-white">
       <div className="flex justify-between items-center w-full">
         <Link
           to="/home"
@@ -143,9 +143,12 @@ const Header: React.FC = () => {
 
       {isNotificationsOn && location.pathname === "/home" && (
         <div
-          className="mt-2 bg-custom-violet dark:bg-gray-800 text-center p-2 rounded-lg cursor-pointer w-full 
+          className="mt-1 bg-custom-violet dark:bg-opacity-30 dark:bg-gray-700 text-center p-1 rounded-lg cursor-pointer w-72 
          hover:bg-custom-purple dark:hover:bg-indigo-900 dark:shadow-gray-950"
-          onClick={handleNotificationClick}
+          onClick={() => {
+            playSound(0);
+            handleNotificationClick();
+          }}
         >
           {isLoading ? (
             <p className="text-white dark:text-gray-300 text-sm tracking-widest">

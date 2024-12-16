@@ -45,7 +45,7 @@ export const BGMProvider: React.FC<{ children: React.ReactNode }> = ({
     <BGMContext.Provider value={{ isPlaying, toggleBGM }}>
       <audio
         ref={audioRef}
-        src="/audios/BGM6.mp3" // 배경음악 파일 경로
+        src="/audios/BGM1.mp3" // 배경음악 파일 경로
         loop
         preload="auto"
       />
