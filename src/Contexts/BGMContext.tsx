@@ -16,7 +16,7 @@ const BGMContext = createContext<BGMContextProps | undefined>(undefined);
 export const BGMProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleBGM = () => {

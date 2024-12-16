@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false); // 업로드 상태
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // 미리보기 이미지 상태
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);     // 개인정보처리방침 모달창 on/off
+  const [isOpen, setIsOpen] = useState<boolean>(false); // 개인정보처리방침 모달창 on/off
   const [policyText, setPolicyText] = useState<string>(""); // 개인정보처리방침 내용
 
   const handleToggle = (
@@ -555,43 +555,50 @@ const Profile: React.FC = () => {
         </label>
       </div>
 
-      <div className="text-sm text-gray-500 space-x-2 pt-1 mb-12 mt-24">
-        {/* 개인정보처리방침 버튼 */}
-        <button onClick={openModal}>개인정보처리방침</button>
+      <div className="text-sm text-gray-500 pt-1 mb-12 mt-24 space-y-2">
+        {/* 첫 번째 줄: 회원탈퇴, 로그아웃 */}
+        <div className="flex space-x-2">
+          <button
+            onClick={deactivateAccount}
+            disabled={isLoading}
+            className="hover:underline"
+          >
+            {isLoading ? "탈퇴 중..." : "회원탈퇴"}
+          </button>
+          {error && <div style={{ color: "red" }}>{error}</div>}
+          <span>|</span>
+          <button onClick={handleRemoveCookie}>로그아웃</button>
+        </div>
+
+        {/* 두 번째 줄: 개인정보처리방침 */}
+        <div className="ml-2">
+          <button onClick={openModal} className="hover:underline">
+            개인정보처리방침
+          </button>
+        </div>
 
         {/* 개인정보처리방침 모달창 */}
         {isOpen && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-96">
-            <div className="p-4 flex flex-col h-96">
-              <div className="flex-grow overflow-y-auto pr-2 scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-                <pre className="whitespace-pre-wrap break-words text-gray-700">{policyText}</pre>
-              </div>
-              <div className="pt-4 flex justify-end">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200"
-                >
-                  확인
-                </button>
+            <div className="bg-white rounded-lg shadow-lg w-96">
+              <div className="p-4 flex flex-col h-96">
+                <div className="flex-grow overflow-y-auto pr-2 scrollbar scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                  <pre className="whitespace-pre-wrap break-words text-gray-700">
+                    {policyText}
+                  </pre>
+                </div>
+                <div className="pt-4 flex justify-end">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-custom-violet text-white rounded hover:bg-blue-600 transition-colors duration-200"
+                  >
+                    확인
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          </div>
         )}
-        <span>|</span>
-        {/* 탈퇴 요청 버튼 */}
-        <button
-          onClick={deactivateAccount}
-          disabled={isLoading}
-          className="hover:underline"
-        >
-          {isLoading ? "탈퇴 중..." : "회원탈퇴"}
-        </button>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        <span>|</span>
-        {/* 로그 아웃 버튼 */}
-        <button onClick={handleRemoveCookie}>로그아웃</button>
       </div>
     </div>
   );
