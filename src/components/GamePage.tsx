@@ -40,6 +40,7 @@ const GamePage: React.FC = () => {
   const [isChoicesVisible, setIsChoicesVisible] = useState(false);
   const [isStoryComplete, setIsStoryComplete] = useState(false);
   const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false); // 퍼즐 모달 상태
+  const [isImageLoading, setIsImageLoading] = useState(false); // 이미지 로딩 상태
 
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
@@ -144,6 +145,8 @@ const GamePage: React.FC = () => {
 
       if (currentStage < 4) {
         setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
+        setIsImageLoading(true); // 이미지 로딩 시작
+
         const generatedImageResult = await generateImage(
           choiceText,
           genre,
@@ -155,6 +158,8 @@ const GamePage: React.FC = () => {
         if (!generatedImageResult) {
           throw new Error("이미지 생성에 실패했습니다.");
         }
+
+        setIsImageLoading(false); // 이미지 로딩 끝
 
         const response = await axios.post("/generate-story/chat", payload, {
           headers: {
@@ -300,6 +305,12 @@ const GamePage: React.FC = () => {
           )}
         </div>
       </div>
+      {/* 이미지 로딩 중 표시 */}
+      {isImageLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
+          <div className="text-white"> 다음스토리 생성 중...</div>
+        </div>
+      )}
       {/* 퍼즐 모달 */}
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
