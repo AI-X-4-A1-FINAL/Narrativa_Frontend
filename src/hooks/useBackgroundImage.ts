@@ -20,7 +20,8 @@ interface UseBackgroundImageReturn {
 }
 
 export const useBackgroundImage = (
-  initialImage: string
+  initialImage: string,
+  genre: string
 ): UseBackgroundImageReturn => {
   const [bgImage, setBgImage] = useState<string>(
     initialImage || "/images/game-start.jpeg"
@@ -81,25 +82,25 @@ export const useBackgroundImage = (
     }
   };
 
-  const fetchBackgroundImage = async () => {
+  const fetchBackgroundImage = async (genre: string) => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `${process.env.REACT_APP_SPRING_URI}/api/images/random`,
         {
-          method: "GET",
+          params: { genre }, // 쿼리 스트링으로 genre 전달
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          credentials: "include",
+          withCredentials: true,
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.data || !response.data.imageUrl) {
+        throw new Error("No image URL received from the server.");
       }
-      const data = await response.json();
-      setBgImage(data.imageUrl);
+
+      setBgImage(response.data.imageUrl);
     } catch (error) {
       console.error("Error fetching background image:", error);
       setBgImage("/images/pikachu.webp");
@@ -107,8 +108,8 @@ export const useBackgroundImage = (
   };
 
   useEffect(() => {
-    fetchBackgroundImage();
-  }, []);
+    fetchBackgroundImage(genre);
+  }, [genre]);
 
   return { bgImage, isLoading, generateImage };
 };

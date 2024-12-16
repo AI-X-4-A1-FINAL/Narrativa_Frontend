@@ -19,7 +19,7 @@ export const useMessageManagement = ({
   const [responses, setResponses] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const { generateImage, bgImage } = useBackgroundImage("/images/main.png");
+  const { generateImage, bgImage } = useBackgroundImage("/images/main.png", genre);
 
   // 메시지를 추가하는 함수
   const addMessage = (message: Message, stage: number) => {

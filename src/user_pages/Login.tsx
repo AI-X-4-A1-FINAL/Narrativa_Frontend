@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { getKakaoLoginLink } from '../api/kakaoApi';
 import { getGoogleLoginLink } from '../api/googleApi';
 import { useNavigate } from 'react-router-dom';
+import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
