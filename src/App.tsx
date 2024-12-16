@@ -20,8 +20,6 @@ import WrongPage from "./action/WrongPage";
 import Loading from "./action/Loading";
 import NotificationList from "./components/NotificationList";
 import Notification from "./components/Notification";
-import PromptPage from "./user_pages/PromptManagement";
-import TemplatePage from "./user_pages/TemplateManagement";
 import GameLayout from "./layouts/GameLayout";
 import useHeaderVisibility from "./hooks/useHeaderVisibility";
 import ParticleBackground from "./components/ParticleBackground";
@@ -76,8 +74,6 @@ const AppContent: React.FC = () => {
               <Route path="/loading" element={<Loading />} />
               <Route path="/notification-list" element={<NotificationList />} />
               <Route path="/notification/:id" element={<Notification />} />
-              <Route path="/prompts" element={<PromptPage />} />
-              <Route path="/template" element={<TemplatePage />} />
 
               {/* 게임 라우트 */}
               <Route
