@@ -5,7 +5,6 @@ import AuthGuard from "../api/accessControl";
 import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 import { statisticsService } from "../service/statisticsService";
-// import { useSound } from "../hooks/useSound";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface Genre {
@@ -31,50 +30,61 @@ declare global {
 }
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
+  const [cookie] = useCookies(["token"]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
+
+  // Fetch traffic statistics on mount
   useEffect(() => {
     statisticsService.incrementTraffic();
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
+  }, []);
 
-  const navigate = useNavigate();
-
-  // 쿠키 이름 배열을 전달하여 쿠키 값을 가져옵니다.
-  const [cookie, setCookie, removeCookie] = useCookies(["token"]);
-
-  // 회원 상태
-  const [userState, setUserState] = useState<string | null>(null);
-
-  // 유저 유효성 검증
-  const checkAuth = async (userId: number, accessToken: string) => {
-    const isAuthenticated = await AuthGuard(userId, accessToken);
-    // console.log('isAuthenticated: ', isAuthenticated);
-    if (!isAuthenticated) {
-      navigate("/");
-    }
-  };
-
+  // Handle authentication and display modal if first login
   useEffect(() => {
     const cookieToken = cookie.token;
-    // console.log('cookie: ', cookie);
-
-    cookieToken == null && navigate("/"); // cookieToken이 null일 때만 navigate("/")가 실행
+    if (!cookieToken) {
+      navigate("/");
+      return;
+    }
 
     const _cookieContent = parseCookieKeyValue(cookieToken);
-
-    if (_cookieContent == null) {
+    if (!_cookieContent) {
       navigate("/");
-    } else {
-      const userInfo: UserInfo = {
-        access_token: _cookieContent.access_token || "",
-        user_id: _cookieContent.user_id || 0,
-        profile_url: _cookieContent.profile_url || "",
-        loginType: _cookieContent.loginType || "",
-        id: _cookieContent.id || 0,
-        username: _cookieContent.username || "",
-      };
+      return;
     }
+
+    const userInfo: UserInfo = {
+      access_token: _cookieContent.access_token || "",
+      user_id: _cookieContent.user_id || 0,
+      profile_url: _cookieContent.profile_url || "",
+      loginType: _cookieContent.loginType || "",
+      id: _cookieContent.id || 0,
+      username: _cookieContent.username || "",
+    };
+
+    AuthGuard(userInfo.user_id, userInfo.access_token).then(
+      (isAuthenticated) => {
+        if (!isAuthenticated) {
+          navigate("/");
+          return;
+        }
+
+        // Check firstLoginShown flag safely
+        const firstLoginShown = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("firstLoginShown="))
+          ?.split("=")[1];
+
+        if (!firstLoginShown) {
+          setIsModalOpen(true);
+          document.cookie = `firstLoginShown=true; path=/;`;
+        }
+      }
+    );
   }, [cookie, navigate]);
 
-  // 장르 데이터 배열
+  // Genre data
   const genres: Genre[] = [
     {
       name: "Survival",
@@ -102,33 +112,48 @@ const Home: React.FC = () => {
     },
   ];
 
-  // 장르 클릭 핸들러
-  const handleClick = (
-    genre: string,
-    tags: string[],
-    image: string,
-    available: boolean
-  ) => {
-    if (!available) return;
+  // Handle genre click
+  const handleClick = (genre: Genre) => {
+    if (!genre.available) return;
 
-    // Google Analytics 게임 시작 이벤트 추적
     window.dataLayer.push({
       event: "game_start",
-      game_name: genre,
-      game_tags: tags.join(","),
+      game_name: genre.name,
+      game_tags: genre.tags.join(","),
     });
 
+    playSound(0);
     navigate("/game-intro", {
       state: {
-        genre,
-        tags,
-        image,
+        genre: genre.name,
+        tags: genre.tags,
+        image: genre.image,
       },
     });
   };
-  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
+
+  // Close modal
+  const closeModal = () => setIsModalOpen(false);
+
   return (
-    <div className="mt-0 w-full text-black min-h-screen overflow-y-auto bg-white mt-2">
+    <div className="mt-0 w-full text-black min-h-screen overflow-y-auto bg-white">
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-bold mb-4">환영합니다!</h2>
+            <p className="mb-4">처음 로그인하셨습니다. 즐거운 시간 되세요!</p>
+            <button
+              onClick={closeModal}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Genre Cards */}
       <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
         {genres.map((genre) => (
           <div
@@ -139,15 +164,7 @@ const Home: React.FC = () => {
               className={`relative ${
                 genre.available ? "cursor-pointer" : "cursor-not-allowed"
               }`}
-              onClick={() => {
-                playSound(0);
-                handleClick(
-                  genre.name,
-                  genre.tags,
-                  genre.image,
-                  genre.available
-                );
-              }}
+              onClick={() => handleClick(genre)}
             >
               <img
                 src={genre.image}
@@ -180,6 +197,8 @@ const Home: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Scroll Indicator */}
       <ScrollIndicator />
     </div>
   );
