@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import S from "../layouts/Style.Puzzle";
-import ImageDivide from "../hooks/image_divide"; // ImageDivide 컴포넌트 import
-import usePuzzle from "../hooks/usePuzzle"; // 퍼즐 상태 관리 훅
+import ImageDivide from "../hooks/image_divide";
+import usePuzzle from "../hooks/usePuzzle";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface PuzzleModalProps {
-  isOpen: boolean; // 모달 열림 상태
-  onClose: () => void; // 모달 닫기 함수
+  isOpen: boolean;
+  onClose: () => void;
   bgImage: string;
 }
 
@@ -15,26 +15,79 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   onClose,
   bgImage,
 }) => {
-  const [pieces, setPieces] = useState<string[]>([]); // 분할된 이미지 조각들 저장
+  const [pieces, setPieces] = useState<string[]>([]);
   const { puzzle, dragEnter, dragStart, drop, scale } = usePuzzle(
     pieces,
     onClose
-  ); // usePuzzle 훅으로 퍼즐 상태 관리
-  const [isGameFinished, setIsGameFinished] = useState(false); // 게임 완료 상태
+  );
+  const [isGameFinished, setIsGameFinished] = useState(false);
   const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
+  
+  // 터치 관련 상태 및 ref
+  const [touchedPiece, setTouchedPiece] = useState<number | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const puzzleRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // ImageDivide에서 6등분된 이미지 조각을 받는 콜백
   const handlePiecesGenerated = (newPieces: string[]) => {
-    setPieces(newPieces); // 조각 상태 업데이트
+    setPieces(newPieces);
   };
 
-  const handleGameComplete = () => {
-    setIsGameFinished(true); // 게임 완료로 상태 변경
+  // 특정 좌표에 있는 퍼즐 조각 찾기
+  const findPuzzlePieceAtPosition = (x: number, y: number) => {
+    return puzzleRefs.current.findIndex((ref) => {
+      if (!ref) return false;
+      const rect = ref.getBoundingClientRect();
+      return (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+      );
+    });
   };
+
+  // 터치 이벤트 핸들러
+  const handleTouchStart = (idx: number, e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    setTouchedPiece(idx);
+    dragStart(idx);
+    playSound(1);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchedPiece === null || !touchStartPos.current) return;
+
+    const touch = e.touches[0];
+    const currentPiece = findPuzzlePieceAtPosition(touch.clientX, touch.clientY);
+
+    if (currentPiece !== -1 && currentPiece !== touchedPiece) {
+      dragEnter(currentPiece);
+      playSound(2);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchedPiece !== null) {
+      drop();
+      playSound(3);
+      setTouchedPiece(null);
+      touchStartPos.current = null;
+    }
+  };
+
+  // 스크롤 방지
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen]);
 
   return (
     <>
-      {/* 배경 오버레이 */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative bg-black p-6 rounded-lg shadow-lg max-w-lg w-full">
@@ -50,37 +103,41 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
 
             <h1 className="text-center text-xl font-semibold">PUZZLE GAME</h1>
             <span className="dark:text-gray-300 text-black">
-              마우스를 드래그해서 퍼즐을 맞춰주세요
+              마우스나 터치로 드래그해서 퍼즐을 맞춰주세요
             </span>
 
-            {/* 이미지 조각 생성 */}
             <ImageDivide
               imageSrc={bgImage}
               onPiecesGenerated={handlePiecesGenerated}
             />
 
-            {/* 퍼즐 게임 */}
             <S.Position>
               {puzzle.map(({ num, url }, idx) => (
                 <S.PuzzleBox
                   key={idx}
+                  ref={(el) => (puzzleRefs.current[idx] = el)}
                   gridArea={idx}
                   hoverScale={scale}
+                  // 기존 드래그 이벤트
                   onDragStart={() => {
-                    playSound(1); // 드래그 시작 시 사운드 재생
+                    playSound(1);
                     dragStart(idx);
                   }}
                   onDragEnter={() => {
-                    playSound(2); // 드래그 중 다른 박스로 들어갈 때 사운드 재생
+                    playSound(2);
                     dragEnter(idx);
                   }}
                   onDragOver={(e: React.DragEvent<HTMLDivElement>) =>
                     e.preventDefault()
                   }
                   onDragEnd={() => {
-                    playSound(3); // 드래그가 끝날 때 사운드 재생
+                    playSound(3);
                     drop();
                   }}
+                  // 터치 이벤트
+                  onTouchStart={(e) => handleTouchStart(idx, e)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   draggable
                 >
                   <S.PuzzleImg src={url} alt={`${num}조각`} />

@@ -244,7 +244,7 @@ const GamePage: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-screen text-white overflow-hidden">
+    <div className="relative w-full h-[100svh] text-white overflow-hidden">
       {/* 배경 이미지 */}
       <div className="absolute inset-0">
         <img
@@ -253,11 +253,12 @@ const GamePage: React.FC = () => {
           className="w-full h-full object-cover brightness-50"
         />
       </div>
+  
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-20">
         <button
           onClick={() => {
-            playSound(0); // 효과음 재생
+            playSound(0);
             navigate("/game-intro", { state: { genre, tags, image } });
           }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
@@ -267,22 +268,23 @@ const GamePage: React.FC = () => {
         <GameStageIndicator currentStage={currentStage} maxStages={5} />
         <button
           onClick={() => {
-            togglePlayPause(); // 볼륨 토글
-            playSound(0); // 효과음 재생
+            togglePlayPause();
+            playSound(0);
           }}
           className="bg-gray-800 p-2 rounded-full hover:bg-gray-700 transition-colors"
         >
           {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
       </div>
+  
       {/* 메인 컨텐츠 영역 */}
-      <div className="absolute top-24 left-0 w-full px-4 z-10">
+      <div className="absolute inset-x-0 top-24 px-4 z-10">
         <div className="mx-auto max-w-4xl">
           <div className="bg-gray-800/50 p-6 rounded-lg backdrop-blur-sm">
             {gameState.mainMessage}
           </div>
           {isStoryComplete && isChoicesVisible && (
-            <div className="mt-8">
+            <div className={`mt-6 ${chatBotPosition === "left" ? "mb-32" : "mb-4"}`}>
               {isLoading ? (
                 <div className="text-center">Loading...</div>
               ) : error ? (
@@ -293,8 +295,8 @@ const GamePage: React.FC = () => {
                     <button
                       key={index}
                       onClick={() => {
-                        playSound(0); // 효과음 재생
-                        handleChoice(choice); // 선택 처리
+                        playSound(0);
+                        handleChoice(choice);
                       }}
                       className="w-full bg-gray-800/70 text-white p-4 rounded-lg opacity-0 animate-fadeIn transition-all duration-300 hover:bg-gray-700/90 hover:scale-[1.02] border border-purple-500/20 backdrop-blur-sm"
                       style={{ animationDelay: `${index * 0.2}s` }}
@@ -308,29 +310,32 @@ const GamePage: React.FC = () => {
           )}
         </div>
       </div>
+  
       {/* 이미지 로딩 중 표시 */}
       {isImageLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
-          <div className="text-white"> 다음스토리 생성 중...</div>
+          <div className="text-white">다음스토리 생성 중...</div>
         </div>
       )}
+  
       {/* 퍼즐 모달 */}
       <PuzzleModal
         isOpen={isPuzzleModalOpen}
         onClose={() => {
-          playSound(0); // 효과음 재생
-          handlePuzzleModalClose(); // 모달 닫기 함수
+          playSound(0);
+          handlePuzzleModalClose();
         }}
         bgImage={bgImage}
       />
+  
       {/* ChatBot */}
       {isStoryComplete && isChatBotActive && (
         <ChatBot
           gameId={gameState.gameId}
           position={chatBotPosition}
           onToggle={() => {
-            playSound(0); // 효과음 재생
-            handleChatBotToggle(); // 챗봇 토글 함수
+            playSound(0);
+            handleChatBotToggle();
           }}
         />
       )}
