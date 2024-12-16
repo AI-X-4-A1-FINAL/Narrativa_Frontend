@@ -41,12 +41,13 @@ const AppContent: React.FC = () => {
         <Main />
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl font-yang">
+
           {headerState.showHeader && <Header />}
           <main
             className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
               ${
                 headerState.isHeaderVisible && headerState.isPaddingRequired
-                  ? "pt-32 px-4"
+                  ? "pt-24 px-4"
                   : ""
               }`}
           >

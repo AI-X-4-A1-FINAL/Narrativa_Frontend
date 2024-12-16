@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import AuthGuard from "../api/accessControl";
@@ -6,6 +6,7 @@ import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 import { statisticsService } from "../service/statisticsService";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
+import { useBGM } from "../Contexts/BGMContext";
 
 interface Genre {
   name: string;
@@ -32,29 +33,28 @@ declare global {
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [cookie] = useCookies(["token"]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // 로그인 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태
   const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
+  const isModalDisplayed = useRef(false);
 
-  // Fetch traffic statistics on mount
-  useEffect(() => {
-    statisticsService.incrementTraffic();
-  }, []);
-
-  // Handle authentication and display modal if first login
   useEffect(() => {
     const cookieToken = cookie.token;
+
     if (!cookieToken) {
+      console.log("로그인 토큰이 없습니다. 로그인 페이지로 리다이렉트합니다.");
       navigate("/");
       return;
     }
 
     const _cookieContent = parseCookieKeyValue(cookieToken);
     if (!_cookieContent) {
+      console.log("토큰 파싱 실패. 로그인 페이지로 리다이렉트합니다.");
       navigate("/");
       return;
     }
 
-    const userInfo: UserInfo = {
+    const userInfo = {
       access_token: _cookieContent.access_token || "",
       user_id: _cookieContent.user_id || 0,
       profile_url: _cookieContent.profile_url || "",
@@ -65,24 +65,33 @@ const Home: React.FC = () => {
 
     AuthGuard(userInfo.user_id, userInfo.access_token).then(
       (isAuthenticated) => {
-        if (!isAuthenticated) {
+        if (isAuthenticated) {
+          console.log("로그인 인증 성공.");
+          setIsAuthenticated(true);
+
+          // 로컬 스토리지에서 모달 표시 여부 확인
+          const hasSeenModal = localStorage.getItem("hasSeenModal");
+
+          // 모달이 이미 표시되었는지 확인
+          if (!isModalDisplayed.current) {
+            setIsModalOpen(true); // 모달 표시
+            isModalDisplayed.current = true; // 모달 상태 업데이트
+            console.log("모달 표시 상태 업데이트 완료");
+          }
+        } else {
+          console.log("로그인 인증 실패. 로그인 페이지로 리다이렉트합니다.");
           navigate("/");
-          return;
-        }
-
-        // Check firstLoginShown flag safely
-        const firstLoginShown = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("firstLoginShown="))
-          ?.split("=")[1];
-
-        if (!firstLoginShown) {
-          setIsModalOpen(true);
-          document.cookie = `firstLoginShown=true; path=/;`;
         }
       }
     );
   }, [cookie, navigate]);
+
+  // 모달 닫기
+  const closeModal = () => {
+    console.log("모달 닫기 실행");
+    setIsModalOpen(false);
+    playSound(1); // 효과음 재생
+  };
 
   // Genre data
   const genres: Genre[] = [
@@ -132,23 +141,34 @@ const Home: React.FC = () => {
     });
   };
 
-  // Close modal
-  const closeModal = () => setIsModalOpen(false);
-
   return (
-    <div className="mt-0 w-full text-black min-h-screen overflow-y-auto bg-white">
+    <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2 font-yang">
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-bold mb-4">환영합니다!</h2>
-            <p className="mb-4">처음 로그인하셨습니다. 즐거운 시간 되세요!</p>
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              닫기
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-lg shadow-2xl border border-gray-700">
+            {/* 외곽 테두리 빛나는 효과 */}
+            <div className="absolute inset-0 rounded-lg border-2 border-opacity-50 border-purple-500 blur-lg"></div>
+
+            {/* 모달 콘텐츠 */}
+            <div className="relative z-10 text-center text-gray-300">
+              <h2 className="text-2xl font-extrabold text-purple-300 mb-4 glow-text">
+                🎮 환영합니다! 🎮
+              </h2>
+              <p className="mb-6 text-sm md:text-base tracking-wide">
+                나라티바와 함께 나만의 이야기를 만들어봐요!
+              </p>
+
+              <button
+                onClick={() => {
+                  playSound(0);
+                  closeModal();
+                }}
+                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-sm font-semibold rounded-lg shadow-md transform hover:scale-105 hover:shadow-purple-600 transition-transform duration-300"
+              >
+                시작하기
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -205,3 +225,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
