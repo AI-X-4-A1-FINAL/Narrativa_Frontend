@@ -1,3 +1,5 @@
+// src/components/GamePage.tsx
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -198,12 +200,13 @@ const GamePage: React.FC = () => {
 
         // 엔딩페이지로 넘어갈 때 음악 정지
         togglePlayPause();
-
+        console.log(endResponse.data);
         navigate("/game-ending", {
           state: {
             image: generatedImageResult.imageData,
             prompt: endResponse.data.story,
             genre,
+            survivalRate: endResponse.data.survival_rate
           },
         });
         return;

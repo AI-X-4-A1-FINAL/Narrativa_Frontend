@@ -65,7 +65,7 @@ const PromptPage: React.FC = () => {
   const fetchPrompts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get<PromptDTO[]>('/api/prompts', {
+      const response = await axios.get<PromptDTO[]>('/api/admin/prompts', {
         headers: {
           'X-API-Key': process.env.REACT_APP_API_KEY,
         },
@@ -88,7 +88,7 @@ const PromptPage: React.FC = () => {
     if (searchGenre.trim()) {
       try {
         setLoading(true);
-        const response = await axios.get<PromptDTO[]>(`/api/prompts/search?genre=${searchGenre}`, {
+        const response = await axios.get<PromptDTO[]>(`/api/admin/prompts/search?genre=${searchGenre}`, {
           headers: {
             'X-API-Key': process.env.REACT_APP_API_KEY,
           },
@@ -117,13 +117,13 @@ const PromptPage: React.FC = () => {
     try {
       setLoading(true);
       if (selectedPrompt) {
-        await axios.put(`/api/prompts/${selectedPrompt.id}`, formData, {
+        await axios.put(`/api/admin/prompts/${selectedPrompt.id}`, formData, {
           headers: {
             'X-API-Key': process.env.REACT_APP_API_KEY,
           },
         });
       } else {
-        await axios.post('/api/prompts', formData, {
+        await axios.post('/api/admin/prompts', formData, {
           headers: {
             'X-API-Key': process.env.REACT_APP_API_KEY,
           },
