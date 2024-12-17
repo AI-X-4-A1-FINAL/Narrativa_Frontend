@@ -8,7 +8,8 @@ const useHeaderVisibility = () => {
       "/delete-account", 
       "/", 
       "/game-page", 
-      "/game-world-view"
+      "/game-world-view",
+      "/game-intro"
     ];
     const noPaddingRoutes = ["/bookmarks"];
     
