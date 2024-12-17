@@ -15,6 +15,7 @@ import { parseCookieKeyValue } from "../api/cookie";
 import ChatBot from "./ChatBot";
 import PuzzleModal from "../components/PuzzleModal"; // PuzzleModal로 변경
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
+import InfoModal from "./InfoModal"
 
 interface GameState {
   mainMessage: string;
@@ -43,6 +44,16 @@ const GamePage: React.FC = () => {
   const [isStoryComplete, setIsStoryComplete] = useState(false);
   const [isPuzzleModalOpen, setIsPuzzleModalOpen] = useState(false); // 퍼즐 모달 상태
   const [isImageLoading, setIsImageLoading] = useState(false); // 이미지 로딩 상태
+
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
+  const [isModalShown, setIsModalShown] = useState<boolean>(false); // 모달을 한 번만 표시
+
+  
+
+  // 모달을 닫는 함수
+  const handleInfoModalClose = () => {
+    setIsInfoModalOpen(false);
+  };
 
   const { isAuthenticated } = useAuth();
   const { isPlaying, togglePlayPause, initializeMusic } = useAudio();
@@ -146,6 +157,9 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
+        if(currentStage === 0){
+          setIsInfoModalOpen(true)
+        }
         if(currentStage === 2){
           setIsPuzzleModalOpen(true);  // 퍼즐 모달을 열기
 
@@ -343,6 +357,12 @@ const GamePage: React.FC = () => {
           }}
         />
       )}
+      
+      {/* 챗봇 소개 모달 */}
+      {isInfoModalOpen && (
+        <InfoModal position="center" onToggle={handleInfoModalClose} />
+      )}
+
     </div>
   );
 };
