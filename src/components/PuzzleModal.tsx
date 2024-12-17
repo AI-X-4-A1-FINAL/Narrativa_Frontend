@@ -111,7 +111,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
     <>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-lg shadow-2xl max-w-md w-full">
+          <div className="relative bg-white from-gray-800 to-gray-900 p-6 rounded-lg shadow-2xl max-w-md w-full">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
               onClick={() => {
@@ -125,7 +125,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
             <h1 className="text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-600 mb-6">
               ⚡ PUZZLE GAME ⚡
             </h1>
-            <div className="text-center dark:text-gray-300 text-white mb-8">
+            <div className="text-center dark:text-gray-300 text-black mb-8">
               마우스나 터치로 드래그해서 퍼즐을 맞춰주세요
             </div>
 

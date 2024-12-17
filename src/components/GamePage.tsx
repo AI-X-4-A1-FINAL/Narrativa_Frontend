@@ -157,9 +157,9 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        // if (currentStage === 2) {
-        setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
-        // }
+        if (currentStage === 2) {
+          setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
+        }
 
         setIsImageLoading(true); // 이미지 로딩 시작
 
