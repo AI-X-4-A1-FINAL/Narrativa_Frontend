@@ -80,7 +80,10 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
         {/* 확인 버튼 */}
         <div className="mt-8 flex justify-center">
           <button
-            onClick={onToggle}
+            onClick={() => {
+              playSound(0);
+              onToggle();
+            }}
             className="px-6 py-3 text-white text-lg font-bold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-110 transition-transform duration-300"
           >
             ▶
