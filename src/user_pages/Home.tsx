@@ -42,14 +42,14 @@ const Home: React.FC = () => {
     const cookieToken = cookie.token;
 
     if (!cookieToken) {
-      console.log("로그인 토큰이 없습니다. 로그인 페이지로 리다이렉트합니다.");
+      
       navigate("/");
       return;
     }
 
     const _cookieContent = parseCookieKeyValue(cookieToken);
     if (!_cookieContent) {
-      console.log("토큰 파싱 실패. 로그인 페이지로 리다이렉트합니다.");
+     
       navigate("/");
       return;
     }
@@ -66,7 +66,7 @@ const Home: React.FC = () => {
     AuthGuard(userInfo.user_id, userInfo.access_token).then(
       (isAuthenticated) => {
         if (isAuthenticated) {
-          console.log("로그인 인증 성공.");
+          
           setIsAuthenticated(true);
 
           // 로컬 스토리지에서 모달 표시 여부 확인
@@ -76,10 +76,10 @@ const Home: React.FC = () => {
           if (!isModalDisplayed.current) {
             setIsModalOpen(true); // 모달 표시
             isModalDisplayed.current = true; // 모달 상태 업데이트
-            console.log("모달 표시 상태 업데이트 완료");
+            
           }
         } else {
-          console.log("로그인 인증 실패. 로그인 페이지로 리다이렉트합니다.");
+          
           navigate("/");
         }
       }
@@ -88,7 +88,7 @@ const Home: React.FC = () => {
 
   // 모달 닫기
   const closeModal = () => {
-    console.log("모달 닫기 실행");
+    
     setIsModalOpen(false);
     playSound(1); // 효과음 재생
   };
@@ -113,12 +113,12 @@ const Home: React.FC = () => {
       image: "/images/simulation.webp",
       available: true,
     },
-    {
-      name: "Mystery",
-      tags: ["스릴러", "범죄"],
-      image: "/images/detective.webp",
-      available: false,
-    },
+    // {
+    //   name: "Mystery",
+    //   tags: ["스릴러", "범죄"],
+    //   image: "/images/detective.webp",
+    //   available: false,
+    // },
   ];
 
   // Handle genre click
@@ -142,16 +142,16 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2 font-yang">
-      {/* Modal */}
+    <div className="w-full text-black min-h-screen overflow-y-auto bg-white mt-2 font-NanumBarunGothic">
+      {/* Modal
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-lg shadow-2xl border border-gray-700">
+          <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-lg shadow-2xl border border-gray-700"> */}
             {/* 외곽 테두리 빛나는 효과 */}
-            <div className="absolute inset-0 rounded-lg border-2 border-opacity-50 border-purple-500 blur-lg"></div>
+            {/* <div className="absolute inset-0 rounded-lg border-2 border-opacity-50 border-purple-500 blur-lg"></div> */}
 
             {/* 모달 콘텐츠 */}
-            <div className="relative z-10 text-center text-gray-300">
+            {/* <div className="relative z-10 text-center text-gray-300">
               <h2 className="text-2xl font-extrabold text-purple-300 mb-4 glow-text">
                 🎮 환영합니다! 🎮
               </h2>
@@ -171,52 +171,53 @@ const Home: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Genre Cards */}
-      <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
-        {genres.map((genre) => (
-          <div
-            key={genre.name}
-            className="w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
-          >
-            <div
-              className={`relative ${
-                genre.available ? "cursor-pointer" : "cursor-not-allowed"
-              }`}
-              onClick={() => handleClick(genre)}
-            >
-              <img
-                src={genre.image}
-                alt={`${genre.name} Genre Cover`}
-                className={`w-full h-[400px] object-cover rounded-2xl ${
-                  !genre.available && "opacity-50"
-                }`}
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
-                <div>
-                  <h3 className="text-2xl font-bold">{genre.name}</h3>
-                  <div className="mt-2">
-                    {genre.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-block text-sm font-semibold mr-2 px-2 py-1 rounded-full bg-gray-800 bg-opacity-60"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  {!genre.available && (
-                    <div className="mt-2 text-2xl font-bold text-orange-400">
-                      Coming Soon
-                    </div>
-                  )}
-                </div>
-              </div>
+<div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
+  {genres.map((genre) => (
+    <div
+      key={genre.name}
+      className="w-full max-w-[95%] sm:max-w-md md:max-w-md lg:max-w-md xl:max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
+    >
+      <div
+        className={`relative ${
+          genre.available ? "cursor-pointer" : "cursor-not-allowed"
+        }`}
+        onClick={() => handleClick(genre)}
+      >
+        <img
+          src={genre.image}
+          alt={`${genre.name} Genre Cover`}
+          className={`w-full h-[55svh] object-cover rounded-2xl ${
+            !genre.available && "opacity-50"
+          }`}
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
+          <div>
+            <h3 className="text-2xl font-bold">{genre.name}</h3>
+            <div className="mt-2">
+              {genre.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-block text-sm font-semibold mr-2 px-2 py-1 rounded-full bg-gray-800 bg-opacity-60"
+                >
+                  #{tag}
+                </span>
+              ))}
             </div>
+            {!genre.available && (
+              <div className="mt-2 text-2xl font-bold text-orange-400">
+                Coming Soon
+              </div>
+            )}
           </div>
-        ))}
+        </div>
       </div>
+    </div>
+  ))}
+</div>
+
 
       {/* Scroll Indicator */}
       <ScrollIndicator />
