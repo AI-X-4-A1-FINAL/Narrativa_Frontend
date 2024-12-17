@@ -40,7 +40,7 @@ const AppContent: React.FC = () => {
       {headerState.isMainPage ? (
         <Main />
       ) : (
-        <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl font-yang">
+        <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl font-NanumBarunGothic">
 
           {headerState.showHeader && <Header />}
           <main

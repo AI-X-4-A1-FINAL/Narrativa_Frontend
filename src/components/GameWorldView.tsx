@@ -162,7 +162,7 @@ const GameWorldView: React.FC = () => {
             {loading ? (
               <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white" />
-                <p className="text-lg">세계관을 불러오는 중...</p>
+                <p className="text-xl">당신의 선택에 스토리가 달려있습니다..</p>
               </div>
             ) : error ? (
               <div className="h-full w-full flex flex-col items-center justify-center text-red-500 text-center">
@@ -199,9 +199,9 @@ const GameWorldView: React.FC = () => {
             >
               <span className="font-bold text-2xl ">
                 {loading
-                  ? "이제, 모든 선택은 당신의 몫입니다."
+                  ? ""
                   : error
-                  ? "다시 시도"
+                  ? ""
                   : "게임 시작하기"}
               </span>
             </button>

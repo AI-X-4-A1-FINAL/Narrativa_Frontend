@@ -100,7 +100,7 @@ const Header: React.FC = () => {
           animationData={noticeLottie}
           loop={true}
           autoplay={true}
-          className="w-[3svh] h-[3svh] dark:invert " // 크기를 일정하게 설정
+          className="w-[3svh] h-[3svh] " // 크기를 일정하게 설정
         />
       </div>
 
@@ -123,8 +123,9 @@ const Header: React.FC = () => {
         </button>
 
         {isMenuOpen && (
-          <div className="absolute right-0 mt-[1svh] w-[20svh] bg-white dark:bg-custom-background border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg transition ease-out duration-200">
+          <div className="absolute right-0 w-[20svh] bg-white dark:bg-custom-background border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg transition ease-out duration-200">
             <ul className="flex flex-col p-[1svh]">
+            
               <li>
                 <Link
                   to="/profile"
@@ -147,6 +148,18 @@ const Header: React.FC = () => {
                   }}
                 >
                   History
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/notification-list"
+                  className="block px-[2svh] py-[1svh] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                  onClick={() => {
+                    playSound(0);
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  Notification
                 </Link>
               </li>
             </ul>

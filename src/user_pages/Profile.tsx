@@ -473,7 +473,7 @@ const Profile: React.FC = () => {
               setIsEditMode(true); // 수정 모드 활성화
             }
           }}
-          className={`px-10 py-2 text-white rounded my-2 bg-custom-violet shadow-lg dark:shadow-gray-950 hover:bg-blue-900 dark:text-white`}
+          className={`px-10 py-2 text-white rounded my-2 bg-custom-violet shadow-lg dark:shadow-lg hover:bg-blue-900 dark:text-white`}
         >
           {isEditMode ? "수정 완료" : "회원 수정"}
         </button>

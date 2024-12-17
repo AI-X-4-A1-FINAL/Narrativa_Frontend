@@ -59,7 +59,7 @@ const GameIntro: React.FC = () => {
     <img
       src={image}
       alt={genre}
-      className=" h-auto object-cover shadow-xl transform group-hover:scale-[1.01] transition duration-300 rounded-3xl border-[20px] border-white dark:border-[rgb(23,21,21)]"
+      className=" h-auto object-cover shadow-xl transform group-hover:scale-[1.01] transition duration-300 rounded-3xl border-[10px] border-white dark:border-[rgb(23,21,21)]"
     />
     {/* 좌측 상단의 작은 이미지 */}
     <div className="absolute top-4 left-4">
