@@ -91,21 +91,21 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   }, [isOpen]);
 
   // 카운트다운 타이머
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     setCountdown(10); // 모달이 열릴 때 10초로 초기화
-  //     const timer = setInterval(() => {
-  //       setCountdown((prev) => {
-  //         if (prev <= 1) {
-  //           clearInterval(timer); // 타이머 정지
-  //           onClose(); // 타이머 종료 후 모달 닫기
-  //         }
-  //         return prev - 1;
-  //       });
-  //     }, 1000);
-  //     return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
-  //   }
-  // }, [isOpen, onClose]);
+  useEffect(() => {
+    if (isOpen) {
+      setCountdown(10); // 모달이 열릴 때 10초로 초기화
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer); // 타이머 정지
+            onClose(); // 타이머 종료 후 모달 닫기
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
+    }
+  }, [isOpen, onClose]);
 
   return (
     <>
