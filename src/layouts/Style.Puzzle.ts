@@ -18,7 +18,6 @@ const Position = styled.div`
     'leftTop rightTop'
     'leftBot rightBot'
     'leftBot2 rightBot2';
-  margin: 150px auto;
   z-index: 3;
   transition: 1s;
   transform: scale(1);

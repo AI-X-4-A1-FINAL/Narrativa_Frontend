@@ -98,19 +98,19 @@ const Home: React.FC = () => {
     {
       name: "Survival",
       tags: ["서바이벌", "살아남기"],
-      image: "/images/survival.webp",
+      image: "/images/survival_thumbnail.webp",
       available: true,
     },
     {
       name: "Romance",
       tags: ["사랑", "드라마"],
-      image: "/images/romance.webp",
+      image: "/images/romance_thumbnail.webp",
       available: true,
     },
     {
       name: "Simulation",
       tags: ["시뮬레이션", "라이프"],
-      image: "/images/simulation.webp",
+      image: "/images/simulation_thumbnail.webp",
       available: true,
     },
     // {
