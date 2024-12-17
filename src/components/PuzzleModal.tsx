@@ -94,7 +94,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   // 카운트다운 타이머
   useEffect(() => {
     if (isOpen) {
-      setCountdown(5); // 모달이 열릴 때 5초로 초기화
+      setCountdown(10); // 모달이 열릴 때 5초로 초기화
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
