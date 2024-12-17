@@ -6,7 +6,6 @@ import ScrollIndicator from "../components/ScrollIndicator";
 import { parseCookieKeyValue } from "../api/cookie";
 import { statisticsService } from "../service/statisticsService";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
-import { useBGM } from "../Contexts/BGMContext";
 
 interface Genre {
   name: string;
@@ -31,25 +30,23 @@ declare global {
 }
 
 const Home: React.FC = () => {
+  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
   const navigate = useNavigate();
   const [cookie] = useCookies(["token"]);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // 로그인 상태
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태
-  const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
   const isModalDisplayed = useRef(false);
 
   useEffect(() => {
     const cookieToken = cookie.token;
 
     if (!cookieToken) {
-      
       navigate("/");
       return;
     }
 
     const _cookieContent = parseCookieKeyValue(cookieToken);
     if (!_cookieContent) {
-     
       navigate("/");
       return;
     }
@@ -66,7 +63,6 @@ const Home: React.FC = () => {
     AuthGuard(userInfo.user_id, userInfo.access_token).then(
       (isAuthenticated) => {
         if (isAuthenticated) {
-          
           setIsAuthenticated(true);
 
           // 로컬 스토리지에서 모달 표시 여부 확인
@@ -76,10 +72,8 @@ const Home: React.FC = () => {
           if (!isModalDisplayed.current) {
             setIsModalOpen(true); // 모달 표시
             isModalDisplayed.current = true; // 모달 상태 업데이트
-            
           }
         } else {
-          
           navigate("/");
         }
       }
@@ -88,7 +82,6 @@ const Home: React.FC = () => {
 
   // 모달 닫기
   const closeModal = () => {
-    
     setIsModalOpen(false);
     playSound(1); // 효과음 재생
   };
@@ -121,10 +114,11 @@ const Home: React.FC = () => {
     // },
   ];
 
-  // Handle genre click
+  // 장르 선택 핸들러
   const handleClick = (genre: Genre) => {
     if (!genre.available) return;
 
+    if (!window.dataLayer) window.dataLayer = [];
     window.dataLayer.push({
       event: "game_start",
       game_name: genre.name,
@@ -147,11 +141,11 @@ const Home: React.FC = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 rounded-lg shadow-2xl border border-gray-700"> */}
-            {/* 외곽 테두리 빛나는 효과 */}
-            {/* <div className="absolute inset-0 rounded-lg border-2 border-opacity-50 border-purple-500 blur-lg"></div> */}
+      {/* 외곽 테두리 빛나는 효과 */}
+      {/* <div className="absolute inset-0 rounded-lg border-2 border-opacity-50 border-purple-500 blur-lg"></div> */}
 
-            {/* 모달 콘텐츠 */}
-            {/* <div className="relative z-10 text-center text-gray-300">
+      {/* 모달 콘텐츠 */}
+      {/* <div className="relative z-10 text-center text-gray-300">
               <h2 className="text-2xl font-extrabold text-purple-300 mb-4 glow-text">
                 🎮 환영합니다! 🎮
               </h2>
@@ -174,50 +168,49 @@ const Home: React.FC = () => {
       )} */}
 
       {/* Genre Cards */}
-<div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
-  {genres.map((genre) => (
-    <div
-      key={genre.name}
-      className="w-full max-w-[95%] sm:max-w-md md:max-w-md lg:max-w-md xl:max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
-    >
-      <div
-        className={`relative ${
-          genre.available ? "cursor-pointer" : "cursor-not-allowed"
-        }`}
-        onClick={() => handleClick(genre)}
-      >
-        <img
-          src={genre.image}
-          alt={`${genre.name} Genre Cover`}
-          className={`w-full h-[55svh] object-cover rounded-2xl ${
-            !genre.available && "opacity-50"
-          }`}
-        />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
-          <div>
-            <h3 className="text-2xl font-bold">{genre.name}</h3>
-            <div className="mt-2">
-              {genre.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-block text-sm font-semibold mr-2 px-2 py-1 rounded-full bg-gray-800 bg-opacity-60"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-            {!genre.available && (
-              <div className="mt-2 text-2xl font-bold text-orange-400">
-                Coming Soon
+      <div className="flex flex-col items-center dark:bg-custom-background dark:text-white">
+        {genres.map((genre) => (
+          <div
+            key={genre.name}
+            className="w-full max-w-[95%] sm:max-w-md md:max-w-md lg:max-w-md xl:max-w-md mx-auto rounded-2xl overflow-hidden bg-gray-50 shadow-lg mb-6 group"
+          >
+            <div
+              className={`relative ${
+                genre.available ? "cursor-pointer" : "cursor-not-allowed"
+              }`}
+              onClick={() => handleClick(genre)}
+            >
+              <img
+                src={genre.image}
+                alt={`${genre.name} Genre Cover`}
+                className={`w-full h-[55svh] object-cover rounded-2xl ${
+                  !genre.available && "opacity-50"
+                }`}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white text-center p-4 opacity-100 group-hover:opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100">
+                <div>
+                  <h3 className="text-2xl font-bold">{genre.name}</h3>
+                  <div className="mt-2">
+                    {genre.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-block text-sm font-semibold mr-2 px-2 py-1 rounded-full bg-gray-800 bg-opacity-60"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  {!genre.available && (
+                    <div className="mt-2 text-2xl font-bold text-orange-400">
+                      Coming Soon
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
-
 
       {/* Scroll Indicator */}
       <ScrollIndicator />
@@ -226,4 +219,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-

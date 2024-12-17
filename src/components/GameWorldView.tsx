@@ -6,6 +6,7 @@ import { useAudio } from "../Contexts/AudioContext";
 import { useWorldView } from "../hooks/useWorldView";
 import { LocationState } from "../utils/messageTypes";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
+import InfoModal from "./InfoModal"; // 모달 컴포넌트 가져오기
 
 const GameWorldView: React.FC = () => {
   const location = useLocation();
@@ -14,6 +15,9 @@ const GameWorldView: React.FC = () => {
     (location.state as LocationState) || {};
   const [bgImage, setBgImage] = useState<string>(image);
   const [musicInitialized, setMusicInitialized] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); // 모달 표시 상태 추가
+  const [isNavigate, setIsNavigate] = useState(false); // 페이지 이동 여부 상태
+
   const loadingCompleteRef = useRef(false);
   const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
 
@@ -26,6 +30,22 @@ const GameWorldView: React.FC = () => {
     initialStory,
     isLoading || false
   );
+
+  // 모달 열기
+  const openModal = () => {
+    console.log("openModal 실행됨");
+    setIsModalVisible(true);
+    console.log("openModal 실행됨, 모달 상태:", true);
+  };
+
+  // 모달 닫기
+  const closeModalAndNavigate = () => {
+    setIsModalVisible(false);
+    setIsNavigate(true); // 페이지 이동 상태 설정
+  };
+  useEffect(() => {
+    console.log("모달 상태:", isModalVisible);
+  }, [isModalVisible]);
 
   useEffect(() => {
     if (
@@ -68,6 +88,10 @@ const GameWorldView: React.FC = () => {
   };
 
   const handleStartGame = async () => {
+    // 게임 시작 대신 모달 열기
+    console.log("게임 시작하기 버튼 클릭됨");
+    openModal();
+
     if (!isAuthenticated) {
       navigate("/");
       return;
@@ -115,7 +139,6 @@ const GameWorldView: React.FC = () => {
         />
         <div className="absolute inset-0 bg-black bg-opacity-50" />
       </div>
-
       {/* 상단 네비게이션 */}
       <div className="absolute top-4 flex justify-between w-full px-4 z-30">
         <button
@@ -146,7 +169,6 @@ const GameWorldView: React.FC = () => {
           )}
         </div>
       </div>
-
       {/* 메인 콘텐츠 */}
       <div className="absolute inset-0 flex flex-col items-center justify-between px-4 font-NanumBarunGothic">
         <div className="flex flex-col justify-center items-center w-full h-full max-w-2xl space-y-6">
@@ -157,7 +179,7 @@ const GameWorldView: React.FC = () => {
           {/* 세계관 내용 */}
           <div
             className="flex-1 min-h-[50vh] max-h-[60vh] overflow-y-auto
-                      scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent "
+                    scrollbar-thin scrollbar-thumb-custom-violet scrollbar-track-transparent "
           >
             {loading ? (
               <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
@@ -197,17 +219,18 @@ const GameWorldView: React.FC = () => {
               className="text-white py-4 px-8 rounded-lg animate-pulse 
               disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="font-bold text-2xl ">
-                {loading
-                  ? ""
-                  : error
-                  ? ""
-                  : "게임 시작하기"}
+              <span className="font-bold text-2xl">
+                {loading ? "" : error ? "" : "게임 시작하기"}
               </span>
             </button>
           </div>
         </div>
       </div>
+      {/* 모달 컴포넌트 최상위 추가 */}
+
+      {isModalVisible && (
+        <InfoModal position="center" onToggle={closeModalAndNavigate} />
+      )}
     </div>
   );
 };

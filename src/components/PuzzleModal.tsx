@@ -4,8 +4,7 @@ import ImageDivide from "../hooks/image_divide";
 import usePuzzle from "../hooks/usePuzzle";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 import countDownLottie from "./countdown.json"; // Lottie JSON file
-import Lottie from 'lottie-react'; // lottie-react 라이브러리에서 가져오기
-
+import Lottie from "lottie-react"; // lottie-react 라이브러리에서 가져오기
 
 interface PuzzleModalProps {
   isOpen: boolean;
@@ -25,7 +24,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   );
   const [isGameFinished, setIsGameFinished] = useState(false);
   const { playSound } = useMultipleSoundEffects(["/audios/button1.mp3"]);
-  
+
   // 터치 관련 상태 및 ref
   const [touchedPiece, setTouchedPiece] = useState<number | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
@@ -43,10 +42,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
       if (!ref) return false;
       const rect = ref.getBoundingClientRect();
       return (
-        x >= rect.left &&
-        x <= rect.right &&
-        y >= rect.top &&
-        y <= rect.bottom
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
       );
     });
   };
@@ -64,9 +60,10 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
     if (touchedPiece === null || !touchStartPos.current) return;
 
     const touch = e.touches[0];
-    const currentPiece = findPuzzlePieceAtPosition(touch.clientX, touch.clientY);
-
-    
+    const currentPiece = findPuzzlePieceAtPosition(
+      touch.clientX,
+      touch.clientY
+    );
 
     if (currentPiece !== -1 && currentPiece !== touchedPiece) {
       dragEnter(currentPiece);
@@ -86,9 +83,9 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   // 스크롤 방지
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
-        document.body.style.overflow = 'unset';
+        document.body.style.overflow = "unset";
       };
     }
   }, [isOpen]);
@@ -126,7 +123,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
             </button>
 
             <h1 className="text-center text-xl font-semibold">PUZZLE GAME</h1>
-            <div className="text-center dark:text-gray-300 text-white mb-8" >
+            <div className="text-center dark:text-gray-300 text-white mb-8">
               마우스나 터치로 드래그해서 퍼즐을 맞춰주세요
             </div>
 
@@ -144,8 +141,6 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
                 className="w-[40svh] h-[40svh] object-contain" // 애니메이션 크기 조정 및 object-contain 추가
               />
             </div> */}
-
-
 
             <ImageDivide
               imageSrc={bgImage}

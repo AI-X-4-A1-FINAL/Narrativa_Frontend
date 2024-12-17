@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Lottie from "lottie-react";
 import backLottie from "./Animation3.json";
-import { getKakaoLoginLink } from '../api/kakaoApi';
-import { getGoogleLoginLink } from '../api/googleApi';
+import { getKakaoLoginLink } from "../api/kakaoApi";
+import { getGoogleLoginLink } from "../api/googleApi";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 const Main: React.FC = () => {
@@ -15,8 +15,16 @@ const Main: React.FC = () => {
   };
 
   const photos = [
-    { src: '/images/kakaotalk.webp', alt: 'Kakao Login', onClick: getKakaoLoginLink },
-    { src: '/images/google.webp', alt: 'Google Login', onClick: getGoogleLoginLink },
+    {
+      src: "/images/kakaotalk.webp",
+      alt: "Kakao Login",
+      onClick: getKakaoLoginLink,
+    },
+    {
+      src: "/images/google.webp",
+      alt: "Google Login",
+      onClick: getGoogleLoginLink,
+    },
   ];
 
   return (
@@ -47,7 +55,6 @@ const Main: React.FC = () => {
           </div>
         )}
 
-
         {/* 로그인 버튼들 */}
         {showLoadingLottie && (
           <div className="flex flex-col items-center justify-center md:mt-0 lg:mt-0">
@@ -55,6 +62,7 @@ const Main: React.FC = () => {
               <button
                 key={index}
                 onClick={() => {
+                  playSound(0);
                   const link = photo.onClick();
                   window.location.href = link;
                 }}

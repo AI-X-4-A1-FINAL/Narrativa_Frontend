@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { X } from "lucide-react"; // 닫기 아이콘 사용
-import classNames from "classnames";
 
 interface InfoProps {
   position: "center" | "left";
@@ -21,16 +20,12 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
   }, [onToggle]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50">
       {/* 모달 박스 */}
       <div
-        className={classNames(
-          "relative w-full max-w-md p-6 bg-white rounded-lg shadow-lg",
-          {
-            "mx-auto": position === "center", // 중앙 정렬
-            "ml-0": position === "left", // 왼쪽 정렬
-          }
-        )}
+        className={`relative w-full max-w-md p-6 bg-white rounded-lg shadow-lg ${
+          position === "center" ? "mx-auto" : "ml-0"
+        }`}
       >
         {/* 닫기 버튼 */}
         <button
@@ -47,16 +42,20 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
 
         {/* 사용법 내용 */}
         <div className="text-gray-600 leading-relaxed">
+          <img
+            src="/infomodallogo.webp"
+            alt="AI 챗봇 안내 이미지"
+            className="w-32 h-32 mx-auto mb-4 rounded"
+          />
           <p>
             게임에 대한 설명을 도와주는 <strong>AI 챗봇</strong>이 있습니다.
           </p>
           <p className="mt-2">
-            궁금한 사항이나 게임 플레이에 대한 정보를 얻고 싶다면 챗봇에게
-            질문해 보세요. 🎮
+            생존 확률을 높이고 싶다면 힌트를 확인해 보세요. 🎮
           </p>
           <ul className="mt-3 list-disc list-inside">
-            <li>챗봇은 게임의 규칙과 스토리를 안내합니다.</li>
-            <li>간단한 질문을 입력하면 답변을 받을 수 있어요.</li>
+            <li>높이는 선택지에 대한 힌트를 제공합니다.</li>
+            <li>힌트를 확인하고 현명한 결정을 내려보세요.</li>
           </ul>
         </div>
 
@@ -64,7 +63,7 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
         <div className="mt-6 flex justify-end">
           <button
             onClick={onToggle}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-custom-violet text-white rounded hover:bg-blue-700"
           >
             확인
           </button>

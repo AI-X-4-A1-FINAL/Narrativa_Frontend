@@ -8,7 +8,7 @@ import { useDarkMode } from "../Contexts/DarkModeContext";
 import { useNotification } from "../Contexts/NotificationContext";
 import { parseCookieKeyValue } from "../api/cookie";
 import { useSoundContext } from "../Contexts/SoundContext";
-import { useBGM } from "../Contexts/BGMContext";
+
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface UserProfileInfo {
@@ -23,13 +23,15 @@ const Profile: React.FC = () => {
   const { playSound } = useMultipleSoundEffects(["/audios/button2.mp3"]);
 
   // 개별 효과음 재생 (전역 상태와 독립적)
-  const playIndividualSound = (soundSrc: string) => {
-    if (isSoundOn) {
-      const sound = new Howl({ src: [soundSrc], volume: 0.5 });
-      sound.play();
-    }
+  // const playIndividualSound = (soundSrc: string) => {
+  //   if (isSoundOn) {
+  //     const sound = new Howl({ src: [soundSrc], volume: 0.5 });
+  //     sound.play();
+  //   }
+  // };
+  const toggleBGM = () => {
+    playSound(0); // 토글 효과음 재생
   };
-  const { isPlaying, toggleBGM } = useBGM();
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
@@ -502,14 +504,14 @@ const Profile: React.FC = () => {
           </div>
         </label>
 
-        <label
+        {/* <label
           className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
         bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:shadow-gray-900 dark:bg-opacity-80 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
         >
           <span className="w-56 text-sm">배경음악</span>
           <div
             className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer overflow-hidden ${
-              isPlaying ? "bg-custom-violet" : "bg-gray-300"
+              bgmEnabled ? "bg-custom-violet" : "bg-gray-300"
             }`}
             onClick={() => {
               playSound(0);
@@ -518,11 +520,11 @@ const Profile: React.FC = () => {
           >
             <div
               className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                isPlaying ? "translate-x-6" : "translate-x-0"
+                bgmEnabled ? "translate-x-6" : "translate-x-0"
               }`}
             />
           </div>
-        </label>
+        </label> */}
         <label
           className="flex items-center cursor-pointer px-10 py-4 text-black border shadow-lg dark:shadow-gray-950
         bg-white dark:bg-[rgb(37,42,52)] bg-opacity-100 shadow-sm dark:shadow-gray-900 dark:bg-opacity-80 border-gray-200 rounded mt-4 dark:text-white dark:border-opacity-10"
