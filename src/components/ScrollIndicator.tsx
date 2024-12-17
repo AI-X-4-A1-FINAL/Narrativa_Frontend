@@ -19,7 +19,7 @@ const ScrollIndicator = () => {
   if (!showScroll) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-gray-800/80 text-white px-4 py-2 rounded-full backdrop-blur-sm animate-bounce">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-10 bg-gray-800/80 text-white px-4 py-2 rounded-full backdrop-blur-sm animate-bounce flex justify-center items-center">
       ↓
     </div>
   );

@@ -28,12 +28,10 @@ import { NotificationProvider } from "./Contexts/NotificationContext";
 import { SoundProvider } from "./Contexts/SoundContext";
 import { AudioProvider } from "./Contexts/AudioContext";
 import ParticleProvider from "./Contexts/ParticleContext";
-import { BGMProvider } from "./Contexts/BGMContext";
 
 const AppContent: React.FC = () => {
   const headerState = useHeaderVisibility();
   const location = useLocation();
-  const [isBgmPlaying, setIsBgmPlaying] = useState(true);
 
   return (
     <>
@@ -41,7 +39,6 @@ const AppContent: React.FC = () => {
         <Main />
       ) : (
         <div className="flex flex-col min-h-screen items-center justify-between shadow-2xl font-NanumBarunGothic">
-
           {headerState.showHeader && <Header />}
           <main
             className={`flex-grow w-full h-auto max-w-lg mx-auto bg-white dark:bg-custom-background dark:text-white 
@@ -107,36 +104,34 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <BGMProvider>
-    <SoundProvider>
-      {" "}
-      <DarkModeProvider>
-        <NotificationProvider>
-          <AudioProvider>
-            <ParticleProvider>
-              <div
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100svh",
-                  zIndex: -1,
-                }}
-              >
-                <ParticleBackground />
-              </div>
-              <Router>
-                <Routes>
-                  <Route path="/*" element={<AppContent />} />
-                </Routes>
-              </Router>
-            </ParticleProvider>
-          </AudioProvider>
-        </NotificationProvider>
-      </DarkModeProvider>
-    </SoundProvider>
-  </BGMProvider>
+  <SoundProvider>
+    {" "}
+    <DarkModeProvider>
+      <NotificationProvider>
+        <AudioProvider>
+          <ParticleProvider>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100svh",
+                zIndex: -1,
+              }}
+            >
+              <ParticleBackground />
+            </div>
+            <Router>
+              <Routes>
+                <Route path="/*" element={<AppContent />} />
+              </Routes>
+            </Router>
+          </ParticleProvider>
+        </AudioProvider>
+      </NotificationProvider>
+    </DarkModeProvider>
+  </SoundProvider>
 );
 
 export default App;
