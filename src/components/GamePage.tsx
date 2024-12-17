@@ -74,6 +74,9 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     const startGame = async () => {
+      if (currentStage === 0) {
+        setIsInfoModalOpen(true);
+      }
       setIsLoading(true);
       setError(null);
       try {
@@ -155,9 +158,6 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        if (currentStage === 0) {
-          setIsInfoModalOpen(true);
-        }
         if (currentStage === 2) {
           setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
         }
