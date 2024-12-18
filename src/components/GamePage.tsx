@@ -46,7 +46,6 @@ const GamePage: React.FC = () => {
   const [isImageLoading, setIsImageLoading] = useState(false); // 이미지 로딩 상태
 
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
-  const [isModalShown, setIsModalShown] = useState<boolean>(false); // 모달을 한 번만 표시
 
   // 모달을 닫는 함수
   const handleInfoModalClose = () => {
@@ -74,6 +73,9 @@ const GamePage: React.FC = () => {
 
   useEffect(() => {
     const startGame = async () => {
+      if (currentStage === 0) {
+        setIsInfoModalOpen(true);
+      }
       setIsLoading(true);
       setError(null);
       try {
@@ -155,9 +157,6 @@ const GamePage: React.FC = () => {
       };
 
       if (currentStage < 4) {
-        if (currentStage === 0) {
-          setIsInfoModalOpen(true);
-        }
         if (currentStage === 2) {
           setIsPuzzleModalOpen(true); // 퍼즐 모달을 열기
         }

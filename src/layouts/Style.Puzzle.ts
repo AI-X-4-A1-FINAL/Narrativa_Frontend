@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Container = styled.section`
   position: absolute;
@@ -17,9 +17,9 @@ const Position = styled.div`
   justify-content: center;
   align-items: center;
   grid-template-areas:
-    'leftTop rightTop'
-    'leftBot rightBot'
-    'leftBot2 rightBot2';
+    "leftTop rightTop"
+    "leftBot rightBot"
+    "leftBot2 rightBot2";
   z-index: 3;
   transition: 1s;
   transform: scale(1);
@@ -28,12 +28,12 @@ const Position = styled.div`
 `;
 
 const GRID_AREA: { [key: number]: string } = {
-  0: 'leftTop',
-  1: 'rightTop',
-  2: 'leftBot',
-  3: 'rightBot',
-  4: 'leftBot2',
-  5: 'rightBot2',
+  0: "leftTop",
+  1: "rightTop",
+  2: "leftBot",
+  3: "rightBot",
+  4: "leftBot2",
+  5: "rightBot2",
 };
 
 const PuzzleBox = styled.div<{ gridArea: number; hoverScale: boolean }>`
@@ -56,7 +56,8 @@ const PuzzleBox = styled.div<{ gridArea: number; hoverScale: boolean }>`
   padding: 0;
 
   :hover {
-    transform: ${({ hoverScale }) => hoverScale && 'scale(1.2) rotateY(15deg) rotateX(10deg)'};
+    transform: ${({ hoverScale }) =>
+      hoverScale && "scale(1.2) rotateY(15deg) rotateX(10deg)"};
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Hover 시 더 강한 그림자 */
   }
 

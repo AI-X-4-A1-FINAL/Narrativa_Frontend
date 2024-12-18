@@ -66,7 +66,10 @@ const GameIntro: React.FC = () => {
             src="/images/back_white.webp"
             alt="Back Icon"
             className="w-8 h-8 object-contain cursor-pointer hover:scale-110 transition-transform duration-300"
-            onClick={() => navigate("/home")}
+            onClick={() => {
+              playSound(0);
+              navigate("/home");
+            }}
           />
         </div>
       </div>

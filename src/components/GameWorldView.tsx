@@ -33,9 +33,7 @@ const GameWorldView: React.FC = () => {
 
   // 모달 열기
   const openModal = () => {
-    console.log("openModal 실행됨");
     setIsModalVisible(true);
-    console.log("openModal 실행됨, 모달 상태:", true);
   };
 
   // 모달 닫기
@@ -43,9 +41,7 @@ const GameWorldView: React.FC = () => {
     setIsModalVisible(false);
     setIsNavigate(true); // 페이지 이동 상태 설정
   };
-  useEffect(() => {
-    console.log("모달 상태:", isModalVisible);
-  }, [isModalVisible]);
+  useEffect(() => {}, [isModalVisible]);
 
   useEffect(() => {
     if (

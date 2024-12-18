@@ -110,10 +110,10 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="relative bg-[#020202] p-6 rounded-lg shadow-lg max-w-lg w-full h-full">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50">
+          <div className="relative bg-white from-gray-800 to-gray-900 p-6 rounded-lg shadow-2xl max-w-md w-full">
             <button
-              className="text-gray-500 hover:text-gray-800"
+              className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
               onClick={() => {
                 playSound(0);
                 onClose();
@@ -122,14 +122,22 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
               &times;
             </button>
 
-            <h1 className="text-center text-xl font-semibold">PUZZLE GAME</h1>
-            <div className="text-center dark:text-gray-300 text-white mb-8">
+            <h1 className="text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-600 mb-6">
+              ⚡ PUZZLE GAME ⚡
+            </h1>
+            <div className="text-center dark:text-gray-300 text-black mb-8">
               마우스나 터치로 드래그해서 퍼즐을 맞춰주세요
             </div>
 
             {/* 카운트다운 표시 */}
-            <div className="text-center text-3xl text-custom-violet font-bold mb-12">
-              남은 시간: {countdown}초
+            <div className="flex justify-center items-center">
+              <div className="relative inline-block">
+                <div className="absolute -inset-1 bg-purple-700 rounded-full blur-lg opacity-50 animate-pulse"></div>
+                <div className="relative text-4xl font-extrabold text-white tracking-widest">
+                  남은 시간:{" "}
+                  <span className="text-yellow-400">{countdown}</span>초
+                </div>
+              </div>
             </div>
 
             {/* Lottie 애니메이션과 퍼즐 영역을 같은 컨테이너에 배치 */}
