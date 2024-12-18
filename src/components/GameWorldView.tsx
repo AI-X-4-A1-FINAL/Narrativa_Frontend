@@ -215,7 +215,7 @@ const GameWorldView: React.FC = () => {
               className="text-white py-4 px-8 rounded-lg animate-pulse 
               disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="font-bold text-2xl">
+              <span className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent ">
                 {loading ? "" : error ? "" : "게임 시작하기"}
               </span>
             </button>

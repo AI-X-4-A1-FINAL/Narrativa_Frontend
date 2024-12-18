@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { X } from "lucide-react"; // 닫기 아이콘 사용
+import { X } from "lucide-react";
 import { useMultipleSoundEffects } from "../hooks/useMultipleSoundEffects";
 
 interface InfoProps {
@@ -25,7 +25,7 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50">
       {/* 모달 박스 */}
       <div
-        className={`relative w-full max-w-md p-6 bg-gray-100 rounded-lg shadow-lg ${
+        className={`relative w-full max-w-md p-6  bg-[#020202] rounded-lg shadow-lg ${
           position === "center" ? "mx-auto" : "ml-0"
         }`}
       >
@@ -39,8 +39,8 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
 
         {/* 모달 제목 */}
         {/* 사용법 내용 */}
-        <h2 className="text-4xl text-center font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-500 to-purple-400 animate-pulse">
-          ⚡ 챗봇 사용법 안내 ⚡
+        <h2 className="text-3xl text-center font-extrabold mb-6 bg-clip-text bg-gradient-to-r text-gray-200 ">
+          챗봇 사용법 안내
         </h2>
 
         {/* 사용법 내용 */}
@@ -55,8 +55,8 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
         </div>
 
         {/* 설명 */}
-        <p className="text-lg text-gray-700 text-center leading-relaxed">
-          게임에 대한 설명을 도와주는{" "}
+        <p className="text-lg text-white text-center leading-relaxed">
+          게임에 대한 설명을 해주는{" "}
           <strong className="text-purple-400">AI 챗봇</strong>이 있습니다.
         </p>
         <p className="mt-4 text-center text-gray-400 font-medium">
@@ -65,30 +65,17 @@ const InfoModal: React.FC<InfoProps> = ({ position, onToggle }) => {
         </p>
 
         {/* 리스트 */}
-        <ul className="mt-6 space-y-3 text-gray-600">
+        <ul className="mt-6 space-y-3 text-gray-300">
           <li className="flex items-center">
-            <span className="w-3 h-3 bg-blue-500 rounded-full animate-ping mr-2 "></span>
+            <span className="w-1 h-1 bg-blue-500 rounded-full animate-ping mr-2 "></span>
             선택지에 대한 힌트를 제공합니다.
           </li>
           <li className="flex items-center">
-            <span className="w-3 h-3 bg-blue-500 rounded-full animate-ping mr-2"></span>
+            <span className="w-1 h-1 bg-blue-500 rounded-full animate-ping mr-2"></span>
             힌트를 확인하고 현명한 결정을 내려보세요.
           </li>
         </ul>
         {/* </div> */}
-
-        {/* 확인 버튼 */}
-        <div className="mt-8 flex justify-center">
-          <button
-            onClick={() => {
-              playSound(0);
-              onToggle();
-            }}
-            className="px-6 py-3 text-white text-lg font-bold rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-110 transition-transform duration-300"
-          >
-            ▶
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -111,7 +111,7 @@ const PuzzleModal: React.FC<PuzzleModalProps> = ({
     <>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50">
-          <div className="relative bg-white from-gray-800 to-gray-900 p-6 rounded-lg shadow-2xl max-w-md w-full">
+          <div className="relative bg-gray-100 dark:bg-[#020202] from-gray-800 to-gray-900 p-6 rounded-lg shadow-2xl max-w-md w-full">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
               onClick={() => {

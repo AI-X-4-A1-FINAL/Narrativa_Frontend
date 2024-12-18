@@ -109,8 +109,7 @@ const GameIntro: React.FC = () => {
             playSound(0);
             handleStart();
           }}
-          className="relative px-8 py-4 font-extrabold animate-pulse bg-custom-violet rounded-2xl
-      text-white dark:bg-custom-violet dark:text-white transform hover:scale-105 active:scale-105 transition-all duration-300 text-2xl mb-12"
+          className="relative px-8 py-4 text-2xl text-white font-extrabold animate-pulse bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl hover:from-purple-700 hover:to-blue-700 transform hover:scale-110 transition-transform duration-300 mb-12"
         >
           Start Game
         </button>
